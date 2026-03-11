@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Broadpost
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Broadpost is a modern, full-stack blogging platform built for seamless content creation and consumption. It leverages a modern frontend stack paired with a robust Supabase backend to deliver a highly responsive and feature-rich experience for both administrators and readers.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Modern Architecture:** Built with React 19, Vite, and TypeScript for optimal development and production performance.
+- **Robust Backend:** Powered by Supabase for PostgreSQL database, authentication, row-level security (RLS), and media storage.
+- **Rich Text Editing:** Integrated Markdown editor (`@uiw/react-md-editor`) for crafting beautifully formatted blog posts.
+- **State Management:** Efficient server state management and data fetching using `@tanstack/react-query`.
+- **Form Handling:** Robust form validation and submission handling with `react-hook-form`.
+- **Elegant UI:** Styled with Tailwind CSS for a fully responsive, utility-first design approach. Beautiful iconography provided by `lucide-react`.
+- **User Notifications:** Real-time feedback with toast notifications using `react-hot-toast`.
+- **Routing:** Client-side routing managed by `react-router-dom`.
 
-## React Compiler
+## 🛠️ Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend Framework:** React 19
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS, PostCSS, Autoprefixer
+- **Backend/BaaS:** Supabase 
+- **Data Fetching:** React Query (TanStack Query)
+- **Icons:** Lucide React
 
-## Expanding the ESLint configuration
+## 📦 Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Ensure you have the following installed to run this project:
+- [Node.js](https://nodejs.org/) (v20+ recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- A [Supabase](https://supabase.com/) account and project.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd broadpost
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+   - Create a `.env.local` file in the root of the project.
+   - You can copy the structure from `.env.example` if available.
+   - Add your Supabase credentials:
+     ```env
+     VITE_SUPABASE_URL=your_supabase_project_url
+     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+     ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   The application will be available at `http://localhost:5173`.
+
+## 🏗️ Build for Production
+
+To create a production-ready build, run:
+```bash
+npm run build
+```
+This command compiles the application into the `dist` directory, optimizing the final payload. You can preview the production build locally with:
+```bash
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧹 Code Quality
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+This project is configured with ESLint for maintaining code quality and ensuring best practices:
+```bash
+npm run lint
 ```
+
+## 📄 License
+
+This project is private and intended for authorized internal use and client distribution only.

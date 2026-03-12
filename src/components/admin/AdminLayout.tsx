@@ -1,64 +1,84 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, MessageSquare, LogOut, Settings } from 'lucide-react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, FileText, PlusSquare, MessageSquare, LogOut, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdmin } from '../../hooks/useAdmin';
 
-export function AdminLayout() {
-  const navigate = useNavigate();
+export default function AdminLayout() {
+  const { loading } = useAdmin();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate('/admin/login');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   const navItems = [
-    { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/admin/posts', icon: FileText, label: 'Posts' },
-    { to: '/admin/comments', icon: MessageSquare, label: 'Comments' },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Posts', path: '/admin/posts', icon: FileText },
+    { name: 'New Post', path: '/admin/posts/new', icon: PlusSquare },
+    { name: 'Comments', path: '/admin/comments', icon: MessageSquare },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-[#E6E6E6] flex flex-col fixed inset-y-0 z-10">
-        <div className="h-16 flex items-center px-6 border-b border-[#E6E6E6]">
-          <span className="text-xl font-black tracking-tighter">BROADPOST</span>
-          <span className="ml-2 text-xs font-semibold uppercase text-gray-400 tracking-wider">Admin</span>
+      <aside className="w-64 bg-primary text-white flex flex-col hidden sm:flex fixed h-full z-10">
+        <div className="h-16 flex items-center justify-center border-b border-gray-800">
+          <Link to="/" className="font-serif font-bold text-2xl tracking-tight">BROADPOST</Link>
         </div>
-
-        <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-black text-white'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-black'
-                }`
-              }
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+        
+        <nav className="flex-1 py-6 px-4 space-y-2">
+          {navItems.map(item => {
+            const isActive = location.pathname.startsWith(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`flex items-center space-x-3 px-4 py-3 rounded transition-colors ${
+                  isActive ? 'bg-accent-blue text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <Icon size={20} />
+                <span className="font-medium font-sans">{item.name}</span>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-4 border-t border-[#E6E6E6]">
+        <div className="p-4 border-t border-gray-800">
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors w-full px-4 py-3 rounded hover:bg-gray-800"
           >
-            <LogOut className="w-5 h-5" />
-            <span>Sign Out</span>
+            <LogOut size={20} />
+            <span className="font-medium font-sans">Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-8">
-        <Outlet />
+      <main className="flex-1 sm:ml-64 flex flex-col min-h-screen relative z-0">
+        {/* Mobile Header */}
+        <header className="sm:hidden h-16 bg-white border-b border-border flex items-center px-4 justify-between">
+          <Link to="/" className="font-serif font-bold text-xl text-primary">BROADPOST</Link>
+          <button onClick={handleLogout} className="p-2 text-primary hover:bg-gray-100 rounded">
+            <LogOut size={20} />
+          </button>
+        </header>
+
+        <div className="flex-1 p-4 md:p-8 bg-gray-50 overflow-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

@@ -1,68 +1,118 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getTrendingPosts, getFeaturedPosts, getCategories } from '../../lib/api';
+import { Skeleton } from '../ui/Skeleton';
+import { PostCard } from '../blog/PostCard';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { TrendingUp, Hash } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Sidebar() {
-  const categories = ['Finance', 'Business', 'Markets', 'Economy', 'Tech', 'World'];
+  const { data: trending, isLoading: trendingLoading } = useQuery({
+    queryKey: ['trending'],
+    queryFn: getTrendingPosts
+  });
+
+  const { data: editorsPicks, isLoading: editorsPicksLoading } = useQuery({
+    queryKey: ['editorsPicks'],
+    queryFn: getFeaturedPosts
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories
+  });
 
   return (
-    <aside className="space-y-10 py-8 sticky top-20">
+    <aside className="space-y-12 sticky top-24">
       
+      {/* Trending Now */}
+      <div>
+        <div className="bg-primary text-white px-4 py-2 mb-6">
+          <h3 className="font-sans font-bold uppercase tracking-widest text-sm">Trending Now</h3>
+        </div>
+        
+        {trendingLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-0">
+            {trending?.map((post, index) => (
+              <Link to={`/blog/${post.slug}`} key={post.id} className="group flex items-start py-4 border-b border-gray-100 cursor-pointer">
+                <span className="font-serif font-bold text-3xl text-gray-200 mr-4 w-8">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h4 className="font-sans font-bold text-[15px] leading-tight text-primary group-hover:text-accent-blue transition-colors mb-1">
+                    {post.title}
+                  </h4>
+                  <span className="text-accent-blue font-bold text-[10px] uppercase tracking-wider block">
+                    {post.category?.name || 'News'}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Editor's Picks */}
+      <div>
+        <div className="flex items-center justify-between mb-6 border-b-2 border-primary pb-2">
+          <h3 className="font-serif font-bold text-xl text-primary">Editor's Picks</h3>
+        </div>
+        
+        {editorsPicksLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+          </div>
+        ) : (
+          <div className="flex flex-col divide-y divide-gray-100">
+            {editorsPicks?.slice(0, 3).map((post) => (
+              <PostCard key={post.id} post={post} variant="small" />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Newsletter Signup */}
-      <div className="bg-gray-50 p-6 rounded-xl border border-[#E6E6E6]">
-        <h3 className="font-bold text-lg mb-2 text-black">Stay in the loop</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Get the latest posts delivered right to your inbox. No spam, ever.
-        </p>
-        <form className="space-y-2" onSubmit={(e) => e.preventDefault()}>
-          <Input placeholder="Your email address" type="email" />
-          <Button className="w-full" variant="primary">Subscribe</Button>
+      <div className="bg-primary text-white p-8">
+        <h3 className="font-serif font-bold text-2xl mb-4 leading-tight">Get BROADPOST in your inbox</h3>
+        <p className="font-sans text-sm text-gray-300 mb-6">Sign up for our daily newsletter and get the most important stories curated by our editors.</p>
+        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+          <Input 
+            type="email" 
+            placeholder="Email address" 
+            required
+            className="border-none"
+          />
+          <Button type="submit" fullWidth className="font-bold tracking-widest uppercase bg-accent-blue hover:bg-blue-800 text-white border-none">
+            Subscribe
+          </Button>
         </form>
+        <p className="text-xs text-gray-400 mt-4 leading-relaxed tracking-wide">
+          By signing up, you accept and agree to our Terms of Service and Privacy Policy.
+        </p>
       </div>
 
       {/* Popular Categories */}
-      <div>
-        <h3 className="font-bold text-sm tracking-widest text-gray-400 uppercase mb-4 flex items-center">
-          <Hash className="w-4 h-4 mr-2" />
-          Discover More
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <Link
-              key={cat}
-              to={`/category/${cat.toLowerCase()}`}
-              className="inline-block bg-gray-100 px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
-            >
-              {cat}
-            </Link>
-          ))}
+      {categories && categories.length > 0 && (
+        <div className="hidden lg:block">
+          <div className="flex items-center justify-between mb-6 border-b-2 border-primary pb-2">
+            <h3 className="font-serif font-bold text-xl text-primary">Popular Categories</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat: any) => (
+              <Link 
+                key={cat.id} 
+                to={`/category/${cat.slug}`}
+                className="px-4 py-2 border border-border rounded-full font-sans text-xs font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-colors"
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Trending Mini-Posts Placeholder */}
-      <div>
-        <h3 className="font-bold text-sm tracking-widest text-gray-400 uppercase mb-4 flex items-center">
-          <TrendingUp className="w-4 h-4 mr-2" />
-          Trending Now
-        </h3>
-        <div className="space-y-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex gap-4 items-start group cursor-pointer">
-              <span className="text-3xl font-bold text-gray-200 leading-none group-hover:text-gray-300 transition-colors">
-                0{i}
-              </span>
-              <div>
-                <Link to={`/blog/mock-post-${i}`} className="font-bold text-sm text-gray-900 group-hover:underline line-clamp-2">
-                  The future of artificial intelligence in modern finance and trading algorithms
-                </Link>
-                <div className="text-xs text-gray-500 mt-1">Mar 10 &middot; 5 min read</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
     </aside>
   );

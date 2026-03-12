@@ -1,51 +1,82 @@
 import React from 'react';
-import { Post } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { getPosts } from '../../lib/api';
 import { PostCard } from './PostCard';
 import { Skeleton } from '../ui/Skeleton';
+import { Button } from '../ui/Button';
 
 interface PostGridProps {
-  posts: Post[];
-  isLoading?: boolean;
+  categoryId?: string;
 }
 
-export function PostGrid({ posts, isLoading }: PostGridProps) {
+export function PostGrid({ categoryId }: PostGridProps) {
+  const [page, setPage] = React.useState(1);
+  const limit = 7; // 1 large + 6 normal cards
+  
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['posts', { status: 'published', category_id: categoryId, page, limit }],
+    queryFn: () => getPosts({ status: 'published', category_id: categoryId }, { page, limit }),
+    // In a real app we would use useInfiniteQuery for "Load More"
+  });
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="flex flex-col gap-4">
-            <Skeleton className="w-full aspect-[4/3] rounded-xl" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-full mt-2" />
-            <div className="flex items-center mt-2 gap-3">
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-32" />
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="space-y-8">
+        <Skeleton className="w-full h-[250px]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {[1, 2, 3, 4].map(i => (
+             <div key={i} className="space-y-3">
+               <Skeleton className="w-full aspect-[16/10]" />
+               <Skeleton className="w-20 h-4" />
+               <Skeleton className="w-full h-6" />
+               <Skeleton className="w-2/3 h-6" />
+             </div>
+          ))}
+        </div>
       </div>
     );
   }
+
+  if (isError || !data?.data) {
+    return <div className="text-red-500 py-8 text-center font-sans">Error loading posts. Please try again later.</div>;
+  }
+
+  const posts = data.data;
 
   if (posts.length === 0) {
-    return (
-      <div className="text-center py-20 border border-dashed border-[#E6E6E6] rounded-2xl">
-        <h3 className="text-xl font-bold text-black mb-2">No posts found</h3>
-        <p className="text-gray-500">Check back later for new content.</p>
-      </div>
-    );
+    return <div className="text-gray-500 py-8 text-center font-sans tracking-wide">No posts found in this category.</div>;
   }
 
+  const firstPost = posts[0];
+  const restPosts = posts.slice(1);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-12">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+    <div>
+      {/* First large post */}
+      {firstPost && (
+        <PostCard post={firstPost} variant="horizontal" />
+      )}
+
+      {/* Grid for remaining posts */}
+      {restPosts.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
+          {restPosts.map(post => (
+            <PostCard key={post.id} post={post} variant="standard" />
+          ))}
+        </div>
+      )}
+
+      {data.count && data.count > page * limit && (
+        <div className="mt-12 flex justify-center">
+          <Button 
+            variant="outline" 
+            className="w-full max-w-xs font-bold tracking-widest uppercase border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
+            onClick={() => setPage(p => p + 1)}
+          >
+            Load More Stories
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,40 +1,134 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { PenSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Search, Menu, X, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { formatDate } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
-export function Navbar() {
+const NAV_LINKS = [
+  { name: 'Home', path: '/' },
+  { name: 'Business', path: '/category/business' },
+  { name: 'Finance', path: '/category/finance' },
+  { name: 'Markets', path: '/category/markets' },
+  { name: 'Economy', path: '/category/economy' },
+  { name: 'Tech', path: '/category/tech' },
+  { name: 'World', path: '/category/world' },
+  { name: 'Opinion', path: '/category/opinion' },
+];
+
+export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const today = formatDate(new Date().toISOString());
+
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-[#E6E6E6]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-2xl font-black tracking-tighter">
+    <>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
+        {/* Top bar */}
+        <div className="bg-primary text-white h-10 flex items-center justify-between px-4 lg:px-8 text-xs font-sans tracking-wide">
+          <div className="flex items-center space-x-3 w-1/2 overflow-hidden whitespace-nowrap">
+            <span className="bg-accent-red text-white font-bold px-2 py-0.5 rounded-sm uppercase flex-shrink-0">Breaking</span>
+            <span className="truncate">Global markets react to new economic policies announced today.</span>
+          </div>
+          <div className="flex items-center space-x-6 hidden md:flex">
+            <span>{today}</span>
+            <div className="flex items-center space-x-3">
+              <a href="#" className="hover:text-gray-300"><Twitter size={14} /></a>
+              <a href="#" className="hover:text-gray-300"><Linkedin size={14} /></a>
+              <a href="#" className="hover:text-gray-300"><Facebook size={14} /></a>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Navbar */}
+        <div className="bg-white border-b border-border h-[76px] flex items-center justify-between px-4 lg:px-8">
+          <div className="flex items-center lg:hidden">
+            <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-primary hover:bg-gray-100 rounded">
+              <Menu size={24} />
+            </button>
+          </div>
+
+          <div className="flex-1 flex justify-center lg:justify-start lg:flex-none">
+            <Link to="/" className="font-serif font-bold text-3xl lg:text-4xl text-primary tracking-tight">
               BROADPOST
             </Link>
           </div>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link to="/" className="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</Link>
-            <Link to="/category/finance" className="text-sm font-medium text-gray-700 hover:text-black transition-colors">Categories</Link>
-            <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</Link>
+
+          <nav className="hidden lg:flex items-center space-x-8">
+            {NAV_LINKS.map(link => {
+              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+              return (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`font-sans text-sm font-semibold uppercase tracking-wide py-2 border-b-2 transition-colors ${
+                    isActive ? 'border-accent-red text-primary' : 'border-transparent text-gray-700 hover:text-primary hover:border-gray-300'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Link to="/admin/login">
-              <span className="text-sm text-gray-600 hover:text-black mr-4 cursor-pointer hidden sm:inline-block">
-                Sign In
-              </span>
-            </Link>
-            <Link to="/admin">
-              <Button className="rounded-full flex items-center space-x-2">
-                <PenSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Write</span>
-              </Button>
-            </Link>
+            <button className="p-2 text-primary hover:bg-gray-100 rounded hidden sm:block">
+              <Search size={20} />
+            </button>
+            <Button size="sm" className="hidden sm:inline-flex uppercase text-xs font-bold tracking-wider">
+              Subscribe
+            </Button>
+            {/* Mobile search icon */}
+            <button className="p-2 text-primary sm:hidden">
+              <Search size={20} />
+            </button>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] bg-white flex flex-col items-center justify-center p-8 lg:hidden">
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="absolute top-6 right-6 p-2 text-primary"
+          >
+            <X size={32} />
+          </button>
+          
+          <div className="mb-12">
+            <span className="font-serif font-bold text-4xl text-primary">BROADPOST</span>
+          </div>
+          
+          <nav className="flex flex-col items-center space-y-6 w-full">
+            {NAV_LINKS.map(link => (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className="font-sans text-2xl font-bold uppercase tracking-wider text-primary border-b-2 border-transparent hover:border-primary pb-1"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+          
+          <div className="mt-auto pt-12 flex space-x-6">
+             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Twitter size={24} /></a>
+             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Linkedin size={24} /></a>
+             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Facebook size={24} /></a>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

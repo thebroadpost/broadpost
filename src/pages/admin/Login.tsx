@@ -1,22 +1,33 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import toast from 'react-hot-toast';
+import { useAdmin } from '../../hooks/useAdmin';
 
-export function Login() {
-  const navigate = useNavigate();
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAdmin();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -24,49 +35,47 @@ export function Login() {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message || 'Failed to login');
       setLoading(false);
     } else {
+      toast.success('Welcome back!');
       navigate('/admin/dashboard');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-sm border border-[#E6E6E6]">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded shadow-sm border border-border">
         <div>
-          <Link to="/">
-            <h2 className="text-center text-3xl font-black tracking-tighter text-black">
-              BROADPOST
-            </h2>
-          </Link>
-          <h2 className="mt-6 text-center text-xl font-bold text-gray-900">
-            Sign in to your dashboard
+          <h2 className="text-center text-4xl font-extrabold font-serif text-primary tracking-tight">
+            BROADPOST
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-500 font-sans uppercase tracking-widest">
+            Staff Portal
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm text-center">
-              {error}
-            </div>
-          )}
           <div className="space-y-4">
             <Input
+              label="Email address"
               id="email"
               name="email"
               type="email"
               autoComplete="email"
               required
-              label="Email address"
-              placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="editor@broadpost.com"
             />
             <Input
+              label="Password"
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
               required
-              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
           </div>
@@ -74,10 +83,12 @@ export function Login() {
           <div>
             <Button
               type="submit"
-              className="w-full"
-              isLoading={loading}
+              disabled={loading}
+              fullWidth
+              size="lg"
+              className="font-bold tracking-wider"
             >
-              Sign in
+              {loading ? 'Entering...' : 'Sign in'}
             </Button>
           </div>
         </form>

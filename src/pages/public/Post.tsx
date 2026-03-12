@@ -1,151 +1,269 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { usePost, useComments, useAddComment, useIncrementViews } from '../../hooks/usePost';
-import { PostHeader } from '../../components/blog/PostHeader';
-import { Button } from '../../components/ui/Button';
-import { Textarea, Input } from '../../components/ui/Input';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
+import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
+import { formatDate, calculateReadTime, getInitials } from '../../lib/utils';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { formatDate } from '../../lib/utils';
-import ReactMarkdown from 'react-markdown';
+import { Badge } from '../../components/ui/Badge';
+import { PostCard } from '../../components/blog/PostCard';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 
-export function Post() {
+export default function Post() {
   const { slug } = useParams<{ slug: string }>();
-  const { data: post, isLoading: postLoading } = usePost(slug || '');
-  const { data: comments, isLoading: commentsLoading } = useComments(post?.id || '');
-  const { mutate: addComment, isPending: addingComment } = useAddComment();
-  const { mutate: incrementViews } = useIncrementViews();
+  const queryClient = useQueryClient();
+  const [commentName, setCommentName] = useState('');
+  const [commentText, setCommentText] = useState('');
 
-  useEffect(() => {
-    if (slug && post) {
-      incrementViews(slug);
+  // Fetch Post
+  const { data: post, isLoading } = useQuery({
+    queryKey: ['post', slug],
+    queryFn: async () => {
+      const data = await getPostBySlug(slug!);
+      if (data) incrementViews(data.id); // fire and forget
+      return data;
+    },
+    enabled: !!slug
+  });
+
+  // Fetch Related
+  const { data: relatedPosts } = useQuery({
+    queryKey: ['relatedPosts', post?.category?.slug],
+    queryFn: () => getPostsByCategory(post?.category?.slug as string),
+    enabled: !!post?.category?.slug
+  });
+
+  // Fetch Comments
+  const { data: comments } = useQuery({
+    queryKey: ['comments', post?.id],
+    queryFn: () => getComments(post?.id as string),
+    enabled: !!post?.id
+  });
+
+  // Add Comment Mutation
+  const commentMutation = useMutation({
+    mutationFn: (data: { post_id: string, name: string, content: string }) => addComment(data),
+    onSuccess: () => {
+      toast.success('Comment submitted successfully!');
+      setCommentText('');
+      setCommentName('');
+      queryClient.invalidateQueries({ queryKey: ['comments', post?.id] });
+    },
+    onError: () => {
+      toast.error('Failed to submit comment. Try again.');
     }
-  }, [slug, post?.id]);
+  });
 
-  useEffect(() => {
-    if (post?.title) {
-      document.title = `${post.title} | BROADPOST`;
-    }
-  }, [post?.title]);
-
-  const handleCommentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const author_name = formData.get('name') as string;
-    const content = formData.get('content') as string;
-
-    if (!author_name || !content || !post?.id) return;
-
-    addComment({ post_id: post.id, author_name, content });
-    e.currentTarget.reset();
+  const handleCommentSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
+     if (!commentName.trim() || !commentText.trim()) return;
+     commentMutation.mutate({
+       post_id: post!.id,
+       name: commentName,
+       content: commentText
+     });
   };
 
-  if (postLoading) {
+  if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 space-y-8">
-        <Skeleton className="h-16 w-3/4 mx-auto" />
-        <Skeleton className="h-8 w-1/2 mx-auto" />
-        <Skeleton className="h-96 w-full rounded-2xl" />
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-3/4" />
-        </div>
+      <div className="max-w-[780px] mx-auto px-4 py-16 animate-pulse">
+         <Skeleton className="w-24 h-6 mb-8" />
+         <Skeleton className="w-full h-16 mb-4" />
+         <Skeleton className="w-3/4 h-16 mb-12" />
+         <Skeleton className="w-full h-[400px] mb-12" />
+         <div className="space-y-4">
+           {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="w-full h-4" />)}
+         </div>
       </div>
     );
   }
 
   if (!post) {
-    return <div className="text-center py-32 text-2xl font-bold">Post not found</div>;
+    return <div className="py-32 text-center text-primary font-serif font-bold text-3xl">Article not found.</div>;
   }
 
+  const readTime = calculateReadTime(post.content);
+
   return (
-    <article className="pb-24">
-      <PostHeader post={post} />
-      
+    <article className="bg-white">
+      <Helmet>
+        <title>{post.title} | BROADPOST</title>
+        <meta name="description" content={post.excerpt || 'Read this article on BROADPOST.'} />
+        {post.cover_image && <meta property="og:image" content={post.cover_image} />}
+      </Helmet>
+
+      {/* Header Area */}
+      <header className="max-w-[780px] mx-auto px-4 pt-16 pb-8">
+        <Link to={`/category/${post.category?.slug}`} className="block mb-6">
+          <Badge variant="red" className="text-sm px-3 py-1">{post.category?.name || 'News'}</Badge>
+        </Link>
+        
+        <h1 className="font-serif font-bold text-4xl md:text-5xl lg:text-[56px] leading-[1.1] text-primary mb-6">
+          {post.title}
+        </h1>
+        
+        {post.excerpt && (
+          <p className="font-sans text-xl md:text-2xl text-gray-500 leading-snug mb-8">
+            {post.excerpt}
+          </p>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-y border-border py-4 mt-8 mb-8">
+          <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+              {post.author?.avatar_url ? (
+                <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold text-lg font-sans">
+                  {getInitials(post.author?.name || 'Staff')}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="font-sans font-bold text-primary flex items-center space-x-2">
+                <span>By {post.author?.name || 'Staff'}</span>
+                <span className="text-gray-400 font-normal text-xs uppercase tracking-widest hidden md:inline ml-2">Broadpost Staff</span>
+              </div>
+              <div className="text-xs text-gray-500 font-sans flex items-center mt-1">
+                {formatDate(post.published_at || post.created_at)}
+                <span className="mx-2">•</span>
+                <Clock size={12} className="mr-1 inline" /> {readTime} min read
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 text-gray-400">
+             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Twitter size={16} /></button>
+             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Linkedin size={16} /></button>
+             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Facebook size={16} /></button>
+             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+                onClick={() => {
+                   navigator.clipboard.writeText(window.location.href);
+                   toast.success("Link copied!");
+                }}
+             ><LinkIcon size={16} /></button>
+          </div>
+        </div>
+      </header>
+
+      {/* Cover Image */}
       {post.cover_image && (
-        <div className="max-w-5xl mx-auto px-4 mb-16">
-          <img 
-            src={post.cover_image} 
-            alt={post.title} 
-            className="w-full h-auto max-h-[600px] object-cover rounded-2xl"
-          />
+        <div className="max-w-[1000px] mx-auto px-4 mb-12">
+          <figure>
+            <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover max-h-[600px] bg-gray-100" />
+            <figcaption className="text-right text-xs text-gray-400 mt-2 font-sans italic">
+              Image via Broadpost Media
+            </figcaption>
+          </figure>
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4">
-        {/* Markdown Content */}
-        <div className="prose-custom mb-16">
-          <ReactMarkdown>{post.content || ''}</ReactMarkdown>
-        </div>
-
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-16 pt-8 border-t border-[#E6E6E6]">
-            {post.tags.map(tag => (
-              <span key={tag} className="bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">
-                {tag}
+      {/* Body Content */}
+      <div className="max-w-[780px] mx-auto px-4 font-sans text-lg text-gray-800 leading-[1.9] pb-16">
+         {/* Rendering the rich text. Assume HTML content from markdown editor (we might need a parser or dangerouslySetInnerHTML) */}
+         <div 
+           className="prose prose-lg prose-headings:font-serif prose-headings:text-primary prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 max-w-none"
+           dangerouslySetInnerHTML={{ __html: post.content }} 
+         />
+         
+         <div className="mt-16 flex flex-wrap gap-2">
+            {post.tags && post.tags.map((tag: string) => (
+              <span key={tag} className="px-4 py-2 border border-border rounded-full text-xs font-bold uppercase tracking-wider text-primary hover:bg-gray-50 cursor-pointer">
+                 {tag}
               </span>
             ))}
-          </div>
-        )}
+         </div>
+      </div>
 
-        {/* Author Bio */}
-        {post.author_bio && (
-          <div className="bg-gray-50 p-8 rounded-2xl flex items-center mb-16">
-            <img src={post.author_avatar || ''} alt="" className="w-20 h-20 rounded-full mr-6 object-cover" />
-            <div>
-              <p className="text-sm font-bold tracking-widest text-gray-400 uppercase mb-1">Written by</p>
-              <h3 className="text-2xl font-bold text-black mb-2">{post.author_name}</h3>
-              <p className="text-gray-600">{post.author_bio}</p>
+      <hr className="max-w-[780px] mx-auto border-t border-border mb-16" />
+
+      {/* Author Bio Box */}
+      <div className="max-w-[780px] mx-auto px-4 mb-20 bg-gray-50 border border-border p-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+         <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+           {post.author?.avatar_url ? (
+             <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+           ) : (
+             <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold text-3xl font-sans">
+               {getInitials(post.author?.name || 'Staff')}
+             </div>
+           )}
+         </div>
+         <div>
+            <h3 className="font-serif font-bold text-2xl text-primary mb-2">{post.author?.name || 'Staff Contributor'}</h3>
+            <p className="font-sans text-gray-600 mb-4">{post.author?.bio || 'Journalist covering major stories for Broadpost.'}</p>
+            <a href="#" className="font-sans text-accent-blue font-bold text-sm uppercase tracking-wider hover:underline">More by {post.author?.name || 'this author'}</a>
+         </div>
+      </div>
+
+      {/* Related Posts */}
+      {relatedPosts && relatedPosts.length > 1 && (
+        <div className="bg-gray-50 py-16 border-t border-border">
+          <div className="max-w-[1200px] mx-auto px-4 lg:px-8">
+            <h3 className="font-serif font-bold text-2xl text-primary mb-8 border-b-2 border-primary pb-2 inline-block">
+              You May Also Like
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               {relatedPosts.filter((p: any) => p.id !== post.id).slice(0,3).map((relatedPost: any) => (
+                  <PostCard key={relatedPost.id} post={relatedPost} variant="standard" />
+               ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Comments Section */}
-        <section id="comments" className="mt-16 pt-16 border-t border-[#E6E6E6]">
-          <h3 className="text-2xl font-bold mb-8 text-black">
-            Responses ({comments?.length || 0})
-          </h3>
+      {/* Comments Section */}
+      <div className="max-w-[780px] mx-auto px-4 py-20">
+         <h3 className="font-serif font-bold text-3xl text-primary mb-10 pb-4 border-b border-border">
+           Comments ({comments?.length || 0})
+         </h3>
 
-          <form onSubmit={handleCommentSubmit} className="mb-12 bg-white p-6 rounded-xl border border-[#E6E6E6] shadow-sm">
-            <h4 className="font-bold text-black mb-4">Leave a response</h4>
+         <form onSubmit={handleCommentSubmit} className="mb-16 bg-gray-50 p-6 border border-border">
+            <h4 className="font-sans font-bold text-lg text-primary mb-4">Leave a comment</h4>
             <div className="space-y-4">
-              <Input name="name" placeholder="Your Name" required />
-              <Textarea name="content" placeholder="Share your thoughts..." required />
-              <Button type="submit" isLoading={addingComment}>Publish</Button>
+              <Input 
+                placeholder="Name" 
+                value={commentName}
+                onChange={e => setCommentName(e.target.value)}
+                required
+              />
+              <textarea 
+                placeholder="What are your thoughts?" 
+                value={commentText}
+                onChange={e => setCommentText(e.target.value)}
+                className="w-full p-3 border border-border bg-white text-primary font-sans focus:outline-none focus:ring-1 focus:ring-primary min-h-[120px] resize-y"
+                required
+              />
+              <Button type="submit" disabled={commentMutation.isPending} className="font-bold tracking-widest uppercase">
+                 {commentMutation.isPending ? 'Posting...' : 'Submit Comment'}
+              </Button>
             </div>
-          </form>
+         </form>
 
-          <div className="space-y-8">
-            {commentsLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-              </div>
-            ) : comments?.length === 0 ? (
-              <p className="text-gray-500 italic">No responses yet. Be the first to share your thoughts!</p>
-            ) : (
-              comments?.map((comment) => (
-                <div key={comment.id} className="pb-8 border-b border-gray-100 last:border-0">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold mr-3">
-                        {comment.author_name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm text-black">{comment.author_name}</p>
-                        <p className="text-xs text-gray-500">{formatDate(comment.created_at)}</p>
-                      </div>
-                    </div>
+         <div className="space-y-8">
+           {comments && comments.length > 0 ? (
+             comments.map((comment: any) => (
+               <div key={comment.id} className="flex space-x-4 border-b border-border pb-8 last:border-0 last:pb-0">
+                  <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {getInitials(comment.name)}
                   </div>
-                  <p className="text-gray-700 leading-relaxed text-sm md:text-base whitespace-pre-wrap pl-13">
-                    {comment.content}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </section>
+                  <div>
+                    <div className="flex items-baseline space-x-3 mb-2">
+                       <span className="font-sans font-bold text-primary">{comment.name}</span>
+                       <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                    </div>
+                    <p className="font-sans text-gray-700 leading-relaxed text-sm">
+                       {comment.content}
+                    </p>
+                  </div>
+               </div>
+             ))
+           ) : (
+             <p className="text-gray-500 font-sans italic text-center py-8">Be the first to comment on this article.</p>
+           )}
+         </div>
       </div>
     </article>
   );

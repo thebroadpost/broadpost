@@ -1,125 +1,117 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { useAdminPosts, useDeletePost } from '../../hooks/useAdmin';
+import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { getPosts, deletePost } from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
-import { Skeleton } from '../../components/ui/Skeleton';
 import { formatDate } from '../../lib/utils';
-import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-export function Posts() {
-  const { data: posts, isLoading } = useAdminPosts();
-  const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
+export default function Posts() {
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  // In a real implementation we would debounce search, here we simplify
+  
+  const queryClient = useQueryClient();
 
-  const filteredPosts = posts?.filter(post => 
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (post.category && post.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  ) || [];
+  const { data, isLoading } = useQuery({
+    queryKey: ['adminPosts', page],
+    queryFn: () => getPosts(undefined, { page, limit: 10 }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      toast.success('Post deleted');
+      queryClient.invalidateQueries({ queryKey: ['adminPosts'] });
+    },
+    onError: () => toast.error('Failed to delete post'),
+  });
+
+  const filteredPosts = data?.data?.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase())) || [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-black">Posts</h1>
-          <p className="text-gray-500 mt-1">Manage your blog content.</p>
-        </div>
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-serif font-bold text-primary">Posts</h1>
         <Link to="/admin/posts/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            New Post
+          <Button className="font-bold tracking-widest uppercase flex items-center shadow-sm">
+            <Plus size={18} className="mr-2" /> New Post
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-[#E6E6E6] bg-gray-50">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Search posts..." 
-              className="pl-9"
+      <div className="bg-white rounded shadow-sm border border-border overflow-hidden">
+        <div className="p-4 border-b border-border flex items-center justify-between bg-gray-50">
+          <div className="relative w-full max-w-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              placeholder="Search posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pb-2 pt-2 h-9 text-sm"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#E6E6E6] bg-gray-50">
-                <th className="p-4 font-bold text-sm text-gray-900 w-2/3">Post</th>
-                <th className="p-4 font-bold text-sm text-gray-900 w-1/6">Status</th>
-                <th className="p-4 font-bold text-sm text-gray-900 w-1/6 text-right">Actions</th>
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Title</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Category</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Status</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Views</th>
+                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E6E6E6]">
+            <tbody className="bg-white divide-y divide-border">
               {isLoading ? (
-                <tr>
-                  <td colSpan={3} className="p-4">
-                    <div className="space-y-4">
-                      <Skeleton className="h-16 w-full" />
-                      <Skeleton className="h-16 w-full" />
-                    </div>
-                  </td>
-                </tr>
+                <tr><td colSpan={6} className="px-6 py-4 text-center">Loading...</td></tr>
               ) : filteredPosts.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="p-8 text-center text-gray-500">
-                    No posts found. Create your first post!
-                  </td>
-                </tr>
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500">No posts found.</td></tr>
               ) : (
-                filteredPosts.map((post) => (
+                filteredPosts.map((post: any) => (
                   <tr key={post.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-4">
-                        {post.cover_image ? (
-                          <img src={post.cover_image} alt="" className="w-16 h-12 object-cover rounded-md border border-[#E6E6E6]" />
-                        ) : (
-                          <div className="w-16 h-12 bg-gray-100 rounded-md border border-[#E6E6E6] flex items-center justify-center">
-                            <span className="text-xs text-gray-400">No Img</span>
-                          </div>
-                        )}
-                        <div>
-                          <Link to={`/admin/posts/${post.id}/edit`} className="font-bold text-black hover:underline mb-1 line-clamp-1">
-                            {post.title}
-                          </Link>
-                          <div className="flex items-center text-xs text-gray-500 gap-2">
-                            {post.category && <span className="font-medium">{post.category.toUpperCase()}</span>}
-                            <span>&middot;</span>
-                            <span>{formatDate(post.created_at)}</span>
-                          </div>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-16 bg-gray-100 overflow-hidden rounded-sm mr-4">
+                          {post.cover_image && <img src={post.cover_image} alt="" className="h-full w-full object-cover" />}
                         </div>
+                        <div className="text-sm font-bold text-primary font-serif truncate max-w-[200px] lg:max-w-xs">{post.title}</div>
                       </div>
                     </td>
-                    <td className="p-4">
-                      <Badge variant={post.status === 'published' ? 'success' : 'outline'}>
-                        {post.status.toUpperCase()}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans">
+                      {post.category?.name || 'Uncategorized'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge variant={post.status === 'published' ? 'primary' : 'outline'} className="text-[10px]">
+                        {post.status}
                       </Badge>
                     </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link to={`/admin/posts/${post.id}/edit`}>
-                          <Button variant="ghost" size="sm" className="px-2">
-                            <Edit2 className="w-4 h-4 text-gray-600" />
-                          </Button>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans">
+                      {formatDate(post.created_at)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans flex items-center">
+                      <Eye size={14} className="mr-1" /> {post.views || 0}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-3">
+                        <Link to={`/admin/posts/${post.id}/edit`} className="text-accent-blue hover:text-blue-900 transition-colors">
+                          <Edit2 size={16} />
                         </Link>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="px-2 hover:bg-red-50 hover:text-red-600 group"
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to delete this post?')) {
-                              deletePost(post.id);
-                            }
-                          }}
-                          disabled={isDeleting}
+                        <button 
+                          onClick={() => { if (window.confirm('Delete this post?')) deleteMutation.mutate(post.id) }} 
+                          className="text-accent-red hover:text-red-900 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4 text-gray-600 group-hover:text-red-600" />
-                        </Button>
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -128,6 +120,26 @@ export function Posts() {
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination mock */}
+        <div className="bg-white px-4 py-3 border-t border-border flex items-center justify-between sm:px-6">
+           <div className="flex-1 flex justify-between sm:hidden">
+             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p-1))}>Previous</Button>
+             <Button variant="outline" size="sm" onClick={() => setPage(p => p+1)}>Next</Button>
+           </div>
+           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+             <div>
+               <p className="text-sm text-gray-700 font-sans">Showing page <span className="font-bold">{page}</span></p>
+             </div>
+             <div>
+               <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                 <button onClick={() => setPage(p => Math.max(1, p-1))} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
+                 <button onClick={() => setPage(p => p+1)} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+               </nav>
+             </div>
+           </div>
+        </div>
+
       </div>
     </div>
   );

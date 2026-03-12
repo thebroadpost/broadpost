@@ -1,82 +1,70 @@
 import React from 'react';
-import { useDashboardStats, useAdminPosts } from '../../hooks/useAdmin';
+import { useQuery } from '@tanstack/react-query';
+import { getAdminStats } from '../../lib/api';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { FileText, Eye, MessageSquare, Edit3 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { formatDate } from '../../lib/utils';
-import { Badge } from '../../components/ui/Badge';
+import { FileText, Eye, MessageSquare, CheckCircle } from 'lucide-react';
 
-export function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: recentPosts, isLoading: postsLoading } = useAdminPosts();
+export default function Dashboard() {
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['adminStats'],
+    queryFn: getAdminStats,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <Skeleton className="h-8 w-48 mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 bg-white" />)}
+        </div>
+        <Skeleton className="h-96 w-full bg-white mt-8" />
+      </div>
+    );
+  }
 
   const statCards = [
-    { label: 'Total Posts', value: stats?.totalPosts, icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Total Views', value: stats?.totalViews, icon: Eye, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Total Comments', value: stats?.totalComments, icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Drafts', value: stats?.draftPosts, icon: Edit3, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { title: 'Total Posts', value: stats?.totalPosts, icon: FileText, color: 'text-blue-500' },
+    { title: 'Published', value: stats?.publishedPosts, icon: CheckCircle, color: 'text-green-500' },
+    { title: 'Drafts', value: stats?.draftPosts, icon: Eye, color: 'text-yellow-500' },
+    { title: 'Total Comments', value: stats?.totalComments, icon: MessageSquare, color: 'text-purple-500' },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter text-black">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Overview of your publication's performance.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-[#E6E6E6] flex items-center shadow-sm">
-            <div className={`p-4 rounded-xl ${stat.bg} ${stat.color} mr-4`}>
-              <stat.icon className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">{stat.label}</p>
-              {statsLoading ? (
-                <Skeleton className="h-8 w-16 mt-1" />
-              ) : (
-                <p className="text-3xl font-black text-black mt-1">{stat.value}</p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Recent Posts List */}
-      <div className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#E6E6E6] flex justify-between items-center">
-          <h2 className="text-lg font-bold text-black">Recent Posts</h2>
-          <Link to="/admin/posts" className="text-sm font-medium text-black underline underline-offset-4 hover:text-gray-600">
-            View All
-          </Link>
-        </div>
-        <div className="divide-y divide-[#E6E6E6]">
-          {postsLoading ? (
-            <div className="p-6 space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          ) : recentPosts?.slice(0, 5).map((post) => (
-            <div key={post.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
+    <div>
+      <h1 className="text-3xl font-serif font-bold text-primary mb-8">Dashboard</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {statCards.map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <div key={i} className="bg-white p-6 rounded shadow-sm border border-border flex items-center justify-between">
               <div>
-                <Link to={`/admin/posts/${post.id}/edit`} className="font-bold text-black hover:underline block mb-1">
-                  {post.title}
-                </Link>
-                <div className="flex items-center text-sm text-gray-500 gap-3">
-                  <span>{formatDate(post.created_at)}</span>
-                  <span>&middot;</span>
-                  <span>{post.views} views</span>
-                </div>
+                <p className="text-sm font-sans font-medium text-gray-500 uppercase tracking-widest">{stat.title}</p>
+                <p className="text-3xl font-bold font-sans text-primary mt-2">{stat.value}</p>
               </div>
-              <div>
-                <Badge variant={post.status === 'published' ? 'success' : 'outline'}>
-                  {post.status.toUpperCase()}
-                </Badge>
+              <div className={`p-4 bg-gray-50 rounded-full ${stat.color}`}>
+                <Icon size={24} />
               </div>
             </div>
-          ))}
+          );
+        })}
+      </div>
+
+      <div className="bg-white p-6 rounded shadow-sm border border-border">
+        <h2 className="text-xl font-serif font-bold text-primary mb-6">Views Overview (Last 7 Days)</h2>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={stats?.viewsData || []}>
+              <XAxis dataKey="date" stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+              <Tooltip
+                cursor={{ fill: '#F5F5F5' }}
+                contentStyle={{ borderRadius: '4px', border: '1px solid #E2E2E2', fontFamily: 'Inter' }}
+              />
+              <Bar dataKey="views" fill="#000000" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>

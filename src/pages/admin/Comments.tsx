@@ -1,111 +1,115 @@
-import React from 'react';
-import { useAllComments, useModerateComment } from '../../hooks/useAdmin';
-import { Button } from '../../components/ui/Button';
-import { Skeleton } from '../../components/ui/Skeleton';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllComments, approveComment, deleteComment } from '../../lib/api';
+import { Check, X, Trash2 } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
-import { Check, Trash2, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import toast from 'react-hot-toast';
 
-export function Comments() {
-  const { data: comments, isLoading } = useAllComments();
-  const { mutate: moderateComment, isPending } = useModerateComment();
+export default function Comments() {
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all');
+  const queryClient = useQueryClient();
 
-  const handleAction = (id: string, action: 'approve' | 'delete') => {
-    moderateComment(
-      { id, action },
-      {
-        onSuccess: () => {
-          toast.success(`Comment ${action === 'approve' ? 'approved' : 'deleted'} successfully`);
-        },
-        onError: () => {
-          toast.error(`Failed to ${action} comment`);
-        }
-      }
-    );
-  };
+  const { data: comments, isLoading } = useQuery({
+    queryKey: ['adminComments', filter],
+    queryFn: () => getAllComments(filter === 'all' ? undefined : { approved: filter === 'approved' }),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: ({ id, approved }: { id: string, approved: boolean }) => approveComment(id, approved),
+    onSuccess: () => {
+      toast.success('Comment status updated');
+      queryClient.invalidateQueries({ queryKey: ['adminComments'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteComment,
+    onSuccess: () => {
+      toast.success('Comment deleted');
+      queryClient.invalidateQueries({ queryKey: ['adminComments'] });
+    }
+  });
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter text-black">Comments</h1>
-        <p className="text-gray-500 mt-1">Moderate reader responses across all posts.</p>
-      </div>
+    <div>
+      <h1 className="text-3xl font-serif font-bold text-primary mb-8">Comments</h1>
 
-      <div className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm overflow-hidden">
-        <ul className="divide-y divide-[#E6E6E6]">
-          {isLoading ? (
-            <div className="p-8 space-y-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-4">
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : comments?.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-              No comments have been posted yet.
-            </div>
-          ) : (
-            comments?.map((comment) => (
-              <li key={comment.id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start gap-6">
-                  <div className="flex gap-4 flex-1">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold shrink-0">
-                      {comment.author_name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-black">{comment.author_name}</span>
-                        <span className="text-sm text-gray-500">on</span>
-                        <Link 
-                          to={`/blog/${comment.posts?.slug || ''}#comments`}
-                          target="_blank"
-                          className="text-sm font-medium text-black hover:underline inline-flex items-center"
-                        >
-                          {comment.posts?.title}
-                          <ExternalLink className="w-3 h-3 ml-1" />
-                        </Link>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-3">{formatDate(comment.created_at)}</p>
-                      <p className="text-gray-700 bg-white p-4 rounded-xl border border-gray-100">
-                        {comment.content}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 shrink-0">
-                    {!comment.approved && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-green-600 border-green-200 hover:bg-green-50"
-                        onClick={() => handleAction(comment.id, 'approve')}
-                        disabled={isPending}
-                      >
-                        <Check className="w-4 h-4 mr-2" />
-                        Approve
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                      onClick={() => handleAction(comment.id, 'delete')}
-                      disabled={isPending}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
+      <div className="bg-white rounded shadow-sm border border-border overflow-hidden">
+        <div className="p-4 border-b border-border flex space-x-2 bg-gray-50">
+          <Button 
+            variant={filter === 'all' ? 'primary' : 'outline'} 
+            size="sm" 
+            onClick={() => setFilter('all')}
+          >All</Button>
+          <Button 
+             variant={filter === 'pending' ? 'primary' : 'outline'} 
+             size="sm" 
+             onClick={() => setFilter('pending')}
+          >Pending</Button>
+          <Button 
+             variant={filter === 'approved' ? 'primary' : 'outline'} 
+             size="sm" 
+             onClick={() => setFilter('approved')}
+          >Approved</Button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border">
+             <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Author</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Comment</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">On Post</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Status</th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-border">
+               {isLoading ? (
+                 <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+               ) : comments?.length === 0 ? (
+                 <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">No comments found.</td></tr>
+               ) : comments?.map((c: any) => (
+                 <tr key={c.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <div className="text-sm font-bold text-primary">{c.name}</div>
+                       <div className="text-xs text-gray-500">{formatDate(c.created_at)}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                       <div className="text-sm text-gray-900 line-clamp-2 w-64 md:w-auto">{c.content}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <div className="text-sm text-gray-500 truncate w-40">{c.post?.title}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <Badge variant={c.approved ? 'green' : 'red' as any} className={c.approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                         {c.approved ? 'Approved' : 'Pending'}
+                       </Badge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                       <div className="flex items-center justify-end space-x-2">
+                         {!c.approved && (
+                           <button onClick={() => approveMutation.mutate({ id: c.id, approved: true })} className="p-1 rounded text-green-600 hover:bg-green-50" title="Approve">
+                             <Check size={18} />
+                           </button>
+                         )}
+                         {c.approved && (
+                           <button onClick={() => approveMutation.mutate({ id: c.id, approved: false })} className="p-1 rounded text-orange-600 hover:bg-orange-50" title="Unapprove">
+                             <X size={18} />
+                           </button>
+                         )}
+                         <button onClick={() => { if(window.confirm('Delete comment?')) deleteMutation.mutate(c.id) }} className="p-1 rounded text-red-600 hover:bg-red-50" title="Delete">
+                           <Trash2 size={18} />
+                         </button>
+                       </div>
+                    </td>
+                 </tr>
+               ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

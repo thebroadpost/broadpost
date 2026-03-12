@@ -1,25 +1,22 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'outline';
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  variant?: 'primary' | 'red' | 'blue' | 'outline';
 }
 
-export function Badge({ className, variant = 'default', ...props }: BadgeProps) {
+export function Badge({ className = '', variant = 'primary', children, ...props }: BadgeProps) {
+  const baseStyles = 'inline-flex items-center px-1.5 py-0.5 text-xs font-bold font-sans uppercase tracking-wider';
+  
   const variants = {
-    default: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
-    success: 'bg-[#1A8917]/10 text-[#1A8917] hover:bg-[#1A8917]/20',
-    outline: 'border border-[#E6E6E6] text-gray-600',
+    primary: 'bg-primary text-white',
+    red: 'bg-accent-red text-white',
+    blue: 'bg-accent-blue text-white',
+    outline: 'border border-primary text-primary'
   };
 
   return (
-    <div
-      className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-        variants[variant],
-        className
-      )}
-      {...props}
-    />
+    <span className={`${baseStyles} ${variants[variant]} ${className}`} {...props}>
+      {children}
+    </span>
   );
 }

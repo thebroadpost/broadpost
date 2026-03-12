@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Menu, X, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 import { Button } from '../ui/Button';
+import UserSidebar from './UserSidebar';
+import SearchModal from './SearchModal';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NAV_LINKS = [
   { name: 'Home', path: '/' },
@@ -18,7 +21,10 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isUserSidebarOpen, setIsUserSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,15 +87,51 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-primary hover:bg-gray-100 rounded hidden sm:block">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 text-primary hover:bg-gray-100 rounded hidden sm:block"
+            >
               <Search size={20} />
             </button>
-            <Button size="sm" className="hidden sm:inline-flex uppercase text-xs font-bold tracking-wider">
-              Subscribe
-            </Button>
+            
+            {user ? (
+              <button 
+                onClick={() => setIsUserSidebarOpen(true)}
+                className="hidden sm:flex items-center space-x-2 hover:bg-gray-100 p-1.5 pr-3 rounded-full border border-gray-200"
+              >
+                 {user.user_metadata?.avatar_url ? (
+                   <img src={user.user_metadata.avatar_url} alt="Profile" className="w-6 h-6 rounded-full" />
+                 ) : (
+                   <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                     <User size={14} className="text-gray-500" />
+                   </div>
+                 )}
+                 <span className="text-xs font-bold tracking-wide font-sans text-primary">Account</span>
+              </button>
+            ) : (
+              <Button 
+                onClick={() => setIsUserSidebarOpen(true)}
+                size="sm" 
+                className="hidden sm:inline-flex uppercase text-xs font-bold tracking-wider"
+              >
+                Sign In
+              </Button>
+            )}
+
             {/* Mobile search icon */}
-            <button className="p-2 text-primary sm:hidden">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 text-primary sm:hidden"
+            >
               <Search size={20} />
+            </button>
+            
+             {/* Mobile user icon */}
+            <button 
+              onClick={() => setIsUserSidebarOpen(true)}
+              className="p-2 text-primary sm:hidden"
+            >
+              <User size={20} />
             </button>
           </div>
         </div>
@@ -129,6 +171,9 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <UserSidebar isOpen={isUserSidebarOpen} onClose={() => setIsUserSidebarOpen(false)} />
     </>
   );
 }

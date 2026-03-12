@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Post, Comment, Category, PaginationParams } from '../types';
+import { PaginationParams } from '../types';
 
 export async function getPosts(filters?: { status?: string, category_id?: string }, pagination?: PaginationParams) {
   let query = supabase.from('posts').select(`
@@ -247,4 +247,21 @@ export async function deleteComment(commentId: string) {
   const { error } = await supabase.from('comments').delete().eq('id', commentId);
   if (error) throw error;
   return true;
+}
+
+export async function searchPosts(query: string) {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      author:author_id (id, full_name, avatar_url, email),
+      category:category_id (id, name, slug)
+    `)
+    .eq('status', 'published')
+    .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (error) throw error;
+  return data;
 }

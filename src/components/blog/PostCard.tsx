@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../../types';
 import { Badge } from '../ui/Badge';
@@ -49,7 +48,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
   if (variant === 'small') {
     return (
       <Link to={`/blog/${post.slug}`} className="group flex items-start space-x-4 py-4 cursor-pointer">
-        <div className="flex-shrink-0 w-[120px] h-[80px] overflow-hidden bg-gray-100">
+        <div className="flex-shrink-0 w-[120px] h-[80px] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img 
             src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 
             alt={post.title} 
@@ -61,11 +60,11 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
           <span className="text-accent-blue font-bold text-[10px] uppercase tracking-wider mb-1 block">
             {post.category?.name || 'News'}
           </span>
-          <h3 className="font-sans font-bold text-[15px] leading-snug text-primary group-hover:text-accent-blue mb-2 transition-colors">
+          <h3 className="font-sans font-bold text-[15px] leading-snug text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 mb-2 transition-colors">
             {post.title}
           </h3>
           <div className="text-xs text-gray-500 font-sans mt-auto">
-            <span className="text-gray-900 font-medium">{post.author?.name || 'Staff'}</span> • {formatDate(post.published_at || post.created_at)}
+            <span className="text-gray-900 dark:text-gray-300 font-medium">{post.author?.name || 'Staff'}</span> • {formatDate(post.published_at || post.created_at)}
           </div>
         </div>
       </Link>
@@ -75,7 +74,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
   if (variant === 'horizontal') {
     return (
       <Link to={`/blog/${post.slug}`} className="group flex flex-col md:flex-row gap-6 mb-8 cursor-pointer">
-        <div className="w-full md:w-[45%] h-[250px] overflow-hidden bg-gray-100 flex-shrink-0">
+        <div className="w-full md:w-[45%] h-[250px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
           <img 
              src={post.cover_image || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80'} 
              alt={post.title} 
@@ -89,14 +88,14 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
               {post.category?.name || 'News'}
             </span>
           </div>
-          <h2 className="font-serif font-bold text-2xl lg:text-3xl leading-tight text-primary group-hover:text-accent-blue transition-colors mb-3">
+          <h2 className="font-serif font-bold text-2xl lg:text-3xl leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-3">
             {post.title}
           </h2>
-          <p className="font-sans text-gray-700 text-sm md:text-base leading-relaxed mb-4 hidden md:block">
+          <p className="font-sans text-gray-700 dark:text-gray-400 text-sm md:text-base leading-relaxed mb-4 hidden md:block">
             {truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 150)}
           </p>
           <div className="flex items-center text-xs text-gray-500 font-sans mt-auto font-medium">
-            <span className="text-primary font-bold mr-2">{post.author?.name || 'Staff'}</span>
+            <span className="text-primary dark:text-gray-300 font-bold mr-2">{post.author?.name || 'Staff'}</span>
             <span>•</span>
             <span className="mx-2">{formatDate(post.published_at || post.created_at)}</span>
             <span>•</span>
@@ -110,7 +109,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
   if (variant === 'minimal') {
     return (
       <Link to={`/blog/${post.slug}`} className="block group">
-        <div className="w-full h-40 md:h-48 overflow-hidden bg-gray-100 mb-3">
+        <div className="w-full h-40 md:h-48 overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3">
            <img 
              src={post.cover_image || 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&q=80'} 
              alt={post.title} 
@@ -121,7 +120,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
         <span className="text-accent-blue font-bold text-[10px] uppercase tracking-wider mb-1 block">
           {post.category?.name || 'News'}
         </span>
-        <h3 className="font-serif font-bold text-lg leading-tight text-primary group-hover:text-accent-blue transition-colors mb-2">
+        <h3 className="font-serif font-bold text-lg leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-2">
           {post.title}
         </h3>
         <div className="text-xs text-gray-500 font-sans mt-auto">
@@ -133,20 +132,20 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
 
   if (variant === 'opinion') {
     return (
-      <Link to={`/blog/${post.slug}`} className="block group border border-border p-6 hover:shadow-sm transition-shadow bg-gray-50/50">
-        <div className="flex items-center space-x-4 mb-4 border-b border-border pb-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+      <Link to={`/blog/${post.slug}`} className="block group border border-border dark:border-gray-800 p-6 hover:shadow-sm transition-shadow bg-gray-50/50 dark:bg-gray-800/50 rounded-sm">
+        <div className="flex items-center space-x-4 mb-4 border-b border-border dark:border-gray-800 pb-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
              <img src={post.author?.avatar_url || 'https://res.cloudinary.com/demo/image/upload/w_200,h_200,c_thumb,g_face,r_max/face_left.png'} alt={post.author?.name} className="w-full h-full object-cover grayscale" loading="lazy" />
           </div>
           <div>
-            <h4 className="font-sans font-bold text-primary uppercase text-sm tracking-wide">{post.author?.name || 'Contributor'}</h4>
+            <h4 className="font-sans font-bold text-primary dark:text-white uppercase text-sm tracking-wide">{post.author?.name || 'Contributor'}</h4>
             <span className="text-xs text-gray-500">{post.author?.bio || 'Guest Contributor'}</span>
           </div>
         </div>
-        <h3 className="font-serif font-bold text-2xl leading-tight text-primary group-hover:text-accent-blue transition-colors mb-3">
+        <h3 className="font-serif font-bold text-2xl leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-3">
           {post.title}
         </h3>
-        <p className="font-sans text-gray-700 text-sm leading-relaxed mb-4 italic">
+        <p className="font-sans text-gray-700 dark:text-gray-400 text-sm leading-relaxed mb-4 italic">
           "{truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 100)}"
         </p>
       </Link>
@@ -155,8 +154,8 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
 
   // Standard Grid Card
   return (
-    <Link to={`/blog/${post.slug}`} className="block group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 p-2 -m-2 transition-all">
-      <div className="w-full aspect-[16/10] overflow-hidden bg-gray-100 mb-3 block">
+    <Link to={`/blog/${post.slug}`} className="block group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 p-2 -m-2 transition-all">
+      <div className="w-full aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3 block">
         <img 
           src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 
           alt={post.title} 
@@ -169,14 +168,14 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
           {post.category?.name || 'News'}
         </span>
       </div>
-      <h3 className="font-serif font-bold text-xl leading-tight text-primary group-hover:text-accent-blue transition-colors mb-2">
+      <h3 className="font-serif font-bold text-xl leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-2">
         {post.title}
       </h3>
-      <p className="font-sans text-gray-700 text-sm leading-relaxed mb-4 flex-grow hidden sm:block">
+      <p className="font-sans text-gray-700 dark:text-gray-400 text-sm leading-relaxed mb-4 flex-grow hidden sm:block">
         {truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 90)}
       </p>
       <div className="flex items-center text-xs text-gray-500 font-sans mt-auto pt-2">
-        <span className="text-primary font-semibold mr-2">{post.author?.name || 'Staff'}</span>
+        <span className="text-primary dark:text-gray-300 font-semibold mr-2">{post.author?.name || 'Staff'}</span>
         <span>•</span>
         <span className="mx-2">{formatDate(post.published_at || post.created_at)}</span>
         <span>•</span>

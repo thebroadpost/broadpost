@@ -5,6 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import toast from 'react-hot-toast';
 import { useAdmin } from '../../hooks/useAdmin';
+import { isUserAllowedForAdmin } from '../../lib/adminAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAdmin();
+  const { signInWithGoogle } = useAuth();
 
   if (authLoading) {
     return (
@@ -38,8 +41,28 @@ export default function Login() {
       toast.error(error.message || 'Failed to login');
       setLoading(false);
     } else {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (!(await isUserAllowedForAdmin(userData.user))) {
+        await supabase.auth.signOut();
+        toast.error('This account does not have admin role in Supabase.');
+        setLoading(false);
+        return;
+      }
+
       toast.success('Welcome back!');
       navigate('/admin/dashboard');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      await signInWithGoogle();
+      // Redirect is handled by Supabase OAuth flow.
+    } catch (error: any) {
+      toast.error(error?.message || 'Google sign-in failed');
+      setLoading(false);
     }
   };
 
@@ -89,6 +112,29 @@ export default function Login() {
               className="font-bold tracking-wider"
             >
               {loading ? 'Entering...' : 'Sign in'}
+            </Button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500 font-sans tracking-wider">or</span>
+            </div>
+          </div>
+
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              fullWidth
+              size="lg"
+              onClick={handleGoogleLogin}
+              className="font-bold tracking-wider"
+            >
+              Continue with Google
             </Button>
           </div>
         </form>

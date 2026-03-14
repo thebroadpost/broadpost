@@ -62,7 +62,7 @@ export default function Category() {
         <div className="flex flex-col lg:flex-row gap-12">
           
           <div className="lg:w-[70%]">
-             <PostGrid categoryId={category.id} />
+             <PostGrid categorySlug={category.slug} />
           </div>
 
           <div className="lg:w-[30%]">

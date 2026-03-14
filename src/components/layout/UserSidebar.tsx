@@ -1,4 +1,5 @@
 import { X, User as UserIcon, Bell, Settings, LogOut, Bookmark, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 
@@ -70,33 +71,36 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
 
               <div className="p-4 space-y-1">
                 <div className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Account</div>
-                <button className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
+                <Link to="/account/profile" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <UserIcon size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">My Profile</span>
-                </button>
-                <button className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
+                </Link>
+                <Link to="/account/notifications" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <Bell size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">Notifications</span>
                   {/* Fake badge for UI polish */}
                   <span className="bg-accent-red text-white text-[10px] px-2 py-0.5 rounded-full ml-auto">3</span>
-                </button>
-                <button className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
+                </Link>
+                <Link to="/account/newsletters" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <FileText size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">Newsletters</span>
-                </button>
-                <button className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
+                </Link>
+                <Link to="/account/reading-list" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <Bookmark size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">Reading List</span>
-                </button>
-                <button className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
+                </Link>
+                <Link to="/account/settings" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <Settings size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">Settings</span>
-                </button>
+                </Link>
               </div>
 
               <div className="p-4 mt-auto border-t border-gray-800">
                 <button 
-                  onClick={signOut}
+                  onClick={() => {
+                    signOut();
+                    onClose();
+                  }}
                   className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors text-accent-red"
                 >
                   <LogOut size={18} />

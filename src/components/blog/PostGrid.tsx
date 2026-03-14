@@ -6,16 +6,16 @@ import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/Button';
 
 interface PostGridProps {
-  categoryId?: string;
+  categorySlug?: string;
 }
 
-export function PostGrid({ categoryId }: PostGridProps) {
+export function PostGrid({ categorySlug }: PostGridProps) {
   const [page, setPage] = React.useState(1);
   const limit = 7; // 1 large + 6 normal cards
   
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['posts', { status: 'published', category_id: categoryId, page, limit }],
-    queryFn: () => getPosts({ status: 'published', category_id: categoryId }, { page, limit }),
+    queryKey: ['posts', { status: 'published', category_slug: categorySlug, page, limit }],
+    queryFn: () => getPosts({ status: 'published', category_slug: categorySlug }, { page, limit }),
     // In a real app we would use useInfiniteQuery for "Load More"
   });
 

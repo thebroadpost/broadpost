@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import MDEditor from '@uiw/react-md-editor';
-import { getPostBySlug, createPost, updatePost, getCategories } from '../../lib/api';
+import { createPost, updatePost, getCategories, createCategory } from '../../lib/api';
 import { generateSlug } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -39,10 +39,14 @@ export default function PostForm() {
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [coverImage, setCoverImage] = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [categorySlug, setCategorySlug] = useState('');
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [authorName, setAuthorName] = useState('');
+  const [authorBio, setAuthorBio] = useState('');
+  const [authorAvatar, setAuthorAvatar] = useState('');
 
   useEffect(() => {
     if (postToEdit) {
@@ -51,9 +55,12 @@ export default function PostForm() {
       setContent(postToEdit.content);
       setExcerpt(postToEdit.excerpt || '');
       setCoverImage(postToEdit.cover_image || '');
-      setCategoryId(postToEdit.category_id || '');
+      setCategorySlug(generateSlug(postToEdit.category || ''));
       setStatus(postToEdit.status as 'draft' | 'published');
       setTags(postToEdit.tags || []);
+      setAuthorName(postToEdit.author_name || '');
+      setAuthorBio(postToEdit.author_bio || '');
+      setAuthorAvatar(postToEdit.author_avatar || '');
     }
   }, [postToEdit]);
 
@@ -63,6 +70,13 @@ export default function PostForm() {
       setSlug(generateSlug(title));
     }
   }, [title, isEditing]);
+
+  // If categories load and none is selected yet, default to the first one.
+  useEffect(() => {
+    if (!categorySlug && categories && categories.length > 0) {
+      setCategorySlug(categories[0].slug);
+    }
+  }, [categories, categorySlug]);
 
   const saveMutation = useMutation({
     mutationFn: (data: any) => isEditing ? updatePost(id as string, data) : createPost(data),
@@ -74,31 +88,51 @@ export default function PostForm() {
     onError: (error: any) => toast.error(error.message || 'Failed to save post')
   });
 
-  const handleSave = (e: React.FormEvent, isPublish: boolean = false) => {
-    e.preventDefault();
-    if (!title || !content || !categoryId) {
-      toast.error('Title, Content, and Category are required');
+  const createCategoryMutation = useMutation({
+    mutationFn: (name: string) => createCategory({ name }),
+    onSuccess: (createdCategory) => {
+      toast.success('Category created');
+      setCategorySlug(createdCategory.slug);
+      setNewCategoryName('');
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create category');
+    },
+  });
+
+  const handleSave = (isPublish: boolean = false) => {
+    const normalizedTitle = title.trim();
+    const normalizedContent = content.trim();
+    const effectiveCategorySlug = categorySlug || categories?.[0]?.slug || '';
+
+    if (!normalizedTitle || !normalizedContent || !effectiveCategorySlug) {
+      const missing: string[] = [];
+      if (!normalizedTitle) missing.push('Title');
+      if (!normalizedContent) missing.push('Content');
+      if (!effectiveCategorySlug) missing.push('Category');
+      toast.error(`${missing.join(', ')} are required`);
       return;
     }
     
     // Convert status
     let finalStatus = status;
-    let published_at = postToEdit?.published_at;
     if (isPublish) {
       finalStatus = 'published';
-      if (!published_at) published_at = new Date().toISOString();
     }
 
     saveMutation.mutate({
-      title,
+      title: normalizedTitle,
       slug,
-      content,
+      content: normalizedContent,
       excerpt,
       cover_image: coverImage,
-      category_id: categoryId,
+      category: effectiveCategorySlug,
       status: finalStatus,
       tags,
-      published_at
+      author_name: authorName,
+      author_bio: authorBio,
+      author_avatar: authorAvatar,
     });
   };
 
@@ -112,6 +146,16 @@ export default function PostForm() {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(t => t !== tagToRemove));
+  };
+
+  const handleCreateCategory = () => {
+    const name = newCategoryName.trim();
+    if (!name) {
+      toast.error('Enter a category name first');
+      return;
+    }
+
+    createCategoryMutation.mutate(name);
   };
 
   if (isEditing && isLoading) return <div className="p-8">Loading post...</div>;
@@ -171,10 +215,10 @@ export default function PostForm() {
             </span>
           </div>
           <div className="flex space-x-3">
-             <Button variant="outline" className="flex-1" onClick={(e) => handleSave(e, false)} disabled={saveMutation.isPending}>
+             <Button variant="outline" className="flex-1" onClick={() => handleSave(false)} disabled={saveMutation.isPending}>
                Save Draft
              </Button>
-             <Button className="flex-1 bg-accent-blue" onClick={(e) => handleSave(e, true)} disabled={saveMutation.isPending}>
+             <Button className="flex-1 bg-accent-blue" onClick={() => handleSave(true)} disabled={saveMutation.isPending}>
                Publish
              </Button>
           </div>
@@ -186,14 +230,35 @@ export default function PostForm() {
             <label className="text-sm font-medium text-gray-700 font-sans">Category</label>
             <select
               className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans focus:outline-none focus:border-primary"
-              value={categoryId}
-              onChange={e => setCategoryId(e.target.value)}
+              value={categorySlug}
+              onChange={e => setCategorySlug(e.target.value)}
             >
               <option value="">Select a category</option>
               {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                <option key={cat.id} value={cat.slug}>{cat.name}</option>
               ))}
             </select>
+            <div className="flex gap-2 pt-1">
+              <Input
+                placeholder="Create category (e.g. Other)"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                className="text-sm"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCreateCategory}
+                disabled={createCategoryMutation.isPending}
+              >
+                {createCategoryMutation.isPending ? 'Adding...' : 'Add'}
+              </Button>
+            </div>
+            {(!categories || categories.length === 0) && (
+              <p className="text-xs text-amber-700 font-sans">
+                No categories found. Create one above, then publish.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -212,6 +277,32 @@ export default function PostForm() {
                onChange={e => setTagInput(e.target.value)}
                onKeyDown={addTag}
                className="text-sm text-gray-700"
+            />
+          </div>
+
+          <div className="space-y-2 pt-2 border-t border-border">
+            <label className="text-sm font-medium text-gray-700 font-sans">Author Name</label>
+            <Input
+              placeholder="Author display name"
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              className="text-sm"
+            />
+
+            <label className="text-sm font-medium text-gray-700 font-sans">Author Bio</label>
+            <textarea
+              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-20 focus:outline-none focus:border-primary"
+              value={authorBio}
+              onChange={(e) => setAuthorBio(e.target.value)}
+              placeholder="Short bio..."
+            />
+
+            <label className="text-sm font-medium text-gray-700 font-sans">Author Avatar URL</label>
+            <Input
+              placeholder="https://..."
+              value={authorAvatar}
+              onChange={(e) => setAuthorAvatar(e.target.value)}
+              className="text-sm"
             />
           </div>
         </div>

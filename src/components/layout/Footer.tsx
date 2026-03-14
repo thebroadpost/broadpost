@@ -1,9 +1,8 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white pt-16 pb-8 px-4 lg:px-8 font-sans">
+    <footer className="bg-primary dark:bg-gray-900 text-white pt-16 pb-8 px-4 lg:px-8 font-sans transition-colors duration-200 border-t border-transparent dark:border-gray-800">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start mb-16 border-b border-gray-700 pb-16">
           <div className="mb-10 md:mb-0 max-w-sm">

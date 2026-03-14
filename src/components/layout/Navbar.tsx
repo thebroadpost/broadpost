@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
@@ -56,15 +56,15 @@ export default function Navbar() {
         </div>
 
         {/* Main Navbar */}
-        <div className="bg-white border-b border-border h-[76px] flex items-center justify-between px-4 lg:px-8">
+        <div className="bg-white dark:bg-gray-900 border-b border-border dark:border-gray-800 h-[76px] flex items-center justify-between px-4 lg:px-8 transition-colors duration-200">
           <div className="flex items-center lg:hidden">
-            <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-primary hover:bg-gray-100 rounded">
+            <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
               <Menu size={24} />
             </button>
           </div>
 
           <div className="flex-1 flex justify-center lg:justify-start lg:flex-none">
-            <Link to="/" className="font-serif font-bold text-3xl lg:text-4xl text-primary tracking-tight">
+            <Link to="/" className="font-serif font-bold text-3xl lg:text-4xl text-primary dark:text-white tracking-tight">
               BROADPOST
             </Link>
           </div>
@@ -77,7 +77,7 @@ export default function Navbar() {
                   key={link.name}
                   to={link.path}
                   className={`font-sans text-sm font-semibold uppercase tracking-wide py-2 border-b-2 transition-colors ${
-                    isActive ? 'border-accent-red text-primary' : 'border-transparent text-gray-700 hover:text-primary hover:border-gray-300'
+                    isActive ? 'border-accent-red text-primary dark:text-white' : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   {link.name}
@@ -89,7 +89,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-primary hover:bg-gray-100 rounded hidden sm:block"
+              className="p-2 text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded hidden sm:block transition-colors"
             >
               <Search size={20} />
             </button>
@@ -97,16 +97,16 @@ export default function Navbar() {
             {user ? (
               <button 
                 onClick={() => setIsUserSidebarOpen(true)}
-                className="hidden sm:flex items-center space-x-2 hover:bg-gray-100 p-1.5 pr-3 rounded-full border border-gray-200"
+                className="hidden sm:flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-1.5 pr-3 rounded-full border border-gray-200 dark:border-gray-700 transition-colors"
               >
                  {user.user_metadata?.avatar_url ? (
                    <img src={user.user_metadata.avatar_url} alt="Profile" className="w-6 h-6 rounded-full" />
                  ) : (
                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
-                     <User size={14} className="text-gray-500" />
+                     <User size={14} className="text-gray-500 dark:text-gray-400" />
                    </div>
                  )}
-                 <span className="text-xs font-bold tracking-wide font-sans text-primary">Account</span>
+                 <span className="text-xs font-bold tracking-wide font-sans text-primary dark:text-white">Account</span>
               </button>
             ) : (
               <Button 
@@ -121,7 +121,7 @@ export default function Navbar() {
             {/* Mobile search icon */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-primary sm:hidden"
+              className="p-2 text-primary dark:text-white sm:hidden"
             >
               <Search size={20} />
             </button>
@@ -129,7 +129,7 @@ export default function Navbar() {
              {/* Mobile user icon */}
             <button 
               onClick={() => setIsUserSidebarOpen(true)}
-              className="p-2 text-primary sm:hidden"
+              className="p-2 text-primary dark:text-white sm:hidden"
             >
               <User size={20} />
             </button>

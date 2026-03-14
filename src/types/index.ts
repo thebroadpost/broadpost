@@ -6,11 +6,15 @@ export interface Post {
   content: string;
   excerpt: string;
   cover_image: string | null;
-  category_id: string;
-  author_id: string;
+  category_id?: string;
+  author_id?: string;
   status: 'published' | 'draft';
   views: number;
-  published_at: string | null;
+  published_at?: string | null;
+  category?: string;
+  author_name?: string;
+  author_bio?: string | null;
+  author_avatar?: string | null;
   author?: {
     name: string;
     avatar_url: string | null;
@@ -42,7 +46,22 @@ export interface AdminStats {
   publishedPosts: number;
   draftPosts: number;
   totalComments: number;
+  totalViews: number;
   viewsData: { date: string; views: number }[];
+  recentPosts: {
+    id: string;
+    title: string;
+    slug: string;
+    category: string;
+    views: number;
+    status: string;
+    created_at: string;
+  }[];
+  topCategories: {
+    slug: string;
+    name: string;
+    count: number;
+  }[];
 }
 
 export interface PaginationParams {

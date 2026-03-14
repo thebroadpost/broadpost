@@ -1,16 +1,25 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AdminLayout from './components/admin/AdminLayout';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/public/Home'));
 const Category = lazy(() => import('./pages/public/Category'));
 const Post = lazy(() => import('./pages/public/Post'));
 const About = lazy(() => import('./pages/public/About'));
+
+// Account Pages
+const AccountLayout = lazy(() => import('./pages/public/account/AccountLayout'));
+const Profile = lazy(() => import('./pages/public/account/Profile'));
+const Settings = lazy(() => import('./pages/public/account/Settings'));
+const ReadingList = lazy(() => import('./pages/public/account/ReadingList'));
+const Notifications = lazy(() => import('./pages/public/account/Notifications'));
+const Newsletters = lazy(() => import('./pages/public/account/Newsletters'));
 
 const AdminLogin = lazy(() => import('./pages/admin/Login'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -26,8 +35,9 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-background selection:bg-black selection:text-white">
+    <ThemeProvider>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col bg-background selection:bg-black selection:text-white dark:bg-gray-900 transition-colors duration-200">
         <Toaster position="top-center" />
         <Routes>
           {/* Public Routes */}
@@ -46,6 +56,17 @@ function App() {
             <Route path="category/:slug" element={<Category />} />
             <Route path="blog/:slug" element={<Post />} />
             <Route path="about" element={<About />} />
+            
+            {/* Account Routes */}
+            <Route path="account" element={<AccountLayout />}>
+              <Route index element={<Navigate to="/account/profile" replace />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="reading-list" element={<ReadingList />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="newsletters" element={<Newsletters />} />
+            </Route>
+            
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
 
@@ -70,7 +91,8 @@ function App() {
           } />
         </Routes>
       </div>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

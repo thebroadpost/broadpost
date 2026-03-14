@@ -11,6 +11,7 @@ import { Badge } from '../../components/ui/Badge';
 import { PostCard } from '../../components/blog/PostCard';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { BookmarkButton } from '../../components/blog/BookmarkButton';
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();
@@ -136,6 +137,7 @@ export default function Post() {
           </div>
 
           <div className="flex items-center space-x-3 text-gray-400">
+             <BookmarkButton postId={post.id} className="p-2 border border-border rounded-full hover:border-primary transition-colors" size={16} />
              <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Twitter size={16} /></button>
              <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Linkedin size={16} /></button>
              <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Facebook size={16} /></button>

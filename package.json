@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.99.1",
     "@tanstack/react-query": "^5.90.21",
+    "@tanstack/react-virtual": "^3.13.22",
     "@uiw/react-md-editor": "^4.0.11",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",

@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminStats, getAllComments } from '../../lib/api';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar } from 'recharts';
 import { Skeleton } from '../../components/ui/Skeleton';
+
+// Lazy-load recharts so the heavy charting library only loads on the admin
+// dashboard, and only when needed — not in the main bundle.
+const BarChart = lazy(() => import('recharts').then(m => ({ default: m.BarChart })));
+const Bar = lazy(() => import('recharts').then(m => ({ default: m.Bar })));
+const XAxis = lazy(() => import('recharts').then(m => ({ default: m.XAxis })));
+const YAxis = lazy(() => import('recharts').then(m => ({ default: m.YAxis })));
+const Tooltip = lazy(() => import('recharts').then(m => ({ default: m.Tooltip })));
+const ResponsiveContainer = lazy(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })));
+const RadialBarChart = lazy(() => import('recharts').then(m => ({ default: m.RadialBarChart })));
+const RadialBar = lazy(() => import('recharts').then(m => ({ default: m.RadialBar })));
 import { FileText, Eye, MessageSquare, CheckCircle, Activity, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../../lib/utils';
@@ -93,17 +103,19 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.viewsData || []} barGap={14}>
-                <XAxis dataKey="date" stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  cursor={{ fill: '#F5F5F5' }}
-                  contentStyle={{ borderRadius: '8px', border: '1px solid #E2E2E2', fontFamily: 'Inter' }}
-                />
-                <Bar dataKey="views" fill="#0f172a" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<Skeleton className="w-full h-full" />}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats?.viewsData || []} barGap={14}>
+                  <XAxis dataKey="date" stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#9A9A9A" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip
+                    cursor={{ fill: '#F5F5F5' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #E2E2E2', fontFamily: 'Inter' }}
+                  />
+                  <Bar dataKey="views" fill="#0f172a" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Suspense>
           </div>
         </div>
 
@@ -174,20 +186,22 @@ export default function Dashboard() {
           <h2 className="text-xl font-serif font-bold text-primary mb-4">Publishing Health</h2>
           <div className="flex items-center justify-center">
             <div className="relative h-[220px] w-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart
-                  cx="50%"
-                  cy="50%"
-                  innerRadius="72%"
-                  outerRadius="100%"
-                  barSize={14}
-                  data={publicationHealthData}
-                  startAngle={90}
-                  endAngle={-270}
-                >
-                  <RadialBar background dataKey="value" cornerRadius={12} />
-                </RadialBarChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<Skeleton className="w-full h-full rounded-full" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="72%"
+                    outerRadius="100%"
+                    barSize={14}
+                    data={publicationHealthData}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <RadialBar background dataKey="value" cornerRadius={12} />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              </Suspense>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-4xl font-sans font-black text-primary">{publishedRate}%</span>
                 <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Published</span>

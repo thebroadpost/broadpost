@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 import { Button } from '../ui/Button';
-import UserSidebar from './UserSidebar';
-import SearchModal from './SearchModal';
 import { useAuth } from '../../contexts/AuthContext';
+
+const UserSidebar = lazy(() => import('./UserSidebar'));
+const SearchModal = lazy(() => import('./SearchModal'));
 
 const NAV_LINKS = [
   { name: 'Home', path: '/' },
@@ -35,6 +36,10 @@ export default function Navbar() {
   }, []);
 
   const today = formatDate(new Date().toISOString());
+
+  const overlayFallback = (
+    <div className="fixed inset-0 z-[80] bg-black/10 backdrop-blur-[1px]" aria-hidden="true" />
+  );
 
   return (
     <>
@@ -172,8 +177,16 @@ export default function Navbar() {
         </div>
       )}
 
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <UserSidebar isOpen={isUserSidebarOpen} onClose={() => setIsUserSidebarOpen(false)} />
+      {isSearchOpen && (
+        <Suspense fallback={overlayFallback}>
+          <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+        </Suspense>
+      )}
+      {isUserSidebarOpen && (
+        <Suspense fallback={overlayFallback}>
+          <UserSidebar isOpen={isUserSidebarOpen} onClose={() => setIsUserSidebarOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }

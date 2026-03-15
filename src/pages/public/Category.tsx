@@ -1,11 +1,17 @@
-import React from 'react';
+import { Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { getCategories } from '../../lib/api';
-import { PostGrid } from '../../components/blog/PostGrid';
-import { Sidebar } from '../../components/layout/Sidebar';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { LazyRender } from '../../components/ui/LazyRender';
+
+const PostGrid = lazy(() =>
+  import('../../components/blog/PostGrid').then((module) => ({ default: module.PostGrid }))
+);
+const Sidebar = lazy(() =>
+  import('../../components/layout/Sidebar').then((module) => ({ default: module.Sidebar }))
+);
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
@@ -58,19 +64,32 @@ export default function Category() {
       </section>
 
       {/* Main Content + Sidebar */}
-      <section className="px-4 lg:px-8 py-16 max-w-[1600px] mx-auto">
-        <div className="flex flex-col lg:flex-row gap-12">
-          
-          <div className="lg:w-[70%]">
-             <PostGrid categorySlug={category.slug} />
-          </div>
+      <LazyRender
+        fallback={
+          <section className="px-4 lg:px-8 py-16 max-w-[1600px] mx-auto">
+            <div className="flex flex-col lg:flex-row gap-12">
+              <Skeleton className="lg:w-[70%] h-[650px]" />
+              <Skeleton className="lg:w-[30%] h-[450px]" />
+            </div>
+          </section>
+        }
+      >
+        <section className="px-4 lg:px-8 py-16 max-w-[1600px] mx-auto">
+          <div className="flex flex-col lg:flex-row gap-12">
+            <div className="lg:w-[70%]">
+              <Suspense fallback={<Skeleton className="w-full h-[600px]" />}>
+                <PostGrid categorySlug={category.slug} />
+              </Suspense>
+            </div>
 
-          <div className="lg:w-[30%]">
-            <Sidebar />
+            <div className="lg:w-[30%]">
+              <Suspense fallback={<Skeleton className="w-full h-[450px]" />}>
+                <Sidebar />
+              </Suspense>
+            </div>
           </div>
-
-        </div>
-      </section>
+        </section>
+      </LazyRender>
     </>
   );
 }

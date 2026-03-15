@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../../types';
 import { Badge } from '../ui/Badge';
@@ -9,8 +10,11 @@ interface PostCardProps {
   variant?: 'featured' | 'standard' | 'horizontal' | 'small' | 'minimal' | 'opinion';
 }
 
-export function PostCard({ post, variant = 'standard' }: PostCardProps) {
+export const PostCard = memo(function PostCard({ post, variant = 'standard' }: PostCardProps) {
   const readTime = calculateReadTime(post.content);
+  const isHeroImage = variant === 'featured';
+  const imageLoading: 'eager' | 'lazy' = isHeroImage ? 'eager' : 'lazy';
+  const imageFetchPriority: 'high' | 'auto' = isHeroImage ? 'high' : 'auto';
   
   if (variant === 'featured') {
     return (
@@ -20,7 +24,9 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
             src={post.cover_image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80'} 
             alt={post.title} 
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-105"
-            loading="lazy"
+            loading={imageLoading}
+            fetchPriority={imageFetchPriority}
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
         </div>
@@ -54,6 +60,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
             alt={post.title} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            decoding="async"
           />
         </div>
         <div className="flex-1 min-w-0">
@@ -80,6 +87,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
              alt={post.title} 
              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
              loading="lazy"
+             decoding="async"
           />
         </div>
         <div className="w-full md:w-[55%] flex flex-col justify-center">
@@ -115,6 +123,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
              alt={post.title} 
              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
              loading="lazy"
+             decoding="async"
            />
         </div>
         <span className="text-accent-blue font-bold text-[10px] uppercase tracking-wider mb-1 block">
@@ -161,6 +170,7 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
           alt={post.title} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
+          decoding="async"
         />
       </div>
       <div className="mb-2">
@@ -183,4 +193,4 @@ export function PostCard({ post, variant = 'standard' }: PostCardProps) {
       </div>
     </Link>
   );
-}
+});

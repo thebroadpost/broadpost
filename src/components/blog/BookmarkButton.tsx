@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Bookmark as BookmarkIcon } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { checkIsBookmarked, toggleBookmark } from '../../lib/api';
@@ -12,6 +13,7 @@ interface BookmarkButtonProps {
 
 export function BookmarkButton({ postId, className = '', size = 18 }: BookmarkButtonProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -35,13 +37,14 @@ export function BookmarkButton({ postId, className = '', size = 18 }: BookmarkBu
     try {
       const { bookmarked } = await toggleBookmark(postId, user.id);
       setIsBookmarked(bookmarked);
+      queryClient.invalidateQueries({ queryKey: ['bookmarks', user.id] });
       if (bookmarked) {
         toast.success('Saved to Reading List');
       } else {
         toast.success('Removed from Reading List');
       }
-    } catch (error) {
-      toast.error('Failed to update bookmark');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update bookmark');
     } finally {
       setLoading(false);
     }

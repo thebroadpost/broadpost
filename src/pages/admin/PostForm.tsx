@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import MDEditor from '@uiw/react-md-editor';
 import { createPost, updatePost, getCategories, createCategory } from '../../lib/api';
 import { generateSlug } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { Skeleton } from '../../components/ui/Skeleton';
 import toast from 'react-hot-toast';
+
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
 export default function PostForm() {
   const { id } = useParams<{ id: string }>();
@@ -160,6 +162,8 @@ export default function PostForm() {
 
   if (isEditing && isLoading) return <div className="p-8">Loading post...</div>;
 
+  const editorFallback = <Skeleton className="w-full h-[500px]" />;
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Left Column - Main Content (65%) */}
@@ -183,12 +187,14 @@ export default function PostForm() {
           </div>
 
           <div data-color-mode="light">
-            <MDEditor
-              value={content}
-              onChange={(val) => setContent(val || '')}
-              height={500}
-              className="font-sans border-border shadow-none"
-            />
+            <Suspense fallback={editorFallback}>
+              <MDEditor
+                value={content}
+                onChange={(val) => setContent(val || '')}
+                height={500}
+                className="font-sans border-border shadow-none"
+              />
+            </Suspense>
           </div>
 
           <div className="space-y-2">

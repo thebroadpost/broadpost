@@ -17,3 +17,27 @@ BEGIN
     WITH CHECK (true);
   END IF;
 END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'Authenticated users can read subscriptions' AND tablename = 'subscriptions'
+  ) THEN
+    CREATE POLICY "Authenticated users can read subscriptions"
+    ON public.subscriptions FOR SELECT
+    TO authenticated
+    USING (true);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'Authenticated users can delete subscriptions' AND tablename = 'subscriptions'
+  ) THEN
+    CREATE POLICY "Authenticated users can delete subscriptions"
+    ON public.subscriptions FOR DELETE
+    TO authenticated
+    USING (true);
+  END IF;
+END $$;

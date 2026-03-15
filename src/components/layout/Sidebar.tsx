@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getTrendingPosts, getFeaturedPosts, getCategories } from '../../lib/api';
 import { Skeleton } from '../ui/Skeleton';
@@ -31,7 +31,7 @@ export function Sidebar() {
   const [email, setEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
-  const handleSubscribe = async (e: React.FormEvent) => {
+  const handleSubscribe = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
@@ -44,12 +44,13 @@ export function Sidebar() {
       if (error.message === 'Email is already subscribed') {
         toast.error('This email is already subscribed.');
       } else {
-        toast.error('Failed to subscribe. Please try again later.');
+        toast.error(error?.message || 'Failed to subscribe. Please try again later.');
       }
     } finally {
       setSubscribing(false);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email]);
 
   return (
     <aside className="space-y-12 sticky top-24">

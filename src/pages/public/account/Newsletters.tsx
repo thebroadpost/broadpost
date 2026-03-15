@@ -42,7 +42,7 @@ export default function Newsletters() {
         toast.success("Subscribed successfully!");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to update subscription");
+      toast.error(error?.message || "Failed to update subscription");
     } finally {
       setLoading(false);
     }

@@ -10,13 +10,13 @@ const SearchModal = lazy(() => import('./SearchModal'));
 
 const NAV_LINKS = [
   { name: 'Home', path: '/' },
-  { name: 'Business', path: '/category/business' },
-  { name: 'Finance', path: '/category/finance' },
-  { name: 'Markets', path: '/category/markets' },
-  { name: 'Economy', path: '/category/economy' },
-  { name: 'Tech', path: '/category/tech' },
-  { name: 'World', path: '/category/world' },
-  { name: 'Opinion', path: '/category/opinion' },
+  { name: 'Lifestyle', path: '/category/lifestyle' },
+  { name: 'Tech & Innovation', path: '/category/tech-and-innovation' },
+  { name: 'Sports', path: '/category/sports' },
+  { name: 'Entertainment', path: '/category/entertainment' },
+  { name: 'Business & Economy', path: '/category/business-and-economy' },
+  { name: 'Personal Finance', path: '/category/personal-finance' },
+  { name: 'Politics & Policy', path: '/category/politics-and-policy' },
 ];
 
 export default function Navbar() {

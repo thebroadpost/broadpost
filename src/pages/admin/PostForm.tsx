@@ -10,6 +10,16 @@ import toast from 'react-hot-toast';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
+const PRESET_CATEGORIES = [
+  { name: 'Lifestyle', slug: 'lifestyle' },
+  { name: 'Tech & Innovation', slug: 'tech-and-innovation' },
+  { name: 'Sports', slug: 'sports' },
+  { name: 'Entertainment', slug: 'entertainment' },
+  { name: 'Business & Economy', slug: 'business-and-economy' },
+  { name: 'Personal Finance', slug: 'personal-finance' },
+  { name: 'Politics & Policy', slug: 'politics-and-policy' },
+];
+
 export default function PostForm() {
   const { id } = useParams<{ id: string }>();
   const isEditing = !!id;
@@ -264,6 +274,35 @@ export default function PostForm() {
         <div className="bg-white p-6 rounded shadow-sm border border-border space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 font-sans">Category</label>
+            {/* Preset category chips */}
+            <div className="flex flex-wrap gap-1.5 pb-1">
+              {PRESET_CATEGORIES.map((preset) => {
+                const existsInDb = categories?.some(c => c.slug === preset.slug);
+                const isSelected = categorySlug === preset.slug;
+                return (
+                  <button
+                    key={preset.slug}
+                    type="button"
+                    onClick={() => {
+                      if (existsInDb) {
+                        setCategorySlug(preset.slug);
+                      } else {
+                        createCategoryMutation.mutate(preset.name, {
+                          onSuccess: () => setCategorySlug(preset.slug),
+                        });
+                      }
+                    }}
+                    className={`text-xs px-2 py-1 rounded border font-sans transition-colors ${
+                      isSelected
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-gray-50 text-gray-600 border-border hover:bg-gray-100'
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                );
+              })}
+            </div>
             <select
               className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans focus:outline-none focus:border-primary"
               value={categorySlug}

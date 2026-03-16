@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { cn } from '../../lib/utils';
 
 interface ModalProps {
   isOpen: boolean;
@@ -27,10 +26,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div
-        className={cn(
-          'relative w-full max-w-lg rounded-lg bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200',
-          className
-        )}
+        className={`relative w-full max-w-lg rounded-lg bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200 ${className || ''}`}
       >
         <div className="flex items-center justify-between mb-4">
           {title && <h2 className="text-xl font-bold">{title}</h2>}

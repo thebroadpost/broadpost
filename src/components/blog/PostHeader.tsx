@@ -10,13 +10,15 @@ interface PostHeaderProps {
 
 export function PostHeader({ post }: PostHeaderProps) {
   const readTime = post.content ? calculateReadTime(post.content) : 1;
+  const categorySlug = post.category?.slug;
+  const categoryName = post.category?.name;
 
   return (
     <header className="mb-12 text-center max-w-3xl mx-auto px-4 mt-8 md:mt-16">
-      {post.category && (
-        <Link to={`/category/${post.category.toLowerCase()}`}>
-          <Badge variant="success" className="mb-6 mb-8 text-sm px-4 py-1">
-            {post.category.toUpperCase()}
+      {categorySlug && categoryName && (
+        <Link to={`/category/${categorySlug}`}>
+          <Badge variant="success" className="mb-8 text-sm px-4 py-1">
+            {categoryName.toUpperCase()}
           </Badge>
         </Link>
       )}

@@ -67,6 +67,13 @@ This document lists the features that are implemented, connected, and currently 
 - Markdown editor integration.
 - Slug generation.
 - Cover image URL input.
+- SEO fields in admin post flow:
+  - SEO title
+  - meta description
+  - focus keyword
+  - canonical URL
+  - Open Graph title and description
+  - social share image
 - Tags input.
 - Author fields in admin form:
   - author name
@@ -137,6 +144,14 @@ Sets up:
 - `record_post_view` RPC
 - category post count refresh function
 - trigger to keep category counts in sync
+
+### `setup_post_seo.sql`
+
+Sets up:
+
+- SEO metadata columns on `posts`
+- canonical URL storage
+- Open Graph and social image storage
 
 ## Current Schema Alignment
 

@@ -18,7 +18,8 @@ function normalizePost(raw: any): any {
     ...raw,
     category_id: raw?.category_id || categorySlug,
     author_id: raw?.author_id || '',
-    published_at: raw?.published_at || raw?.created_at || null,
+    published_at: raw?.status === 'published' ? (raw?.published_at || raw?.created_at || null) : (raw?.published_at || null),
+    scheduled_at: raw?.scheduled_at || null,
     tags: Array.isArray(raw?.tags) ? raw.tags : [],
     category: {
       id: categorySlug,
@@ -42,6 +43,24 @@ function categoryVariants(categorySlug: string): string[] {
   const slug = generateSlug(categorySlug);
   const spaced = slug.replace(/-/g, ' ');
   return Array.from(new Set([slug, spaced, titleCase(slug)]));
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim();
+  return normalized ? normalized : null;
+}
+
+function extractSeoFields(postData: any) {
+  return {
+    seo_title: normalizeOptionalText(postData.seo_title),
+    meta_description: normalizeOptionalText(postData.meta_description),
+    focus_keyword: normalizeOptionalText(postData.focus_keyword),
+    canonical_url: normalizeOptionalText(postData.canonical_url),
+    open_graph_title: normalizeOptionalText(postData.open_graph_title),
+    open_graph_description: normalizeOptionalText(postData.open_graph_description),
+    social_share_image: normalizeOptionalText(postData.social_share_image),
+  };
 }
 
 const POST_SELECT = '*';
@@ -229,12 +248,14 @@ export async function createPost(postData: any) {
     author_name: postData.author_name || userData.user.user_metadata?.full_name || 'Staff',
     author_avatar: postData.author_avatar || userData.user.user_metadata?.avatar_url || null,
     author_bio: postData.author_bio || null,
+    ...extractSeoFields(postData),
     views: postData.views || 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     author_id: userData.user.id,
     category_id: postData.category_id,
-    published_at: postData.published_at,
+    published_at: postData.status === 'published' ? (postData.published_at || new Date().toISOString()) : null,
+    scheduled_at: postData.status === 'scheduled' ? (postData.scheduled_at || null) : null,
   };
   let data: any = null;
   let error: any = null;
@@ -267,6 +288,7 @@ export async function createPost(postData: any) {
 export async function updatePost(postId: string, postData: any) {
   const payload: Record<string, any> = {
     ...postData,
+    ...extractSeoFields(postData),
     updated_at: new Date().toISOString(),
   };
   let data: any = null;

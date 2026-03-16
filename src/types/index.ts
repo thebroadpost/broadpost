@@ -6,12 +6,20 @@ export interface Post {
   content: string;
   excerpt: string;
   cover_image: string | null;
+  seo_title?: string | null;
+  meta_description?: string | null;
+  focus_keyword?: string | null;
+  canonical_url?: string | null;
+  open_graph_title?: string | null;
+  open_graph_description?: string | null;
+  social_share_image?: string | null;
   category_id?: string;
   author_id?: string;
-  status: 'published' | 'draft';
+  status: 'published' | 'draft' | 'scheduled';
   views: number;
   published_at?: string | null;
-  category?: string;
+  scheduled_at?: string | null;
+  updated_at?: string | null;
   author_name?: string;
   author_bio?: string | null;
   author_avatar?: string | null;
@@ -22,6 +30,20 @@ export interface Post {
   };
   category?: Category;
   tags?: string[];
+  // Post settings / visibility
+  visibility?: 'public' | 'private' | 'password_protected';
+  post_password?: string | null;
+  allow_comments?: boolean;
+  is_featured?: boolean;
+  is_pinned?: boolean;
+  show_in_homepage?: boolean;
+  show_in_newsletter?: boolean;
+  // Analytics / content enrichment
+  custom_excerpt?: string | null;
+  reading_time_override?: number | null;
+  cta_block?: string | null;
+  reference_links?: string[];
+  internal_link_suggestions?: string[];
 }
 
 export interface Comment {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock } from 'lucide-react';
+import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
 import { formatDate, calculateReadTime, getInitials } from '../../lib/utils';
@@ -87,13 +87,36 @@ export default function Post() {
   }
 
   const readTime = calculateReadTime(post.content);
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+  const fallbackUrl = siteOrigin ? `${siteOrigin}/blog/${post.slug}` : '';
+  const canonicalUrl = post.canonical_url || fallbackUrl;
+  const seoTitle = post.seo_title || post.title;
+  const pageTitle = seoTitle.includes('BROADPOST') ? seoTitle : `${seoTitle} | BROADPOST`;
+  const metaDescription = post.meta_description || post.excerpt || 'Read this article on BROADPOST.';
+  const openGraphTitle = post.open_graph_title || seoTitle;
+  const openGraphDescription = post.open_graph_description || metaDescription;
+  const socialShareImage = post.social_share_image || post.cover_image;
+  const shareUrl = encodeURIComponent(canonicalUrl || (typeof window !== 'undefined' ? window.location.href : ''));
+  const shareTitle = encodeURIComponent(openGraphTitle);
 
   return (
     <article className="bg-white">
       <Helmet>
-        <title>{post.title} | BROADPOST</title>
-        <meta name="description" content={post.excerpt || 'Read this article on BROADPOST.'} />
-        {post.cover_image && <meta property="og:image" content={post.cover_image} />}
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDescription} />
+        {post.focus_keyword && <meta name="keywords" content={post.focus_keyword} />}
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="BROADPOST" />
+        <meta property="og:title" content={openGraphTitle} />
+        <meta property="og:description" content={openGraphDescription} />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        {socialShareImage && <meta property="og:image" content={socialShareImage} />}
+        {post.published_at && <meta property="article:published_time" content={post.published_at} />}
+        <meta name="twitter:card" content={socialShareImage ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:title" content={openGraphTitle} />
+        <meta name="twitter:description" content={openGraphDescription} />
+        {socialShareImage && <meta name="twitter:image" content={socialShareImage} />}
       </Helmet>
 
       {/* Header Area */}
@@ -138,12 +161,37 @@ export default function Post() {
 
           <div className="flex items-center space-x-3 text-gray-400">
              <BookmarkButton postId={post.id} className="p-2 border border-border rounded-full hover:border-primary transition-colors" size={16} />
-             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Twitter size={16} /></button>
-             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Linkedin size={16} /></button>
-             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"><Facebook size={16} /></button>
+             <a
+               href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
+               target="_blank"
+               rel="noreferrer"
+               aria-label="Share on X"
+               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+             ><Twitter size={16} /></a>
+             <a
+               href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+               target="_blank"
+               rel="noreferrer"
+               aria-label="Share on LinkedIn"
+               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+             ><Linkedin size={16} /></a>
+             <a
+               href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+               target="_blank"
+               rel="noreferrer"
+               aria-label="Share on Facebook"
+               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+             ><Facebook size={16} /></a>
+             <a
+               href={`https://wa.me/?text=${encodeURIComponent(`${openGraphTitle} ${canonicalUrl || ''}`.trim())}`}
+               target="_blank"
+               rel="noreferrer"
+               aria-label="Share on WhatsApp"
+               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+             ><MessageCircle size={16} /></a>
              <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
                 onClick={() => {
-                   navigator.clipboard.writeText(window.location.href);
+                   navigator.clipboard.writeText(canonicalUrl || window.location.href);
                    toast.success("Link copied!");
                 }}
              ><LinkIcon size={16} /></button>

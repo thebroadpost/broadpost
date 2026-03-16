@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminStats, getAllComments } from '../../lib/api';
 import { Skeleton } from '../../components/ui/Skeleton';
+import toast from 'react-hot-toast';
 
 // Lazy-load recharts so the heavy charting library only loads on the admin
 // dashboard, and only when needed — not in the main bundle.
@@ -18,15 +19,27 @@ import { Link } from 'react-router-dom';
 import { formatDate } from '../../lib/utils';
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError: statsError, error: statsErrorObj } = useQuery({
     queryKey: ['adminStats'],
     queryFn: getAdminStats,
   });
 
-  const { data: comments } = useQuery({
+  const { data: comments, isError: commentsError, error: commentsErrorObj } = useQuery({
     queryKey: ['dashboardComments'],
     queryFn: () => getAllComments(),
   });
+
+  React.useEffect(() => {
+    if (statsError) {
+      toast.error((statsErrorObj as Error)?.message || 'Failed to load admin statistics');
+    }
+  }, [statsError, statsErrorObj]);
+
+  React.useEffect(() => {
+    if (commentsError) {
+      toast.error((commentsErrorObj as Error)?.message || 'Failed to load recent comments');
+    }
+  }, [commentsError, commentsErrorObj]);
 
   if (isLoading) {
     return (
@@ -43,6 +56,17 @@ export default function Dashboard() {
           <Skeleton className="xl:col-span-8 h-80 bg-white" />
           <Skeleton className="xl:col-span-4 h-80 bg-white" />
         </div>
+      </div>
+    );
+  }
+
+  if (statsError) {
+    return (
+      <div className="bg-white rounded-xl border border-border p-8">
+        <h2 className="text-xl font-serif font-bold text-primary mb-2">Dashboard unavailable</h2>
+        <p className="text-sm font-sans text-gray-600 mb-4">
+          We could not load your dashboard stats right now. Please refresh and try again.
+        </p>
       </div>
     );
   }

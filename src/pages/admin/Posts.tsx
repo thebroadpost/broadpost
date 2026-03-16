@@ -6,12 +6,14 @@ import { getPosts, deletePost } from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
+import { Modal } from '../../components/ui/Modal';
 import { formatDate } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function Posts() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [postToDelete, setPostToDelete] = useState<any | null>(null);
   // In a real implementation we would debounce search, here we simplify
   
   const queryClient = useQueryClient();
@@ -30,7 +32,21 @@ export default function Posts() {
     onError: () => toast.error('Failed to delete post'),
   });
 
-  const filteredPosts = data?.data?.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase())) || [];
+  const handleDeleteConfirm = () => {
+    if (!postToDelete) return;
+    deleteMutation.mutate(postToDelete.id, {
+      onSuccess: () => setPostToDelete(null),
+    });
+  };
+
+  const filteredPosts = data?.data?.filter((post) => {
+    const haystack = [post.title, post.focus_keyword, post.seo_title]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(searchTerm.toLowerCase());
+  }) || [];
 
   return (
     <div>
@@ -66,6 +82,7 @@ export default function Posts() {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Title</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Category</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Status</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">SEO</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Date</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Views</th>
                 <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
@@ -73,9 +90,9 @@ export default function Posts() {
             </thead>
             <tbody className="bg-white divide-y divide-border">
               {isLoading ? (
-                <tr><td colSpan={6} className="px-6 py-4 text-center">Loading...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-4 text-center">Loading...</td></tr>
               ) : filteredPosts.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500">No posts found.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">No posts found.</td></tr>
               ) : (
                 filteredPosts.map((post: any) => (
                   <tr key={post.id} className="hover:bg-gray-50 transition-colors">
@@ -91,12 +108,31 @@ export default function Posts() {
                       {post.category?.name || 'Uncategorized'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={post.status === 'published' ? 'primary' : 'outline'} className="text-[10px]">
+                      <Badge
+                        variant={post.status === 'published' ? 'primary' : 'outline'}
+                        className={`text-[10px] ${
+                          post.status === 'scheduled' ? 'bg-blue-100 text-blue-700 border-blue-200' : ''
+                        }`}
+                      >
                         {post.status}
                       </Badge>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge
+                        variant={post.seo_title || post.meta_description || post.open_graph_title || post.social_share_image || post.canonical_url ? 'primary' : 'outline'}
+                        className="text-[10px]"
+                      >
+                        {post.seo_title || post.meta_description || post.open_graph_title || post.social_share_image || post.canonical_url ? 'Ready' : 'Missing'}
+                      </Badge>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans">
-                      {formatDate(post.created_at)}
+                      <div>{formatDate(post.created_at)}</div>
+                      {post.scheduled_at && post.status === 'scheduled' && (
+                        <div className="text-xs text-blue-600 mt-0.5">⏰ {formatDate(post.scheduled_at)}</div>
+                      )}
+                      {post.published_at && post.status === 'published' && (
+                        <div className="text-xs text-green-600 mt-0.5">Published {formatDate(post.published_at)}</div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans flex items-center">
                       <Eye size={14} className="mr-1" /> {post.views || 0}
@@ -107,7 +143,8 @@ export default function Posts() {
                           <Edit2 size={16} />
                         </Link>
                         <button 
-                          onClick={() => { if (window.confirm('Delete this post?')) deleteMutation.mutate(post.id) }} 
+                          onClick={() => setPostToDelete(post)}
+                          disabled={deleteMutation.isPending}
                           className="text-accent-red hover:text-red-900 transition-colors"
                         >
                           <Trash2 size={16} />
@@ -141,6 +178,24 @@ export default function Posts() {
         </div>
 
       </div>
+
+      <Modal
+        isOpen={!!postToDelete}
+        onClose={() => setPostToDelete(null)}
+        title="Delete Post"
+      >
+        <p className="text-sm text-gray-600 font-sans mb-6">
+          Are you sure you want to delete <span className="font-semibold">{postToDelete?.title}</span>? This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={() => setPostToDelete(null)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteMutation.isPending}>
+            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

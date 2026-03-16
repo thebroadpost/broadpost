@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPost, updatePost, getCategories, createCategory } from '../../lib/api';
@@ -49,6 +49,36 @@ export default function PostForm() {
   const [authorName, setAuthorName] = useState('');
   const [authorBio, setAuthorBio] = useState('');
   const [authorAvatar, setAuthorAvatar] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5 MB');
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const { supabase } = await import('../../lib/supabase');
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(fileName, file, { upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('post-images').getPublicUrl(fileName);
+      setCoverImage(data.publicUrl);
+      toast.success('Image uploaded');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (postToEdit) {
@@ -313,18 +343,65 @@ export default function PostForm() {
           </div>
         </div>
 
-        {/* Cover Image Placeholder */}
+        {/* Cover Image */}
         <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
           <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Cover Image</h3>
-          <Input 
-             placeholder="Image URL (e.g. https://images.unsplash.com/...)" 
+
+          {/* Upload button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageUpload(file);
+              e.target.value = '';
+            }}
+          />
+          <div
+            className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files?.[0];
+              if (file) handleImageUpload(file);
+            }}
+          >
+            {isUploading ? (
+              <p className="text-sm text-gray-500 font-sans animate-pulse">Uploading…</p>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-gray-600 font-sans">Click or drag &amp; drop to upload</p>
+                <p className="text-xs text-gray-400 font-sans mt-1">PNG, JPG, GIF, WebP — max 5 MB</p>
+              </>
+            )}
+          </div>
+
+          {/* OR paste URL */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-gray-400 font-sans">or paste URL</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <Input
+             placeholder="Image URL (e.g. https://images.unsplash.com/...)"
              value={coverImage}
              onChange={e => setCoverImage(e.target.value)}
              className="text-sm"
           />
           {coverImage && (
-            <div className="aspect-video mt-4 bg-gray-100 overflow-hidden border border-border rounded">
+            <div className="aspect-video mt-2 bg-gray-100 overflow-hidden border border-border rounded relative">
               <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setCoverImage('')}
+                className="absolute top-2 right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-500 shadow text-xs font-bold"
+                title="Remove image"
+              >
+                &times;
+              </button>
             </div>
           )}
         </div>

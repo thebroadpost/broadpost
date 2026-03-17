@@ -123,6 +123,31 @@ export async function getFeaturedPosts() {
   return (data || []).map(normalizePost);
 }
 
+export async function getHomepageHeroPosts() {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(POST_SELECT)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if (error) throw error;
+
+  const posts = (data || []).map(normalizePost);
+  const homepagePosts = posts.filter((post: any) => post.show_in_homepage ?? true);
+  const pinnedHomepagePosts = homepagePosts.filter((post: any) => post.is_pinned);
+  const nonPinnedHomepagePosts = homepagePosts.filter((post: any) => !post.is_pinned);
+
+  const selected = [...pinnedHomepagePosts, ...nonPinnedHomepagePosts].slice(0, 4);
+  if (selected.length === 4) {
+    return selected;
+  }
+
+  const selectedIds = new Set(selected.map((post: any) => post.id));
+  const remaining = posts.filter((post: any) => !selectedIds.has(post.id));
+  return [...selected, ...remaining].slice(0, 4);
+}
+
 export async function getTrendingPosts() {
   const { data, error } = await supabase
     .from('posts')
@@ -248,6 +273,13 @@ export async function createPost(postData: any) {
     author_name: postData.author_name || userData.user.user_metadata?.full_name || 'Staff',
     author_avatar: postData.author_avatar || userData.user.user_metadata?.avatar_url || null,
     author_bio: postData.author_bio || null,
+    visibility: postData.visibility || 'public',
+    post_password: postData.post_password || null,
+    allow_comments: postData.allow_comments ?? true,
+    is_featured: postData.is_featured ?? false,
+    is_pinned: postData.is_pinned ?? false,
+    show_in_homepage: postData.show_in_homepage ?? true,
+    show_in_newsletter: postData.show_in_newsletter ?? true,
     ...extractSeoFields(postData),
     views: postData.views || 0,
     created_at: new Date().toISOString(),

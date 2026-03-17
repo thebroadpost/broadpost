@@ -1,6 +1,22 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getCategories } from '../../lib/api';
 
 export default function Footer() {
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  });
+
+  const footerCategories = (categories && categories.length > 0)
+    ? categories.slice(0, 4)
+    : [
+        { slug: 'business', name: 'Business' },
+        { slug: 'technology', name: 'Technology' },
+        { slug: 'markets', name: 'Markets' },
+        { slug: 'opinion', name: 'Opinion' },
+      ];
+
   return (
     <footer className="bg-primary dark:bg-gray-900 text-white pt-16 pb-8 px-4 lg:px-8 font-sans transition-colors duration-200 border-t border-transparent dark:border-gray-800">
       <div className="max-w-7xl mx-auto">
@@ -29,10 +45,13 @@ export default function Footer() {
             <div>
               <h4 className="font-bold uppercase tracking-wider text-sm mb-6">Categories</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><Link to="/category/business" className="hover:text-white transition-colors">Business</Link></li>
-                <li><Link to="/category/tech" className="hover:text-white transition-colors">Technology</Link></li>
-                <li><Link to="/category/markets" className="hover:text-white transition-colors">Markets</Link></li>
-                <li><Link to="/category/opinion" className="hover:text-white transition-colors">Opinion</Link></li>
+                {footerCategories.map((category) => (
+                  <li key={category.slug}>
+                    <Link to={`/category/${category.slug}`} className="hover:text-white transition-colors">
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 

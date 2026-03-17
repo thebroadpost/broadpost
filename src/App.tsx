@@ -44,7 +44,7 @@ function App() {
           <Route path="/" element={
             <>
               <Navbar />
-              <main className="flex-grow pt-[116px]">
+              <main className="flex-grow pt-[104px]">
                 <Suspense fallback={<LoadingFallback />}>
                   <Outlet />
                 </Suspense>

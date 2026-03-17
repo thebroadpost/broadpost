@@ -30,14 +30,14 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
         </div>
-        <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
+        <div className="absolute inset-0 p-5 md:p-8 flex flex-col justify-between">
           <div>
-            <Badge variant="red" className="mb-4 shadow-md bg-accent-red font-bold text-white tracking-widest px-2 py-1">
+            <Badge variant="red" className="mb-3 shadow-md bg-accent-red font-bold text-white tracking-widest px-2 py-1">
               {post.category?.name || 'News'}
             </Badge>
           </div>
           <div className="mt-auto">
-            <h2 className="font-serif font-bold text-3xl md:text-5xl text-white leading-tight mb-4 group-hover:underline decoration-2 underline-offset-4">
+            <h2 className="font-serif font-bold text-2xl md:text-[42px] text-white leading-tight mb-3 group-hover:underline decoration-2 underline-offset-4">
               {post.title}
             </h2>
             <div className="flex items-center text-gray-300 text-sm font-sans tracking-wide">
@@ -53,7 +53,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   if (variant === 'small') {
     return (
-      <Link to={`/blog/${post.slug}`} className="group flex items-start space-x-4 py-4 cursor-pointer">
+      <Link to={`/blog/${post.slug}`} className="group flex items-start space-x-3 py-3 cursor-pointer">
         <div className="flex-shrink-0 w-[120px] h-[80px] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img 
             src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 
@@ -67,7 +67,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
           <span className="text-accent-blue font-bold text-[10px] uppercase tracking-wider mb-1 block">
             {post.category?.name || 'News'}
           </span>
-          <h3 className="font-sans font-bold text-[15px] leading-snug text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 mb-2 transition-colors">
+          <h3 className="font-sans font-bold text-[14px] leading-snug text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 mb-2 transition-colors">
             {post.title}
           </h3>
           <div className="text-xs text-gray-500 font-sans mt-auto">
@@ -163,7 +163,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   // Standard Grid Card
   return (
-    <Link to={`/blog/${post.slug}`} className="block group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 p-2 -m-2 transition-all">
+    <Link to={`/blog/${post.slug}`} className="group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 p-2 -m-2 transition-all">
       <div className="w-full aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3 block">
         <img 
           src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 
@@ -178,7 +178,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
           {post.category?.name || 'News'}
         </span>
       </div>
-      <h3 className="font-serif font-bold text-xl leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-2">
+      <h3 className="font-serif font-bold text-[22px] leading-tight text-primary dark:text-gray-200 group-hover:text-accent-blue dark:group-hover:text-blue-400 transition-colors mb-2">
         {post.title}
       </h3>
       <p className="font-sans text-gray-700 dark:text-gray-400 text-sm leading-relaxed mb-4 flex-grow hidden sm:block">

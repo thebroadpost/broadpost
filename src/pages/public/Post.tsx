@@ -83,7 +83,7 @@ export default function Post() {
   }
 
   if (!post) {
-    return <div className="py-32 text-center text-primary font-serif font-bold text-3xl">Article not found.</div>;
+    return <div className="py-32 text-center text-primary dark:text-gray-100 font-serif font-bold text-3xl">Article not found.</div>;
   }
 
   const readTime = calculateReadTime(post.content);
@@ -100,7 +100,7 @@ export default function Post() {
   const shareTitle = encodeURIComponent(openGraphTitle);
 
   return (
-    <article className="bg-white">
+    <article className="bg-white dark:bg-gray-950">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={metaDescription} />
@@ -130,14 +130,14 @@ export default function Post() {
         </h1>
         
         {post.excerpt && (
-          <p className="font-sans text-xl md:text-2xl text-gray-500 leading-snug mb-8">
+          <p className="font-sans text-xl md:text-2xl text-gray-500 dark:text-gray-300 leading-snug mb-8">
             {post.excerpt}
           </p>
         )}
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-y border-border py-4 mt-8 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-y border-border dark:border-gray-800 py-4 mt-8 mb-8">
           <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 flex-shrink-0">
               {post.author?.avatar_url ? (
                 <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
               ) : (
@@ -149,9 +149,9 @@ export default function Post() {
             <div>
               <div className="font-sans font-bold text-primary flex items-center space-x-2">
                 <span>By {post.author?.name || 'Staff'}</span>
-                <span className="text-gray-400 font-normal text-xs uppercase tracking-widest hidden md:inline ml-2">Broadpost Staff</span>
+                <span className="text-gray-400 dark:text-gray-500 font-normal text-xs uppercase tracking-widest hidden md:inline ml-2">Broadpost Staff</span>
               </div>
-              <div className="text-xs text-gray-500 font-sans flex items-center mt-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-sans flex items-center mt-1">
                 {formatDate(post.published_at || post.created_at)}
                 <span className="mx-2">•</span>
                 <Clock size={12} className="mr-1 inline" /> {readTime} min read
@@ -159,37 +159,37 @@ export default function Post() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 text-gray-400">
-             <BookmarkButton postId={post.id} className="p-2 border border-border rounded-full hover:border-primary transition-colors" size={16} />
+           <div className="flex items-center space-x-3 text-gray-400 dark:text-gray-500">
+             <BookmarkButton postId={post.id} className="p-2 border border-border dark:border-gray-700 rounded-full hover:border-primary transition-colors" size={16} />
              <a
                href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
                target="_blank"
                rel="noreferrer"
                aria-label="Share on X"
-               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+               className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
              ><Twitter size={16} /></a>
              <a
                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
                target="_blank"
                rel="noreferrer"
                aria-label="Share on LinkedIn"
-               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+               className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
              ><Linkedin size={16} /></a>
              <a
                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
                target="_blank"
                rel="noreferrer"
                aria-label="Share on Facebook"
-               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+               className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
              ><Facebook size={16} /></a>
              <a
                href={`https://wa.me/?text=${encodeURIComponent(`${openGraphTitle} ${canonicalUrl || ''}`.trim())}`}
                target="_blank"
                rel="noreferrer"
                aria-label="Share on WhatsApp"
-               className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+               className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
              ><MessageCircle size={16} /></a>
-             <button className="p-2 border border-border rounded-full hover:text-primary hover:border-primary transition-colors"
+             <button className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
                 onClick={() => {
                    navigator.clipboard.writeText(canonicalUrl || window.location.href);
                    toast.success("Link copied!");
@@ -203,8 +203,8 @@ export default function Post() {
       {post.cover_image && (
         <div className="max-w-[1000px] mx-auto px-4 mb-12">
           <figure>
-            <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover max-h-[600px] bg-gray-100" />
-            <figcaption className="text-right text-xs text-gray-400 mt-2 font-sans italic">
+            <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover max-h-[600px] bg-gray-100 dark:bg-gray-800" />
+            <figcaption className="text-right text-xs text-gray-400 dark:text-gray-500 mt-2 font-sans italic">
               Image via Broadpost Media
             </figcaption>
           </figure>
@@ -212,27 +212,27 @@ export default function Post() {
       )}
 
       {/* Body Content */}
-      <div className="max-w-[780px] mx-auto px-4 font-sans text-lg text-gray-800 leading-[1.9] pb-16">
+      <div className="max-w-[780px] mx-auto px-4 font-sans text-lg text-gray-800 dark:text-gray-200 leading-[1.9] pb-16">
          {/* Rendering the rich text. Assume HTML content from markdown editor (we might need a parser or dangerouslySetInnerHTML) */}
          <div 
-           className="prose prose-lg prose-headings:font-serif prose-headings:text-primary prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 max-w-none"
+           className="prose prose-lg dark:prose-invert prose-headings:font-serif prose-headings:text-primary dark:prose-headings:text-gray-100 prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 max-w-none"
            dangerouslySetInnerHTML={{ __html: post.content }} 
          />
          
          <div className="mt-16 flex flex-wrap gap-2">
             {post.tags && post.tags.map((tag: string) => (
-              <span key={tag} className="px-4 py-2 border border-border rounded-full text-xs font-bold uppercase tracking-wider text-primary hover:bg-gray-50 cursor-pointer">
+              <span key={tag} className="px-4 py-2 border border-border dark:border-gray-700 rounded-full text-xs font-bold uppercase tracking-wider text-primary dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
                  {tag}
               </span>
             ))}
          </div>
       </div>
 
-      <hr className="max-w-[780px] mx-auto border-t border-border mb-16" />
+        <hr className="max-w-[780px] mx-auto border-t border-border dark:border-gray-800 mb-16" />
 
       {/* Author Bio Box */}
-      <div className="max-w-[780px] mx-auto px-4 mb-20 bg-gray-50 border border-border p-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
-         <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+        <div className="max-w-[780px] mx-auto px-4 mb-20 bg-gray-50 dark:bg-gray-900 border border-border dark:border-gray-800 p-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 flex-shrink-0">
            {post.author?.avatar_url ? (
              <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
            ) : (
@@ -243,14 +243,14 @@ export default function Post() {
          </div>
          <div>
             <h3 className="font-serif font-bold text-2xl text-primary mb-2">{post.author?.name || 'Staff Contributor'}</h3>
-            <p className="font-sans text-gray-600 mb-4">{post.author?.bio || 'Journalist covering major stories for Broadpost.'}</p>
+            <p className="font-sans text-gray-600 dark:text-gray-300 mb-4">{post.author?.bio || 'Journalist covering major stories for Broadpost.'}</p>
             <a href="#" className="font-sans text-accent-blue font-bold text-sm uppercase tracking-wider hover:underline">More by {post.author?.name || 'this author'}</a>
          </div>
       </div>
 
       {/* Related Posts */}
       {relatedPosts && relatedPosts.length > 1 && (
-        <div className="bg-gray-50 py-16 border-t border-border">
+        <div className="bg-gray-50 dark:bg-gray-900 py-16 border-t border-border dark:border-gray-800">
           <div className="max-w-[1200px] mx-auto px-4 lg:px-8">
             <h3 className="font-serif font-bold text-2xl text-primary mb-8 border-b-2 border-primary pb-2 inline-block">
               You May Also Like
@@ -266,11 +266,11 @@ export default function Post() {
 
       {/* Comments Section */}
       <div className="max-w-[780px] mx-auto px-4 py-20">
-         <h3 className="font-serif font-bold text-3xl text-primary mb-10 pb-4 border-b border-border">
+        <h3 className="font-serif font-bold text-3xl text-primary dark:text-gray-100 mb-10 pb-4 border-b border-border dark:border-gray-800">
            Comments ({comments?.length || 0})
          </h3>
 
-         <form onSubmit={handleCommentSubmit} className="mb-16 bg-gray-50 p-6 border border-border">
+        <form onSubmit={handleCommentSubmit} className="mb-16 bg-gray-50 dark:bg-gray-900 p-6 border border-border dark:border-gray-800">
             <h4 className="font-sans font-bold text-lg text-primary mb-4">Leave a comment</h4>
             <div className="space-y-4">
               <Input 
@@ -283,7 +283,7 @@ export default function Post() {
                 placeholder="What are your thoughts?" 
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full p-3 border border-border bg-white text-primary font-sans focus:outline-none focus:ring-1 focus:ring-primary min-h-[120px] resize-y"
+                className="w-full p-3 border border-border dark:border-gray-700 bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans focus:outline-none focus:ring-1 focus:ring-primary min-h-[120px] resize-y"
                 required
               />
               <Button type="submit" disabled={commentMutation.isPending} className="font-bold tracking-widest uppercase">
@@ -295,23 +295,23 @@ export default function Post() {
          <div className="space-y-8">
            {comments && comments.length > 0 ? (
              comments.map((comment: any) => (
-               <div key={comment.id} className="flex space-x-4 border-b border-border pb-8 last:border-0 last:pb-0">
+               <div key={comment.id} className="flex space-x-4 border-b border-border dark:border-gray-800 pb-8 last:border-0 last:pb-0">
                   <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
                     {getInitials(comment.name)}
                   </div>
                   <div>
                     <div className="flex items-baseline space-x-3 mb-2">
                        <span className="font-sans font-bold text-primary">{comment.name}</span>
-                       <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(comment.created_at)}</span>
                     </div>
-                    <p className="font-sans text-gray-700 leading-relaxed text-sm">
+                      <p className="font-sans text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
                        {comment.content}
                     </p>
                   </div>
                </div>
              ))
            ) : (
-             <p className="text-gray-500 font-sans italic text-center py-8">Be the first to comment on this article.</p>
+                 <p className="text-gray-500 dark:text-gray-400 font-sans italic text-center py-8">Be the first to comment on this article.</p>
            )}
          </div>
       </div>

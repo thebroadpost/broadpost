@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Modal } from '../../components/ui/Modal';
+import { useTheme } from '../../contexts/ThemeContext';
 import toast from 'react-hot-toast';
 import { AlertTriangle, Calendar, CheckCircle2, Clock, Eye, Trash2 } from 'lucide-react';
 
@@ -99,6 +100,7 @@ export default function PostForm() {
   const [embedUrl, setEmbedUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const savedSnapshotRef = useRef<any>(null);
+  const { actualTheme } = useTheme();
 
   const handleImageUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -547,14 +549,14 @@ export default function PostForm() {
   const wordCount = content.trim() ? content.trim().split(/\s+/).filter(Boolean).length : 0;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  if (isEditing && isLoading) return <div className="p-8">Loading post...</div>;
+  if (isEditing && isLoading) return <div className="p-8 text-gray-700 dark:text-gray-300">Loading post...</div>;
 
   const editorFallback = <Skeleton className="w-full h-[500px]" />;
 
   return (
     <>
     {hasRecoverableDraft && (
-      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-sans text-amber-900 flex items-center justify-between gap-3">
+      <div className="mb-4 rounded-lg border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm font-sans text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3">
         <span>A recoverable local draft was found.</span>
         <div className="flex items-center gap-3">
           <button type="button" className="font-bold underline" onClick={handleRecoverDraft}>Restore</button>
@@ -565,7 +567,7 @@ export default function PostForm() {
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Left Column - Main Content (65%) */}
       <div className="flex-1 lg:w-[65%] space-y-6">
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-6">
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-6">
           <Input 
              id="post-title"
              label="Post Title"
@@ -574,25 +576,25 @@ export default function PostForm() {
              onChange={e => setTitle(e.target.value)}
              className="text-4xl font-serif font-bold text-primary border-none p-0 focus:ring-0 placeholder-gray-300 h-auto"
           />
-          <div className="flex items-center text-sm text-gray-500 font-sans">
-             <label htmlFor="post-slug" className="bg-gray-100 px-2 min-w-16 py-1 rounded-l border border-border border-r-0">/blog/</label>
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 font-sans">
+             <label htmlFor="post-slug" className="bg-gray-100 dark:bg-gray-800 px-2 min-w-16 py-1 rounded-l border border-border dark:border-gray-700 border-r-0">/blog/</label>
              <input 
                id="post-slug"
                type="text" 
                value={slug} 
                onChange={e => setSlug(e.target.value)}
-               className="flex-1 bg-white px-2 py-1 rounded-r border border-border focus:outline-none focus:border-primary"
+               className="flex-1 bg-white dark:bg-gray-900 text-primary dark:text-gray-100 px-2 py-1 rounded-r border border-border dark:border-gray-700 focus:outline-none focus:border-primary"
                placeholder="auto-generated-slug"
                aria-label="Post slug"
              />
           </div>
 
-          <p className="text-xs text-gray-500 font-sans">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-sans">
             Tip: use Markdown image syntax with alt text, for example: <span className="font-mono">![A descriptive image](https://...)</span>
           </p>
 
           {/* Write / Split / Preview tabs */}
-          <div className="flex border-b border-border -mb-px">
+          <div className="flex border-b border-border dark:border-gray-800 -mb-px">
             {(['edit', 'live', 'preview'] as const).map(mode => (
               <button
                 key={mode}
@@ -601,7 +603,7 @@ export default function PostForm() {
                 className={`px-4 py-2 text-sm font-sans transition-colors border-b-2 ${
                   editorPreviewMode === mode
                     ? 'border-primary text-primary font-medium'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
                 {mode === 'edit' ? 'Write' : mode === 'live' ? 'Split' : 'Preview'}
@@ -609,7 +611,7 @@ export default function PostForm() {
             ))}
           </div>
 
-          <div data-color-mode="light">
+          <div data-color-mode={actualTheme}>
             <Suspense fallback={editorFallback}>
               <MDEditor
                 value={content}
@@ -620,16 +622,16 @@ export default function PostForm() {
               />
             </Suspense>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-400 font-sans">
+          <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500 font-sans">
             <span>{wordCount.toLocaleString()} words</span>
             <span>~{readingTime} min read</span>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="post-excerpt" className="text-sm font-medium text-gray-700 font-sans">Excerpt</label>
+            <label htmlFor="post-excerpt" className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Excerpt</label>
             <textarea
               id="post-excerpt"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-24 focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-24 focus:outline-none focus:border-primary"
               value={excerpt}
               onChange={e => setExcerpt(e.target.value)}
               placeholder="Brief summary of the article..."
@@ -641,17 +643,17 @@ export default function PostForm() {
       {/* Right Column - Sidebar (35%) */}
       <div className="w-full lg:w-[35%] space-y-6">
         {/* Publish Panel */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Publishing</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">Publishing</h3>
           <div className="text-xs font-sans flex items-center justify-between">
-            <span className="text-gray-500">Autosave</span>
+            <span className="text-gray-500 dark:text-gray-400">Autosave</span>
             {draftStatus === 'saving' && <span className="text-amber-600 flex items-center gap-1"><Clock size={12} />Saving...</span>}
             {draftStatus === 'saved' && <span className="text-emerald-600 flex items-center gap-1"><CheckCircle2 size={12} />Saved</span>}
             {draftStatus === 'idle' && isDirty && <span className="text-amber-600">Unsaved changes</span>}
-            {draftStatus === 'idle' && !isDirty && <span className="text-gray-400">Up to date</span>}
+            {draftStatus === 'idle' && !isDirty && <span className="text-gray-400 dark:text-gray-500">Up to date</span>}
           </div>
           <div className="flex justify-between items-center text-sm font-sans">
-            <span className="text-gray-600">Status:</span>
+            <span className="text-gray-600 dark:text-gray-300">Status:</span>
             <span className={`font-bold uppercase tracking-wider text-xs px-2 py-0.5 rounded-full ${
               status === 'published' ? 'bg-green-100 text-green-700'
               : status === 'scheduled' ? 'bg-blue-100 text-blue-700'
@@ -659,7 +661,7 @@ export default function PostForm() {
             }`}>{status}</span>
           </div>
           {isEditing && (postToEdit?.published_at || postToEdit?.updated_at) && (
-            <div className="text-xs text-gray-500 font-sans space-y-1 border-t border-border pt-3">
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-sans space-y-1 border-t border-border dark:border-gray-800 pt-3">
               {postToEdit?.published_at && (
                 <div className="flex justify-between">
                   <span>Published:</span>
@@ -674,21 +676,21 @@ export default function PostForm() {
               )}
             </div>
           )}
-          <div className="space-y-1.5 border-t border-border pt-3">
-            <label className="text-xs font-medium text-gray-600 font-sans flex items-center gap-1.5">
+          <div className="space-y-1.5 border-t border-border dark:border-gray-800 pt-3">
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans flex items-center gap-1.5">
               <Calendar size={12} /> Schedule Publish Date
             </label>
             <input
               type="datetime-local"
               value={scheduledAt}
               onChange={e => setScheduledAt(e.target.value)}
-              className="w-full px-3 py-1.5 border border-border rounded text-sm font-sans focus:outline-none focus:border-primary bg-white"
+              className="w-full px-3 py-1.5 border border-border dark:border-gray-700 rounded text-sm font-sans focus:outline-none focus:border-primary bg-white dark:bg-gray-900 text-primary dark:text-gray-100"
             />
             {scheduledAt && (
               <p className="text-xs text-blue-600 font-sans">Will be scheduled for this date/time.</p>
             )}
           </div>
-          <p className="text-xs text-gray-500 font-sans">Cmd/Ctrl+S to save · Cmd/Ctrl+Enter to publish.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-sans">Cmd/Ctrl+S to save · Cmd/Ctrl+Enter to publish.</p>
           <div className="space-y-2">
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1 text-sm" onClick={() => handleSave(false)} disabled={saveMutation.isPending}>
@@ -714,7 +716,7 @@ export default function PostForm() {
                 href={`/blog/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-sans border border-border rounded text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-sans border border-border dark:border-gray-700 rounded text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <Eye size={14} /> Preview Post
               </a>
@@ -728,9 +730,9 @@ export default function PostForm() {
         </div>
 
         {/* Category & Tags */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-6">
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-6">
           <div className="space-y-2">
-            <label htmlFor="post-category" className="text-sm font-medium text-gray-700 font-sans">Category</label>
+            <label htmlFor="post-category" className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Category</label>
             {/* Preset category chips */}
             <div className="flex flex-wrap gap-1.5 pb-1">
               {PRESET_CATEGORIES.map((preset) => {
@@ -752,7 +754,7 @@ export default function PostForm() {
                     className={`text-xs px-2 py-1 rounded border font-sans transition-colors ${
                       isSelected
                         ? 'bg-primary text-white border-primary'
-                        : 'bg-gray-50 text-gray-600 border-border hover:bg-gray-100'
+                        : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     {preset.name}
@@ -762,7 +764,7 @@ export default function PostForm() {
             </div>
             <select
               id="post-category"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans focus:outline-none focus:border-primary"
               value={categorySlug}
               onChange={e => setCategorySlug(e.target.value)}
             >
@@ -789,19 +791,19 @@ export default function PostForm() {
               </Button>
             </div>
             {(!categories || categories.length === 0) && (
-              <p className="text-xs text-amber-700 font-sans">
+              <p className="text-xs text-amber-700 dark:text-amber-300 font-sans">
                 No categories found. Create one above, then publish.
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 font-sans">Tags</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Tags</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-gray-100 text-xs font-sans rounded flex items-center">
+                <span key={tag} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-xs font-sans rounded flex items-center text-gray-700 dark:text-gray-200">
                   {tag}
-                  <button type="button" aria-label={`Remove tag ${tag}`} onClick={() => removeTag(tag)} className="ml-1 text-gray-500 hover:text-red-500">&times;</button>
+                  <button type="button" aria-label={`Remove tag ${tag}`} onClick={() => removeTag(tag)} className="ml-1 text-gray-500 dark:text-gray-400 hover:text-red-500">&times;</button>
                 </span>
               ))}
             </div>
@@ -812,12 +814,12 @@ export default function PostForm() {
                value={tagInput}
                onChange={e => setTagInput(e.target.value)}
                onKeyDown={addTag}
-               className="text-sm text-gray-700"
+               className="text-sm text-gray-700 dark:text-gray-200"
             />
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-border">
-            <label htmlFor="author-name" className="text-sm font-medium text-gray-700 font-sans">Author Name</label>
+          <div className="space-y-2 pt-2 border-t border-border dark:border-gray-800">
+            <label htmlFor="author-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Author Name</label>
             <Input
               id="author-name"
               placeholder="Author display name"
@@ -826,16 +828,16 @@ export default function PostForm() {
               className="text-sm"
             />
 
-            <label htmlFor="author-bio" className="text-sm font-medium text-gray-700 font-sans">Author Bio</label>
+            <label htmlFor="author-bio" className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Author Bio</label>
             <textarea
               id="author-bio"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-20 focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-20 focus:outline-none focus:border-primary"
               value={authorBio}
               onChange={(e) => setAuthorBio(e.target.value)}
               placeholder="Short bio..."
             />
 
-            <label htmlFor="author-avatar" className="text-sm font-medium text-gray-700 font-sans">Author Avatar URL</label>
+            <label htmlFor="author-avatar" className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Author Avatar URL</label>
             <Input
               id="author-avatar"
               placeholder="https://..."
@@ -847,8 +849,8 @@ export default function PostForm() {
         </div>
 
         {/* Cover Image */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Cover Image</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">Cover Image</h3>
 
           {/* Upload button */}
           <input
@@ -863,7 +865,7 @@ export default function PostForm() {
             }}
           />
           <div
-            className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+            className="border-2 border-dashed border-border dark:border-gray-700 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
             onClick={() => fileInputRef.current?.click()}
             role="button"
             tabIndex={0}
@@ -882,20 +884,20 @@ export default function PostForm() {
             }}
           >
             {isUploading ? (
-              <p className="text-sm text-gray-500 font-sans animate-pulse">Uploading…</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-sans animate-pulse">Uploading…</p>
             ) : (
               <>
-                <p className="text-sm font-medium text-gray-600 font-sans">Click or drag &amp; drop to upload</p>
-                <p className="text-xs text-gray-500 font-sans mt-1">PNG, JPG, GIF, WebP - max 5 MB</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 font-sans">Click or drag &amp; drop to upload</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-sans mt-1">PNG, JPG, GIF, WebP - max 5 MB</p>
               </>
             )}
           </div>
 
           {/* OR paste URL */}
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-xs text-gray-500 font-sans">or paste URL</span>
-            <div className="flex-1 h-px bg-border" />
+            <div className="flex-1 h-px bg-border dark:bg-gray-700" />
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-sans">or paste URL</span>
+            <div className="flex-1 h-px bg-border dark:bg-gray-700" />
           </div>
           <Input
              placeholder="Image URL (e.g. https://images.unsplash.com/...)"
@@ -912,12 +914,12 @@ export default function PostForm() {
              className="text-sm"
           />
           {coverImage && (
-            <div className="aspect-video mt-2 bg-gray-100 overflow-hidden border border-border rounded relative">
+            <div className="aspect-video mt-2 bg-gray-100 dark:bg-gray-800 overflow-hidden border border-border dark:border-gray-700 rounded relative">
               <img src={coverImage} alt={coverImageAltText || 'Cover preview'} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => setCoverImage('')}
-                className="absolute top-2 right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-500 shadow text-xs font-bold"
+                className="absolute top-2 right-2 bg-white dark:bg-gray-900 rounded-full w-6 h-6 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-red-500 shadow text-xs font-bold"
                 title="Remove image"
                 aria-label="Remove cover image"
               >
@@ -928,56 +930,56 @@ export default function PostForm() {
         </div>
 
         {/* SEO */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">SEO</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">SEO</h3>
           <div className="space-y-3">
             <div className="space-y-1">
-              <label htmlFor="seo-title" className="text-xs font-medium text-gray-600 font-sans">SEO Title</label>
+              <label htmlFor="seo-title" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">SEO Title</label>
               <Input id="seo-title" placeholder="Page title for search engines" value={seoTitle} onChange={e => setSeoTitle(e.target.value)} className="text-sm" />
               <p className="text-xs text-right font-sans" style={{ color: seoTitle.length > 60 ? '#ef4444' : '#9ca3af' }}>{seoTitle.length}/60</p>
             </div>
             <div className="space-y-1">
-              <label htmlFor="meta-desc" className="text-xs font-medium text-gray-600 font-sans">Meta Description</label>
-              <textarea id="meta-desc" className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-16 text-sm focus:outline-none focus:border-primary" value={metaDescription} onChange={e => setMetaDescription(e.target.value)} placeholder="Brief description for search engines..." />
+              <label htmlFor="meta-desc" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Meta Description</label>
+              <textarea id="meta-desc" className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-16 text-sm focus:outline-none focus:border-primary" value={metaDescription} onChange={e => setMetaDescription(e.target.value)} placeholder="Brief description for search engines..." />
               <p className="text-xs text-right font-sans" style={{ color: metaDescription.length > 160 ? '#ef4444' : '#9ca3af' }}>{metaDescription.length}/160</p>
             </div>
             <div className="space-y-1">
-              <label htmlFor="focus-kw" className="text-xs font-medium text-gray-600 font-sans">Focus Keyword</label>
+              <label htmlFor="focus-kw" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Focus Keyword</label>
               <Input id="focus-kw" placeholder="Main keyword to target" value={focusKeyword} onChange={e => setFocusKeyword(e.target.value)} className="text-sm" />
             </div>
             <div className="space-y-1">
-              <label htmlFor="canonical-url" className="text-xs font-medium text-gray-600 font-sans">Canonical URL</label>
+              <label htmlFor="canonical-url" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Canonical URL</label>
               <Input id="canonical-url" placeholder="https://..." value={canonicalUrl} onChange={e => setCanonicalUrl(e.target.value)} className="text-sm" />
             </div>
           </div>
-          <div className="border-t border-border pt-4 space-y-3">
-            <h4 className="text-sm font-medium text-gray-700 font-sans">Open Graph / Social Preview</h4>
+          <div className="border-t border-border dark:border-gray-800 pt-4 space-y-3">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 font-sans">Open Graph / Social Preview</h4>
             <div className="space-y-1">
-              <label htmlFor="og-title" className="text-xs font-medium text-gray-600 font-sans">OG Title</label>
+              <label htmlFor="og-title" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">OG Title</label>
               <Input id="og-title" placeholder="Title shown on social shares" value={openGraphTitle} onChange={e => setOpenGraphTitle(e.target.value)} className="text-sm" />
             </div>
             <div className="space-y-1">
-              <label htmlFor="og-desc" className="text-xs font-medium text-gray-600 font-sans">OG Description</label>
-              <textarea id="og-desc" className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-16 text-sm focus:outline-none focus:border-primary" value={openGraphDescription} onChange={e => setOpenGraphDescription(e.target.value)} placeholder="Description for WhatsApp, Twitter, LinkedIn..." />
+              <label htmlFor="og-desc" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">OG Description</label>
+              <textarea id="og-desc" className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-16 text-sm focus:outline-none focus:border-primary" value={openGraphDescription} onChange={e => setOpenGraphDescription(e.target.value)} placeholder="Description for WhatsApp, Twitter, LinkedIn..." />
             </div>
             <div className="space-y-1">
-              <label htmlFor="social-img" className="text-xs font-medium text-gray-600 font-sans">Social Share Image URL</label>
+              <label htmlFor="social-img" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Social Share Image URL</label>
               <Input id="social-img" placeholder="https:// (1200×630 px recommended)" value={socialShareImage} onChange={e => setSocialShareImage(e.target.value)} className="text-sm" />
               {socialShareImage && (
-                <img src={socialShareImage} alt="Social share preview" className="w-full aspect-[1200/630] object-cover rounded border border-border mt-1" />
+                <img src={socialShareImage} alt="Social share preview" className="w-full aspect-[1200/630] object-cover rounded border border-border dark:border-gray-700 mt-1" />
               )}
             </div>
           </div>
         </div>
 
         {/* Post Settings */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Post Settings</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">Post Settings</h3>
           <div className="space-y-2">
-            <label htmlFor="post-visibility" className="text-xs font-medium text-gray-600 font-sans">Visibility</label>
+            <label htmlFor="post-visibility" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Visibility</label>
             <select
               id="post-visibility"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans text-sm focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans text-sm focus:outline-none focus:border-primary"
               value={visibility}
               onChange={e => setVisibility(e.target.value as 'public' | 'private' | 'password_protected')}
             >
@@ -995,7 +997,7 @@ export default function PostForm() {
               />
             )}
           </div>
-          <div className="space-y-3 border-t border-border pt-3">
+          <div className="space-y-3 border-t border-border dark:border-gray-800 pt-3">
             {([
               { label: 'Allow Comments', value: allowComments, setter: setAllowComments },
               { label: 'Featured Post', value: isFeatured, setter: setIsFeatured },
@@ -1004,12 +1006,12 @@ export default function PostForm() {
               { label: 'Show in Newsletter', value: showInNewsletter, setter: setShowInNewsletter },
             ] as { label: string; value: boolean; setter: (v: boolean) => void }[]).map(({ label, value, setter }) => (
               <div key={label} className="flex items-center justify-between">
-                <span className="text-sm text-gray-700 font-sans">{label}</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300 font-sans">{label}</span>
                 <button
                   type="button"
                   onClick={() => setter(!value)}
                   className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    value ? 'bg-primary' : 'bg-gray-200'
+                    value ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                   role="switch"
                   aria-checked={value}
@@ -1026,9 +1028,9 @@ export default function PostForm() {
         </div>
 
         {/* Embed Media */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Embed Media</h3>
-          <p className="text-xs text-gray-500 font-sans">Paste a YouTube, Twitter/X, or Instagram URL to embed it in the post.</p>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">Embed Media</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-sans">Paste a YouTube, Twitter/X, or Instagram URL to embed it in the post.</p>
           <Input
             id="embed-url"
             label="Embed URL"
@@ -1043,7 +1045,7 @@ export default function PostForm() {
             if (isYouTube) {
               const ytId = embedUrl.match(/(?:v=|youtu\.be\/)([^&?]+)/)?.[1];
               return ytId ? (
-                <div className="aspect-video rounded overflow-hidden border border-border">
+                <div className="aspect-video rounded overflow-hidden border border-border dark:border-gray-700">
                   <iframe
                     src={`https://www.youtube.com/embed/${ytId}`}
                     title="YouTube embed preview"
@@ -1056,26 +1058,26 @@ export default function PostForm() {
             }
             if (isTwitter) {
               return (
-                <p className="text-xs text-blue-600 font-sans bg-blue-50 border border-blue-100 rounded p-3">
+                <p className="text-xs text-blue-600 dark:text-blue-300 font-sans bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded p-3">
                   Twitter/X embed detected. Copy the Markdown snippet below into your content:<br />
                   <span className="font-mono">{`<blockquote class="twitter-tweet"><a href="${embedUrl}"></a></blockquote><script async src="https://platform.twitter.com/widgets.js"></script>`}</span>
                 </p>
               );
             }
-            return <p className="text-xs text-gray-500 font-sans">URL saved — use it in your content via Markdown image/link syntax.</p>;
+            return <p className="text-xs text-gray-500 dark:text-gray-400 font-sans">URL saved — use it in your content via Markdown image/link syntax.</p>;
           })()}
-          <p className="text-xs text-gray-400 font-sans">Tip: in the editor, use <span className="font-mono">![alt](url)</span> for images or <span className="font-mono">[label](url)</span> for links. Open-in-new-tab: add <span className="font-mono">{"{{target=_blank}}"}</span> in your post or just paste the URL as plain text.</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-sans">Tip: in the editor, use <span className="font-mono">![alt](url)</span> for images or <span className="font-mono">[label](url)</span> for links. Open-in-new-tab: add <span className="font-mono">{"{{target=_blank}}"}</span> in your post or just paste the URL as plain text.</p>
         </div>
 
         {/* Analytics / Content Enrichment */}
-        <div className="bg-white p-6 rounded shadow-sm border border-border space-y-4">
-          <h3 className="font-serif font-bold text-lg text-primary border-b border-border pb-2">Analytics &amp; Enrichment</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-sm border border-border dark:border-gray-800 space-y-4">
+          <h3 className="font-serif font-bold text-lg text-primary dark:text-gray-100 border-b border-border dark:border-gray-800 pb-2">Analytics &amp; Enrichment</h3>
 
           <div className="space-y-1">
-            <label htmlFor="custom-excerpt" className="text-xs font-medium text-gray-600 font-sans">Custom Excerpt</label>
+            <label htmlFor="custom-excerpt" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Custom Excerpt</label>
             <textarea
               id="custom-excerpt"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-20 text-sm focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-20 text-sm focus:outline-none focus:border-primary"
               value={customExcerpt}
               onChange={e => setCustomExcerpt(e.target.value)}
               placeholder="Overrides auto-generated excerpt for analytics/feeds..."
@@ -1083,9 +1085,9 @@ export default function PostForm() {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="reading-time-override" className="text-xs font-medium text-gray-600 font-sans">
+            <label htmlFor="reading-time-override" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">
               Reading Time Override (minutes)
-              <span className="ml-2 text-gray-400">— auto: ~{readingTime} min</span>
+              <span className="ml-2 text-gray-400 dark:text-gray-500">— auto: ~{readingTime} min</span>
             </label>
             <Input
               id="reading-time-override"
@@ -1099,10 +1101,10 @@ export default function PostForm() {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="cta-block" className="text-xs font-medium text-gray-600 font-sans">Custom CTA Block</label>
+            <label htmlFor="cta-block" className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Custom CTA Block</label>
             <textarea
               id="cta-block"
-              className="w-full px-3 py-2 border border-border rounded bg-white text-primary font-sans h-20 text-sm focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 border border-border dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-primary dark:text-gray-100 font-sans h-20 text-sm focus:outline-none focus:border-primary"
               value={ctaBlock}
               onChange={e => setCtaBlock(e.target.value)}
               placeholder="Call-to-action text shown at the end of the post..."
@@ -1110,12 +1112,12 @@ export default function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-600 font-sans">Source / Reference Links</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Source / Reference Links</label>
             <div className="flex flex-wrap gap-1.5">
               {referenceLinks.map((link, i) => (
-                <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-xs font-sans rounded max-w-full">
+                <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-xs font-sans rounded max-w-full">
                   <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-blue-600 hover:underline max-w-[180px]">{link}</a>
-                  <button type="button" aria-label={`Remove reference link ${link}`} onClick={() => setReferenceLinks(referenceLinks.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-500 flex-shrink-0">&times;</button>
+                  <button type="button" aria-label={`Remove reference link ${link}`} onClick={() => setReferenceLinks(referenceLinks.filter((_, j) => j !== i))} className="text-gray-400 dark:text-gray-500 hover:text-red-500 flex-shrink-0">&times;</button>
                 </span>
               ))}
             </div>
@@ -1146,12 +1148,12 @@ export default function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-600 font-sans">Internal Link Suggestions</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-300 font-sans">Internal Link Suggestions</label>
             <div className="flex flex-wrap gap-1.5">
               {internalLinkSuggestions.map((link, i) => (
-                <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-xs font-sans rounded max-w-full">
-                  <span className="truncate max-w-[180px] text-gray-700">{link}</span>
-                  <button type="button" aria-label={`Remove internal link ${link}`} onClick={() => setInternalLinkSuggestions(internalLinkSuggestions.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-500 flex-shrink-0">&times;</button>
+                <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-xs font-sans rounded max-w-full">
+                  <span className="truncate max-w-[180px] text-gray-700 dark:text-gray-200">{link}</span>
+                  <button type="button" aria-label={`Remove internal link ${link}`} onClick={() => setInternalLinkSuggestions(internalLinkSuggestions.filter((_, j) => j !== i))} className="text-gray-400 dark:text-gray-500 hover:text-red-500 flex-shrink-0">&times;</button>
                 </span>
               ))}
             </div>
@@ -1186,7 +1188,7 @@ export default function PostForm() {
     </div>
 
     <Modal isOpen={showPublishConfirm} onClose={() => setShowPublishConfirm(false)} title="Publish Post">
-      <p className="text-sm font-sans text-gray-600 mb-6">Are you sure you want to publish this post now?</p>
+      <p className="text-sm font-sans text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to publish this post now?</p>
       <div className="flex justify-end gap-3">
         <Button variant="outline" onClick={() => setShowPublishConfirm(false)}>Cancel</Button>
         <Button className="bg-accent-blue" onClick={() => { setShowPublishConfirm(false); handleSave(true); }} disabled={saveMutation.isPending}>Confirm Publish</Button>
@@ -1194,7 +1196,7 @@ export default function PostForm() {
     </Modal>
 
     <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Delete Post">
-      <div className="flex items-start gap-2 mb-6 text-sm font-sans text-gray-700">
+      <div className="flex items-start gap-2 mb-6 text-sm font-sans text-gray-700 dark:text-gray-300">
         <AlertTriangle size={16} className="text-red-500 mt-0.5" />
         <span>This action is permanent. Are you sure you want to delete this post?</span>
       </div>

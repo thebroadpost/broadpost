@@ -11,7 +11,7 @@ export function Badge({ className = '', variant = 'primary', children, ...props 
     primary: 'bg-primary text-white',
     red: 'bg-accent-red text-white',
     blue: 'bg-accent-blue text-white',
-    outline: 'border border-primary text-primary'
+    outline: 'border border-primary dark:border-gray-600 text-primary dark:text-gray-200'
   };
 
   return (

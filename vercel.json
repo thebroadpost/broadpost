@@ -5,6 +5,17 @@
       "has": [
         {
           "type": "host",
+          "value": "broadpost.vercel.app"
+        }
+      ],
+      "destination": "https://thebroadpost.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
           "value": "www.thebroadpost.com"
         }
       ],

@@ -51,7 +51,7 @@ export default function Posts() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-serif font-bold text-primary">Posts</h1>
+        <h1 className="text-3xl font-serif font-bold text-primary dark:text-gray-100">Posts</h1>
         <Link to="/admin/posts/new">
           <Button className="font-bold tracking-widest uppercase flex items-center shadow-sm">
             <Plus size={18} className="mr-2" /> New Post
@@ -59,11 +59,11 @@ export default function Posts() {
         </Link>
       </div>
 
-      <div className="bg-white rounded shadow-sm border border-border overflow-hidden">
-        <div className="p-4 border-b border-border flex items-center justify-between bg-gray-50">
+      <div className="bg-white dark:bg-gray-900 rounded shadow-sm border border-border dark:border-gray-800 overflow-hidden">
+        <div className="p-4 border-b border-border dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-900/60">
           <div className="relative w-full max-w-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-gray-400" />
+              <Search size={16} className="text-gray-400 dark:text-gray-500" />
             </div>
             <Input
               type="text"
@@ -76,35 +76,35 @@ export default function Posts() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border dark:divide-gray-800">
+            <thead className="bg-gray-50 dark:bg-gray-900/60">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Title</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Category</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Status</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">SEO</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Date</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest font-sans">Views</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">Title</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">Category</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">Status</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">SEO</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">Views</th>
                 <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-border">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-border dark:divide-gray-800">
               {isLoading ? (
-                <tr><td colSpan={7} className="px-6 py-4 text-center">Loading...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-4 text-center text-gray-600 dark:text-gray-300">Loading...</td></tr>
               ) : filteredPosts.length === 0 ? (
-                <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">No posts found.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No posts found.</td></tr>
               ) : (
                 filteredPosts.map((post: any) => (
-                  <tr key={post.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-16 bg-gray-100 overflow-hidden rounded-sm mr-4">
+                        <div className="flex-shrink-0 h-10 w-16 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-sm mr-4">
                           {post.cover_image && <img src={post.cover_image} alt="" className="h-full w-full object-cover" />}
                         </div>
-                        <div className="text-sm font-bold text-primary font-serif truncate max-w-[200px] lg:max-w-xs">{post.title}</div>
+                        <div className="text-sm font-bold text-primary dark:text-gray-100 font-serif truncate max-w-[200px] lg:max-w-xs">{post.title}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-sans">
                       {post.category?.name || 'Uncategorized'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -125,7 +125,7 @@ export default function Posts() {
                         {post.seo_title || post.meta_description || post.open_graph_title || post.social_share_image || post.canonical_url ? 'Ready' : 'Missing'}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-sans">
                       <div>{formatDate(post.created_at)}</div>
                       {post.scheduled_at && post.status === 'scheduled' && (
                         <div className="text-xs text-blue-600 mt-0.5">⏰ {formatDate(post.scheduled_at)}</div>
@@ -134,7 +134,7 @@ export default function Posts() {
                         <div className="text-xs text-green-600 mt-0.5">Published {formatDate(post.published_at)}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-sans flex items-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-sans flex items-center">
                       <Eye size={14} className="mr-1" /> {post.views || 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -159,19 +159,19 @@ export default function Posts() {
         </div>
         
         {/* Pagination mock */}
-        <div className="bg-white px-4 py-3 border-t border-border flex items-center justify-between sm:px-6">
+        <div className="bg-white dark:bg-gray-900 px-4 py-3 border-t border-border dark:border-gray-800 flex items-center justify-between sm:px-6">
            <div className="flex-1 flex justify-between sm:hidden">
              <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p-1))}>Previous</Button>
              <Button variant="outline" size="sm" onClick={() => setPage(p => p+1)}>Next</Button>
            </div>
            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
              <div>
-               <p className="text-sm text-gray-700 font-sans">Showing page <span className="font-bold">{page}</span></p>
+               <p className="text-sm text-gray-700 dark:text-gray-300 font-sans">Showing page <span className="font-bold">{page}</span></p>
              </div>
              <div>
                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                 <button onClick={() => setPage(p => Math.max(1, p-1))} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
-                 <button onClick={() => setPage(p => p+1)} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+                 <button onClick={() => setPage(p => Math.max(1, p-1))} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Previous</button>
+                 <button onClick={() => setPage(p => p+1)} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Next</button>
                </nav>
              </div>
            </div>
@@ -184,7 +184,7 @@ export default function Posts() {
         onClose={() => setPostToDelete(null)}
         title="Delete Post"
       >
-        <p className="text-sm text-gray-600 font-sans mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-300 font-sans mb-6">
           Are you sure you want to delete <span className="font-semibold">{postToDelete?.title}</span>? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">

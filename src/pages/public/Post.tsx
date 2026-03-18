@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MarkdownIt from 'markdown-it';
 import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
 import { formatDate, calculateReadTime, getInitials } from '../../lib/utils';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -18,6 +19,13 @@ export default function Post() {
   const queryClient = useQueryClient();
   const [commentName, setCommentName] = useState('');
   const [commentText, setCommentText] = useState('');
+  
+  // Create markdown instance
+  const md = useMemo(() => new MarkdownIt({
+    html: true,
+    linkify: true,
+    typographer: true
+  }), []);
 
   // Fetch Post
   const { data: post, isLoading } = useQuery({
@@ -213,10 +221,10 @@ export default function Post() {
 
       {/* Body Content */}
       <div className="max-w-[780px] mx-auto px-4 font-sans text-lg text-gray-800 dark:text-gray-200 leading-[1.9] pb-16">
-         {/* Rendering the rich text. Assume HTML content from markdown editor (we might need a parser or dangerouslySetInnerHTML) */}
+         {/* Rendering the rich text from markdown content */}
          <div 
            className="prose prose-lg dark:prose-invert prose-headings:font-serif prose-headings:text-primary dark:prose-headings:text-gray-100 prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 max-w-none"
-           dangerouslySetInnerHTML={{ __html: post.content }} 
+           dangerouslySetInnerHTML={{ __html: md.render(post.content) }} 
          />
          
          <div className="mt-16 flex flex-wrap gap-2">

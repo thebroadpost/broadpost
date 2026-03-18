@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 import { getPosts } from '../../lib/api';
+import { CATEGORY_META } from '../../lib/categories';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -12,13 +13,10 @@ const SearchModal = lazy(() => import('./SearchModal'));
 
 const NAV_LINKS = [
   { name: 'Home', path: '/' },
-  { name: 'Lifestyle', path: '/category/lifestyle' },
-  { name: 'Tech & Innovation', path: '/category/tech-and-innovation' },
-  { name: 'Sports', path: '/category/sports' },
-  { name: 'Entertainment', path: '/category/entertainment' },
-  { name: 'Business & Economy', path: '/category/business-and-economy' },
-  { name: 'Personal Finance', path: '/category/personal-finance' },
-  { name: 'Politics & Policy', path: '/category/politics-and-policy' },
+  ...CATEGORY_META.map((category) => ({
+    name: category.name,
+    path: `/category/${category.slug}`,
+  })),
 ];
 
 export default function Navbar() {

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { getCategories } from '../../lib/api';
+import { CATEGORY_META_BY_SLUG } from '../../lib/categories';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { LazyRender } from '../../components/ui/LazyRender';
 
@@ -22,6 +23,13 @@ export default function Category() {
   });
 
   const category = categories?.find(c => c.slug === slug);
+  const fallbackCategory = slug ? CATEGORY_META_BY_SLUG[slug] : undefined;
+
+  const categoryName = category?.name || fallbackCategory?.name || '';
+  const categoryDescription =
+    category?.description ||
+    fallbackCategory?.description ||
+    `Stay updated with the latest news and analysis on ${categoryName || 'this category'}.`;
 
   if (isLoading) {
     return (
@@ -35,7 +43,7 @@ export default function Category() {
     );
   }
 
-  if (!category) {
+  if (!category && !fallbackCategory) {
     return (
       <div className="py-20 text-center font-sans">
         <h2 className="text-3xl font-serif font-bold text-primary mb-4">Category not found</h2>
@@ -47,19 +55,17 @@ export default function Category() {
   return (
     <>
       <Helmet>
-        <title>{category.name} | BROADPOST</title>
-        <meta name="description" content={category.description || `Stay updated with the latest news and analysis on ${category.name}.`} />
+        <title>{categoryName} | BROADPOST</title>
+        <meta name="description" content={categoryDescription} />
       </Helmet>
 
       {/* Category Hero */}
-      <section className="bg-primary text-white py-20 px-4 lg:px-8 block w-full">
+      <section className="bg-gradient-to-b from-gray-100 to-gray-200 dark:from-primary dark:to-gray-900 text-primary dark:text-white py-16 md:py-20 px-4 lg:px-8 block w-full border-b border-gray-300 dark:border-gray-800">
         <div className="max-w-[1600px] mx-auto">
-           <h1 className="font-serif font-bold text-5xl md:text-6xl lg:text-7xl mb-6">{category.name}</h1>
-           {category.description && (
-             <p className="font-sans text-lg md:text-xl text-gray-300 max-w-3xl leading-relaxed">
-               {category.description}
-             </p>
-           )}
+           <h1 className="font-serif font-bold text-4xl md:text-6xl lg:text-7xl mb-4 md:mb-6">{categoryName}</h1>
+           <p className="font-sans text-base md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl leading-relaxed">
+             {categoryDescription}
+           </p>
         </div>
       </section>
 
@@ -78,7 +84,7 @@ export default function Category() {
           <div className="flex flex-col lg:flex-row gap-12">
             <div className="lg:w-[70%]">
               <Suspense fallback={<Skeleton className="w-full h-[600px]" />}>
-                <PostGrid categorySlug={category.slug} />
+                <PostGrid categorySlug={slug || category?.slug || ''} />
               </Suspense>
             </div>
 

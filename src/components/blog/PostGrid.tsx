@@ -97,7 +97,7 @@ export function PostGrid({ categorySlug }: PostGridProps) {
     );
   }
 
-  if (isError || !data?.data) {
+  if (isError) {
     return (
       <div className="text-red-500 py-8 text-center font-sans">
         Error loading posts. Please try again later.

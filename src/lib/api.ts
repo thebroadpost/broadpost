@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { PaginationParams } from '../types';
 import { generateSlug } from './utils';
+import { getCategoryMatchVariants, toCanonicalCategorySlug } from './categories';
 
 function titleCase(value: string): string {
   return value
@@ -12,7 +13,7 @@ function titleCase(value: string): string {
 
 function normalizePost(raw: any): any {
   const rawCategory = (raw?.category || '').toString().trim();
-  const categorySlug = rawCategory ? generateSlug(rawCategory) : 'news';
+  const categorySlug = rawCategory ? toCanonicalCategorySlug(rawCategory) : 'news';
 
   return {
     ...raw,
@@ -40,9 +41,7 @@ function missingColumnFromError(error: any): string | null {
 }
 
 function categoryVariants(categorySlug: string): string[] {
-  const slug = generateSlug(categorySlug);
-  const spaced = slug.replace(/-/g, ' ');
-  return Array.from(new Set([slug, spaced, titleCase(slug)]));
+  return getCategoryMatchVariants(categorySlug);
 }
 
 function normalizeOptionalText(value: unknown): string | null {
@@ -352,13 +351,15 @@ export async function createPost(postData: any) {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error("Not authenticated");
 
+  const canonicalCategory = toCanonicalCategorySlug((postData.category || '').toString());
+
   const payload: Record<string, any> = {
     title: postData.title,
     slug: postData.slug,
     content: postData.content,
     excerpt: postData.excerpt,
     cover_image: postData.cover_image,
-    category: postData.category,
+    category: canonicalCategory,
     tags: postData.tags || [],
     status: postData.status,
     author_name: postData.author_name || userData.user.user_metadata?.full_name || 'Staff',
@@ -376,7 +377,7 @@ export async function createPost(postData: any) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     author_id: userData.user.id,
-    category_id: postData.category_id,
+    category_id: postData.category_id || canonicalCategory,
     published_at: postData.status === 'published' ? (postData.published_at || new Date().toISOString()) : null,
     scheduled_at: postData.status === 'scheduled' ? (postData.scheduled_at || null) : null,
   };
@@ -409,8 +410,13 @@ export async function createPost(postData: any) {
 }
 
 export async function updatePost(postId: string, postData: any) {
+  const canonicalCategory = postData?.category
+    ? toCanonicalCategorySlug((postData.category || '').toString())
+    : undefined;
+
   const payload: Record<string, any> = {
     ...postData,
+    ...(canonicalCategory ? { category: canonicalCategory } : {}),
     ...extractSeoFields(postData),
     updated_at: new Date().toISOString(),
   };

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPost, updatePost, getCategories, createCategory, deletePost } from '../../lib/api';
 import { formatDate, generateSlug } from '../../lib/utils';
+import { CATEGORY_META } from '../../lib/categories';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -13,15 +14,7 @@ import { AlertTriangle, Calendar, CheckCircle2, Clock, Eye, Trash2 } from 'lucid
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
-const PRESET_CATEGORIES = [
-  { name: 'Lifestyle', slug: 'lifestyle' },
-  { name: 'Tech & Innovation', slug: 'tech-and-innovation' },
-  { name: 'Sports', slug: 'sports' },
-  { name: 'Entertainment', slug: 'entertainment' },
-  { name: 'Business & Economy', slug: 'business-and-economy' },
-  { name: 'Personal Finance', slug: 'personal-finance' },
-  { name: 'Politics & Policy', slug: 'politics-and-policy' },
-];
+const PRESET_CATEGORIES = CATEGORY_META.map(({ name, slug }) => ({ name, slug }));
 
 export default function PostForm() {
   const { id } = useParams<{ id: string }>();

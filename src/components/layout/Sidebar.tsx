@@ -133,9 +133,9 @@ export function Sidebar() {
       </div>
 
       {/* Newsletter Signup */}
-      <div className="bg-primary dark:bg-gray-800 text-white p-8">
+      <div className="bg-white dark:bg-gray-800 text-primary dark:text-white p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
         <h3 className="font-serif font-bold text-2xl mb-4 leading-tight">Get BROADPOST in your inbox</h3>
-        <p className="font-sans text-sm text-gray-300 mb-6">Sign up for our daily newsletter and get the most important stories curated by our editors.</p>
+        <p className="font-sans text-sm text-gray-600 dark:text-gray-300 mb-6">Sign up for our daily newsletter and get the most important stories curated by our editors.</p>
         <form className="space-y-3" onSubmit={handleSubscribe}>
           <Input 
             type="email" 
@@ -144,18 +144,18 @@ export function Sidebar() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={subscribing}
-            className="border-none"
+            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900"
           />
           <Button 
             type="submit" 
             fullWidth 
             disabled={subscribing}
-            className="font-bold tracking-widest uppercase bg-accent-blue hover:bg-blue-800 text-white border-none"
+            className="font-bold tracking-widest uppercase bg-primary hover:bg-gray-800 dark:bg-accent-blue dark:hover:bg-blue-800 text-white border-none"
           >
             {subscribing ? 'Subscribing...' : 'Subscribe'}
           </Button>
         </form>
-        <p className="text-xs text-gray-400 mt-4 leading-relaxed tracking-wide">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 leading-relaxed tracking-wide">
           By signing up, you accept and agree to our Terms of Service and Privacy Policy.
         </p>
       </div>

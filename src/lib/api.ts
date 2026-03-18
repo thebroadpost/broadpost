@@ -63,6 +63,73 @@ function extractSeoFields(postData: any) {
   };
 }
 
+type ViewMeta = {
+  country_code?: string | null;
+  country_name?: string | null;
+  source_referrer?: string | null;
+  source_domain?: string | null;
+  page_path?: string | null;
+};
+
+async function getViewMeta(): Promise<ViewMeta> {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  const referrer = document.referrer || null;
+  const sourceDomain = referrer ? (() => {
+    try {
+      return new URL(referrer).hostname;
+    } catch {
+      return null;
+    }
+  })() : null;
+
+  const baseMeta: ViewMeta = {
+    source_referrer: referrer,
+    source_domain: sourceDomain,
+    page_path: window.location.pathname || null,
+  };
+
+  try {
+    const cached = window.sessionStorage.getItem('broadpost_geo_meta');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return {
+        ...baseMeta,
+        country_code: parsed.country_code || null,
+        country_name: parsed.country_name || null,
+      };
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 2500);
+    const response = await fetch('https://ipapi.co/json/', {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    });
+    window.clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return baseMeta;
+    }
+
+    const geo = await response.json();
+    const country_code = geo?.country_code ? String(geo.country_code) : null;
+    const country_name = geo?.country_name ? String(geo.country_name) : null;
+
+    window.sessionStorage.setItem('broadpost_geo_meta', JSON.stringify({ country_code, country_name }));
+
+    return {
+      ...baseMeta,
+      country_code,
+      country_name,
+    };
+  } catch {
+    return baseMeta;
+  }
+}
+
 const POST_SELECT = '*';
 
 export async function getPosts(filters?: { status?: string, category_slug?: string }, pagination?: PaginationParams) {
@@ -161,8 +228,32 @@ export async function getTrendingPosts() {
 }
 
 export async function incrementViews(postId: string) {
+  const viewMeta = await getViewMeta();
+
+  const detailedRpcResult = await supabase.rpc('record_post_view_detailed', {
+    p_post_id: postId,
+    p_country_code: viewMeta.country_code || null,
+    p_country_name: viewMeta.country_name || null,
+    p_source_referrer: viewMeta.source_referrer || null,
+    p_source_domain: viewMeta.source_domain || null,
+    p_page_path: viewMeta.page_path || null,
+  });
+  if (!detailedRpcResult.error) return;
+
   const rpcResult = await supabase.rpc('record_post_view', { p_post_id: postId });
   if (!rpcResult.error) return;
+
+  // If RPCs are unavailable, still try to record an event row directly.
+  await supabase.from('post_views').insert([
+    {
+      post_id: postId,
+      country_code: viewMeta.country_code || null,
+      country_name: viewMeta.country_name || null,
+      source_referrer: viewMeta.source_referrer || null,
+      source_domain: viewMeta.source_domain || null,
+      page_path: viewMeta.page_path || null,
+    },
+  ]);
 
   // Fallback for projects that have not run the view tracking SQL yet.
   const { data: post, error: fetchError } = await supabase
@@ -403,6 +494,7 @@ export async function getAdminStats() {
     totalCommentsRes,
     postsForViewsRes,
     viewEventsRes,
+    geoViewEventsRes,
     recentPostsRes,
     publishedCategoriesRes,
   ] = await Promise.all([
@@ -416,6 +508,11 @@ export async function getAdminStats() {
       .select('viewed_at')
       .gte('viewed_at', startDate.toISOString())
       .order('viewed_at', { ascending: true }),
+    supabase
+      .from('post_views')
+      .select('country_name, source_domain, post_id, post:post_id (title, slug)')
+      .order('viewed_at', { ascending: false })
+      .limit(3000),
     supabase
       .from('posts')
       .select('id,title,slug,category,views,status,created_at')
@@ -461,6 +558,56 @@ export async function getAdminStats() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
 
+  const countryMap = new Map<string, number>();
+  const sourceMap = new Map<string, number>();
+  const countryPostMap = new Map<string, Map<string, { postId: string; title: string; slug: string; views: number }>>();
+
+  for (const row of geoViewEventsRes.data || []) {
+    const country = (row.country_name || 'Unknown').toString().trim() || 'Unknown';
+    countryMap.set(country, (countryMap.get(country) || 0) + 1);
+
+    const source = (row.source_domain || 'Direct / Unknown').toString().trim() || 'Direct / Unknown';
+    sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
+
+    const postId = row.post_id as string;
+    const postTitle = row.post?.title || 'Untitled post';
+    const postSlug = row.post?.slug || '';
+
+    if (!countryPostMap.has(country)) {
+      countryPostMap.set(country, new Map());
+    }
+
+    const postsInCountry = countryPostMap.get(country)!;
+    const existingPost = postsInCountry.get(postId);
+    if (existingPost) {
+      existingPost.views += 1;
+    } else {
+      postsInCountry.set(postId, {
+        postId,
+        title: postTitle,
+        slug: postSlug,
+        views: 1,
+      });
+    }
+  }
+
+  const topCountries = Array.from(countryMap.entries())
+    .map(([country, views]) => ({ country, views }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 8);
+
+  const topSources = Array.from(sourceMap.entries())
+    .map(([source, views]) => ({ source, views }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 8);
+
+  const topPostsByCountry = topCountries.slice(0, 5).map(({ country }) => {
+    const posts = Array.from(countryPostMap.get(country)?.values() || [])
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 3);
+    return { country, posts };
+  });
+
   return {
     totalPosts: totalPostsRes.count || 0,
     publishedPosts: publishedPostsRes.count || 0,
@@ -468,6 +615,9 @@ export async function getAdminStats() {
     totalComments: totalCommentsRes.count || 0,
     totalViews,
     viewsData,
+    topCountries,
+    topSources,
+    topPostsByCountry,
     recentPosts: (recentPostsRes.data || []).map((p: any) => ({
       id: p.id,
       title: p.title,

@@ -70,6 +70,23 @@ export interface AdminStats {
   totalComments: number;
   totalViews: number;
   viewsData: { date: string; views: number }[];
+  topCountries: {
+    country: string;
+    views: number;
+  }[];
+  topSources: {
+    source: string;
+    views: number;
+  }[];
+  topPostsByCountry: {
+    country: string;
+    posts: {
+      postId: string;
+      title: string;
+      slug: string;
+      views: number;
+    }[];
+  }[];
   recentPosts: {
     id: string;
     title: string;

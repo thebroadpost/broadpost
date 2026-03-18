@@ -1,4 +1,3 @@
-import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, PlusSquare, MessageSquare, LogOut, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -14,7 +13,7 @@ export default function AdminLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
       </div>
     );
@@ -29,9 +28,9 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-primary text-white flex flex-col hidden sm:flex fixed h-full z-10">
+      <aside className="w-64 bg-primary dark:bg-black text-white hidden sm:flex sm:flex-col fixed h-full z-10 border-r border-gray-800/60">
         <div className="h-16 flex items-center justify-center border-b border-gray-800">
           <Link to="/" className="font-serif font-bold text-2xl tracking-tight">BROADPOST</Link>
         </div>
@@ -69,14 +68,14 @@ export default function AdminLayout() {
       {/* Main Content */}
       <main className="flex-1 sm:ml-64 flex flex-col min-h-screen relative z-0">
         {/* Mobile Header */}
-        <header className="sm:hidden h-16 bg-white border-b border-border flex items-center px-4 justify-between">
-          <Link to="/" className="font-serif font-bold text-xl text-primary">BROADPOST</Link>
-          <button onClick={handleLogout} className="p-2 text-primary hover:bg-gray-100 rounded">
+        <header className="sm:hidden h-16 bg-white dark:bg-gray-900 border-b border-border dark:border-gray-800 flex items-center px-4 justify-between">
+          <Link to="/" className="font-serif font-bold text-xl text-primary dark:text-white">BROADPOST</Link>
+          <button onClick={handleLogout} className="p-2 text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
             <LogOut size={20} />
           </button>
         </header>
 
-        <div className="flex-1 p-4 md:p-8 bg-gray-50 overflow-auto">
+        <div className="flex-1 p-4 md:p-8 bg-gray-50 dark:bg-gray-950 overflow-auto">
           <Outlet />
         </div>
       </main>

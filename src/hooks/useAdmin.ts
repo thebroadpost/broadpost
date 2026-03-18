@@ -14,22 +14,45 @@ export function useAdmin(requireAuth = true) {
     let isCancelled = false;
 
     const handleSession = async (session: Session | null) => {
-      const nextUser = session?.user ?? null;
-      const allowed = await isUserAllowedForAdmin(nextUser);
+      try {
+        const nextUser = session?.user ?? null;
+        const allowed = await isUserAllowedForAdmin(nextUser);
 
-      if (isCancelled) return;
+        if (isCancelled) return;
 
-      setUser(allowed ? nextUser : null);
-      setLoading(false);
+        setUser(allowed ? nextUser : null);
 
-      if (requireAuth && !allowed && location.pathname !== '/admin/login') {
-        navigate('/admin/login', { replace: true });
+        if (requireAuth && !allowed && location.pathname !== '/admin/login') {
+          navigate('/admin/login', { replace: true });
+        }
+      } catch (error) {
+        console.error('Failed to validate admin session:', error);
+        if (isCancelled) return;
+        setUser(null);
+        if (requireAuth && location.pathname !== '/admin/login') {
+          navigate('/admin/login', { replace: true });
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      void handleSession(session);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        void handleSession(session);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch Supabase session:', error);
+        if (!isCancelled) {
+          setUser(null);
+          setLoading(false);
+          if (requireAuth && location.pathname !== '/admin/login') {
+            navigate('/admin/login', { replace: true });
+          }
+        }
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       void handleSession(session);

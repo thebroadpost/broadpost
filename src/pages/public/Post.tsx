@@ -220,10 +220,26 @@ export default function Post() {
       )}
 
       {/* Body Content */}
-      <div className="max-w-[780px] mx-auto px-4 font-sans text-lg text-gray-800 dark:text-gray-200 leading-[1.9] pb-16">
+      <div className="max-w-[780px] mx-auto px-4 pb-16">
          {/* Rendering the rich text from markdown content */}
          <div 
-           className="prose prose-lg dark:prose-invert prose-headings:font-serif prose-headings:text-primary dark:prose-headings:text-gray-100 prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 max-w-none"
+           className="prose prose-lg dark:prose-invert max-w-none
+           prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-gray-100 prose-headings:mt-8 prose-headings:mb-4
+           prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl
+           prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-8 prose-p:mb-6
+           prose-a:text-accent-blue prose-a:font-semibold prose-a:no-underline hover:prose-a:underline
+           prose-strong:font-bold prose-strong:text-primary dark:prose-strong:text-gray-100
+           prose-em:italic prose-em:text-gray-700 dark:prose-em:text-gray-300
+           prose-blockquote:border-l-4 prose-blockquote:border-accent-red prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:pl-6 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-300 prose-blockquote:my-6
+           prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-6 prose-li:text-gray-800 dark:prose-li:text-gray-200 prose-li:mb-2
+           prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-6
+           prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:text-accent-red prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
+           prose-pre:bg-gray-900 dark:prose-pre:bg-black prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded prose-pre:overflow-x-auto prose-pre:mb-6
+           prose-img:rounded prose-img:my-8 prose-img:shadow-sm
+           prose-hr:border-border dark:prose-hr:border-gray-800 prose-hr:my-8
+           prose-table:w-full prose-table:border-collapse prose-table:my-6
+           prose-th:bg-gray-50 dark:prose-th:bg-gray-900 prose-th:border prose-th:border-border dark:prose-th:border-gray-700 prose-th:p-3 prose-th:text-left
+           prose-td:border prose-td:border-border dark:prose-td:border-gray-700 prose-td:p-3"
            dangerouslySetInnerHTML={{ __html: md.render(post.content) }} 
          />
          

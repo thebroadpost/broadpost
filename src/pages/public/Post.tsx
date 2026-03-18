@@ -107,6 +107,39 @@ export default function Post() {
   const shareUrl = encodeURIComponent(canonicalUrl || (typeof window !== 'undefined' ? window.location.href : ''));
   const shareTitle = encodeURIComponent(openGraphTitle);
 
+  // BlogPosting schema.org structured data for Google
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: metaDescription,
+    image: socialShareImage ? [socialShareImage] : undefined,
+    datePublished: post.published_at || post.created_at,
+    dateModified: post.updated_at || post.published_at || post.created_at,
+    author: {
+      '@type': 'Person',
+      name: post.author?.name || 'BROADPOST Staff'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'BROADPOST',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://thebroadpost.com/thebroadpostlogo.svg',
+        width: 200,
+        height: 200
+      }
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      url: 'https://thebroadpost.com',
+      name: 'BROADPOST'
+    },
+    articleBody: post.content,
+    articleSection: post.category?.name || 'News',
+    keywords: post.focus_keyword || post.category?.name || 'news'
+  };
+
   return (
     <article className="bg-white dark:bg-gray-950">
       <Helmet>
@@ -125,6 +158,9 @@ export default function Post() {
         <meta name="twitter:title" content={openGraphTitle} />
         <meta name="twitter:description" content={openGraphDescription} />
         {socialShareImage && <meta name="twitter:image" content={socialShareImage} />}
+        <script type="application/ld+json">
+          {JSON.stringify(blogPostingSchema)}
+        </script>
       </Helmet>
 
       {/* Header Area */}

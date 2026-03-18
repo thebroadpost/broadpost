@@ -82,7 +82,7 @@ export default function Footer() {
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Sitemap</a>
+            <a href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</a>
             <Link to="/admin/login" className="hover:text-white transition-colors">Staff Login</Link>
           </div>
         </div>

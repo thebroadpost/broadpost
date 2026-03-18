@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Make desktop render slightly denser, similar to a ~90% browser zoom feel. */
+@media (min-width: 1024px) {
+  html {
+    font-size: 14.4px;
+  }
+}
+
 @layer base {
   body {
     @apply font-sans text-gray-700 bg-background antialiased dark:bg-gray-900 dark:text-gray-300 transition-colors duration-200;

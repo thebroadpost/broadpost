@@ -25,9 +25,9 @@ async function generateSitemap() {
     // Fetch all published posts
     const { data: posts, error } = await supabase
       .from('posts')
-      .select('id, slug, updated_at, published_at')
+      .select('id, slug, created_at')
       .eq('status', 'published')
-      .order('published_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('❌ Error fetching posts:', error.message);
@@ -48,12 +48,15 @@ async function generateSitemap() {
     // Build URLs array
     const urls = [
       ...staticPages,
-      ...(posts || []).map(post => ({
-        loc: `/blog/${post.slug}`,
-        changefreq: 'weekly',
-        priority: '0.9',
-        lastmod: (post.updated_at || post.published_at || new Date()).split('T')[0]
-      }))
+      ...(posts || []).map(post => {
+        const lastmodDate = post.created_at ? new Date(post.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        return {
+          loc: `/blog/${post.slug}`,
+          changefreq: 'weekly',
+          priority: '0.9',
+          lastmod: lastmodDate
+        };
+      })
     ];
 
     // Generate XML

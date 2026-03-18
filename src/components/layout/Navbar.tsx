@@ -109,8 +109,13 @@ export default function Navbar() {
           </div>
 
           <div className="flex-1 flex justify-center lg:justify-start lg:flex-none">
-            <Link to="/" className="font-serif font-bold text-[30px] lg:text-[38px] text-primary dark:text-white tracking-tight leading-none">
-              BROADPOST
+            <Link to="/" className="inline-flex items-center" aria-label="BROADPOST Home">
+              <img
+                src="/thebroadpostlogo.svg"
+                alt="BROADPOST"
+                className="h-9 w-auto lg:h-11"
+                loading="eager"
+              />
             </Link>
           </div>
 
@@ -193,7 +198,7 @@ export default function Navbar() {
           </button>
           
           <div className="mb-12">
-            <span className="font-serif font-bold text-4xl text-primary">BROADPOST</span>
+            <img src="/thebroadpostlogo.svg" alt="BROADPOST" className="h-12 w-auto" loading="eager" />
           </div>
           
           <nav className="flex flex-col items-center space-y-6 w-full">

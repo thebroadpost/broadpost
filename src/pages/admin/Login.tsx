@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -13,8 +13,17 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAdmin();
+  const location = useLocation();
+  const { user, loading: authLoading } = useAdmin(false);
   const { signInWithGoogle } = useAuth();
+
+  const nextPath = useMemo(() => {
+    const nextParam = new URLSearchParams(location.search).get('next');
+    if (nextParam && nextParam.startsWith('/admin')) {
+      return nextParam;
+    }
+    return '/admin/dashboard';
+  }, [location.search]);
 
   if (authLoading) {
     return (
@@ -25,7 +34,7 @@ export default function Login() {
   }
 
   if (user) {
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to={nextPath} replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -51,14 +60,14 @@ export default function Login() {
       }
 
       toast.success('Welcome back!');
-      navigate('/admin/dashboard');
+      navigate(nextPath, { replace: true });
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      await signInWithGoogle();
+      await signInWithGoogle(`/admin/login?next=${encodeURIComponent(nextPath)}`);
       // Redirect is handled by Supabase OAuth flow.
     } catch (error: any) {
       toast.error(error?.message || 'Google sign-in failed');

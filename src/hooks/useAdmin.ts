@@ -12,6 +12,8 @@ export function useAdmin(requireAuth = true) {
 
   useEffect(() => {
     let isCancelled = false;
+    const encodedNextPath = encodeURIComponent(`${location.pathname}${location.search}`);
+    const loginPath = `/admin/login?next=${encodedNextPath}`;
 
     const handleSession = async (session: Session | null) => {
       try {
@@ -23,14 +25,14 @@ export function useAdmin(requireAuth = true) {
         setUser(allowed ? nextUser : null);
 
         if (requireAuth && !allowed && location.pathname !== '/admin/login') {
-          navigate('/admin/login', { replace: true });
+          navigate(loginPath, { replace: true });
         }
       } catch (error) {
         console.error('Failed to validate admin session:', error);
         if (isCancelled) return;
         setUser(null);
         if (requireAuth && location.pathname !== '/admin/login') {
-          navigate('/admin/login', { replace: true });
+          navigate(loginPath, { replace: true });
         }
       } finally {
         if (!isCancelled) {
@@ -49,7 +51,7 @@ export function useAdmin(requireAuth = true) {
           setUser(null);
           setLoading(false);
           if (requireAuth && location.pathname !== '/admin/login') {
-            navigate('/admin/login', { replace: true });
+            navigate(loginPath, { replace: true });
           }
         }
       });
@@ -62,7 +64,7 @@ export function useAdmin(requireAuth = true) {
       isCancelled = true;
       subscription.unsubscribe();
     };
-  }, [navigate, requireAuth, location.pathname]);
+  }, [navigate, requireAuth, location.pathname, location.search]);
 
   return { user, loading };
 }

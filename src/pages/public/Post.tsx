@@ -6,7 +6,7 @@ import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle } f
 import toast from 'react-hot-toast';
 import MarkdownIt from 'markdown-it';
 import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
-import { formatDate, calculateReadTime, getInitials } from '../../lib/utils';
+import { formatDate, calculateReadTime, getInitials, getPostPath } from '../../lib/utils';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Badge } from '../../components/ui/Badge';
 import { PostCard } from '../../components/blog/PostCard';
@@ -15,7 +15,16 @@ import { Input } from '../../components/ui/Input';
 import { BookmarkButton } from '../../components/blog/BookmarkButton';
 
 export default function Post() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams<{ slug?: string; '*': string }>();
+  const slug = params.slug ?? params['*'];
+  const decodedSlug = useMemo(() => {
+    if (!slug) return undefined;
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  }, [slug]);
   const queryClient = useQueryClient();
   const [commentName, setCommentName] = useState('');
   const [commentText, setCommentText] = useState('');
@@ -29,13 +38,13 @@ export default function Post() {
 
   // Fetch Post
   const { data: post, isLoading } = useQuery({
-    queryKey: ['post', slug],
+    queryKey: ['post', decodedSlug],
     queryFn: async () => {
-      const data = await getPostBySlug(slug!);
+      const data = await getPostBySlug(decodedSlug!);
       if (data) incrementViews(data.id); // fire and forget
       return data;
     },
-    enabled: !!slug
+    enabled: !!decodedSlug
   });
 
   // Fetch Related
@@ -96,7 +105,7 @@ export default function Post() {
 
   const readTime = calculateReadTime(post.content);
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-  const fallbackUrl = siteOrigin ? `${siteOrigin}/blog/${post.slug}` : '';
+  const fallbackUrl = siteOrigin ? `${siteOrigin}${getPostPath(post.slug)}` : '';
   const canonicalUrl = post.canonical_url || fallbackUrl;
   const seoTitle = post.seo_title || post.title;
   const pageTitle = seoTitle.includes('BROADPOST') ? seoTitle : `${seoTitle} | BROADPOST`;

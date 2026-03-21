@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
-import { formatDate } from '../../lib/utils';
+import { formatDate, getPostPath } from '../../lib/utils';
 import { getPosts } from '../../lib/api';
 import { CATEGORY_META } from '../../lib/categories';
 import { Button } from '../ui/Button';
@@ -80,7 +80,7 @@ export default function Navbar() {
             <span className="bg-accent-red text-white font-bold px-2 py-0.5 rounded-sm uppercase flex-shrink-0">Breaking</span>
             {activeBreakingPost ? (
               <Link
-                to={`/blog/${activeBreakingPost.slug}`}
+                to={getPostPath(activeBreakingPost.slug)}
                 className="truncate hover:text-gray-200 transition-colors"
                 title={activeBreakingPost.title}
               >

@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'rea
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPost, updatePost, getCategories, createCategory, deletePost } from '../../lib/api';
-import { formatDate, generateSlug } from '../../lib/utils';
+import { formatDate, generateSlug, getPostPath } from '../../lib/utils';
 import { CATEGORY_META } from '../../lib/categories';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -706,7 +706,7 @@ export default function PostForm() {
             )}
             {isEditing && slug && (
               <a
-                href={`/blog/${slug}`}
+                href={getPostPath(slug)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-sans border border-border dark:border-gray-700 rounded text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"

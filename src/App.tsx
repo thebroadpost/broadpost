@@ -54,7 +54,7 @@ function App() {
           }>
             <Route index element={<Home />} />
             <Route path="category/:slug" element={<Category />} />
-            <Route path="blog/:slug" element={<Post />} />
+            <Route path="blog/*" element={<Post />} />
             <Route path="about" element={<About />} />
             
             {/* Account Routes */}

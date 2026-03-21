@@ -12,6 +12,11 @@ export function generateSlug(title: string): string {
     .replace(/(^-|-$)+/g, '');
 }
 
+export function getPostPath(slug: string): string {
+  if (!slug) return '/blog';
+  return `/blog/${encodeURIComponent(slug)}`;
+}
+
 export function formatDate(dateString: string): string {
   if (!dateString) return '';
   const date = new Date(dateString);

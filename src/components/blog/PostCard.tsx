@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../../types';
 import { Badge } from '../ui/Badge';
-import { formatDate, calculateReadTime, truncateText } from '../../lib/utils';
+import { formatDate, calculateReadTime, truncateText, getPostPath } from '../../lib/utils';
 import { Clock } from 'lucide-react';
 
 interface PostCardProps {
@@ -18,7 +18,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
   
   if (variant === 'featured') {
     return (
-      <Link to={`/blog/${post.slug}`} className="group relative block w-full h-full overflow-hidden bg-primary cursor-pointer">
+      <Link to={getPostPath(post.slug)} className="group relative block w-full h-full overflow-hidden bg-primary cursor-pointer">
         <div className="absolute inset-0">
           <img 
             src={post.cover_image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80'} 
@@ -53,7 +53,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   if (variant === 'small') {
     return (
-      <Link to={`/blog/${post.slug}`} className="group flex items-start space-x-3 py-3 cursor-pointer">
+      <Link to={getPostPath(post.slug)} className="group flex items-start space-x-3 py-3 cursor-pointer">
         <div className="flex-shrink-0 w-[120px] h-[80px] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img 
             src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 
@@ -80,7 +80,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   if (variant === 'horizontal') {
     return (
-      <Link to={`/blog/${post.slug}`} className="group flex flex-col md:flex-row gap-6 mb-8 cursor-pointer">
+      <Link to={getPostPath(post.slug)} className="group flex flex-col md:flex-row gap-6 mb-8 cursor-pointer">
         <div className="w-full md:w-[45%] h-[250px] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
           <img 
              src={post.cover_image || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80'} 
@@ -116,7 +116,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   if (variant === 'minimal') {
     return (
-      <Link to={`/blog/${post.slug}`} className="block group">
+      <Link to={getPostPath(post.slug)} className="block group">
         <div className="w-full h-40 md:h-48 overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3">
            <img 
              src={post.cover_image || 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&q=80'} 
@@ -141,7 +141,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   if (variant === 'opinion') {
     return (
-      <Link to={`/blog/${post.slug}`} className="block group border border-border dark:border-gray-800 p-6 hover:shadow-sm transition-shadow bg-gray-50/50 dark:bg-gray-800/50 rounded-sm">
+      <Link to={getPostPath(post.slug)} className="block group border border-border dark:border-gray-800 p-6 hover:shadow-sm transition-shadow bg-gray-50/50 dark:bg-gray-800/50 rounded-sm">
         <div className="flex items-center space-x-4 mb-4 border-b border-border dark:border-gray-800 pb-4">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
              <img src={post.author?.avatar_url || 'https://res.cloudinary.com/demo/image/upload/w_200,h_200,c_thumb,g_face,r_max/face_left.png'} alt={post.author?.name} className="w-full h-full object-cover grayscale" loading="lazy" />
@@ -163,7 +163,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
 
   // Standard Grid Card
   return (
-    <Link to={`/blog/${post.slug}`} className="group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 p-2 -m-2 transition-all">
+    <Link to={getPostPath(post.slug)} className="group flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 p-2 -m-2 transition-all">
       <div className="w-full aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3 block">
         <img 
           src={post.cover_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80'} 

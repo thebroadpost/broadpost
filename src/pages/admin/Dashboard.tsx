@@ -17,7 +17,7 @@ const RadialBarChart = lazy(() => import('recharts').then(m => ({ default: m.Rad
 const RadialBar = lazy(() => import('recharts').then(m => ({ default: m.RadialBar })));
 import { FileText, Eye, MessageSquare, CheckCircle, Activity, TrendingUp, Globe, Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { formatDate } from '../../lib/utils';
+import { formatDate, getPostPath } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export default function Dashboard() {
@@ -191,7 +191,7 @@ export default function Dashboard() {
                 <h3 className="text-sm font-sans font-bold uppercase tracking-wide text-primary dark:text-white mb-3">{countryBlock.country}</h3>
                 <div className="space-y-2">
                   {countryBlock.posts.map((postItem) => (
-                    <Link key={postItem.postId} to={`/blog/${postItem.slug}`} className="flex items-center justify-between gap-3 text-sm text-gray-700 dark:text-gray-200 hover:text-accent-blue transition-colors">
+                    <Link key={postItem.postId} to={getPostPath(postItem.slug)} className="flex items-center justify-between gap-3 text-sm text-gray-700 dark:text-gray-200 hover:text-accent-blue transition-colors">
                       <span className="truncate font-medium">{postItem.title}</span>
                       <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{compact.format(postItem.views)}</span>
                     </Link>

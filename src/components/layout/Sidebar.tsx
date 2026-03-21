@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import { BookmarkButton } from '../blog/BookmarkButton';
 import { subscribeToNewsletter } from '../../lib/api';
+import { getPostPath } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export function Sidebar() {
@@ -92,7 +93,7 @@ export function Sidebar() {
                     {index + 1}.
                   </span>
                   <div className="flex-1">
-                    <Link to={`/blog/${post.slug}`}>
+                    <Link to={getPostPath(post.slug)}>
                       <h4 className="font-serif font-bold text-[17px] leading-tight text-primary dark:text-white hover:text-accent-blue dark:hover:text-blue-400 transition-colors mb-2 pr-4">
                         {post.title}
                       </h4>

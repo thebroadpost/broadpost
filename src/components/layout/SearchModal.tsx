@@ -3,7 +3,7 @@ import { X, Search as SearchIcon, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { searchPosts } from '../../lib/api';
 import { Post } from '../../types';
-import { formatDate } from '../../lib/utils';
+import { formatDate, getPostPath } from '../../lib/utils';
 import { Badge } from '../ui/Badge';
 
 interface SearchModalProps {
@@ -99,7 +99,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {results.map((post) => (
                 <Link 
                   key={post.id} 
-                  to={`/blog/${post.slug}`}
+                  to={getPostPath(post.slug)}
                   onClick={onClose}
                   className="flex flex-col md:flex-row gap-6 group items-start bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
                 >

@@ -2,6 +2,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
+const THEME_STORAGE_KEY = 'broadpost-theme';
+const THEME_MIGRATION_KEY = 'broadpost-theme-migrated-v2';
+
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -18,14 +21,23 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('broadpost-theme') as Theme;
+    const saved = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+    const isMigrated = localStorage.getItem(THEME_MIGRATION_KEY) === '1';
+
+    // One-time migration: force existing users to light mode.
+    if (!isMigrated) {
+      localStorage.setItem(THEME_MIGRATION_KEY, '1');
+      localStorage.setItem(THEME_STORAGE_KEY, 'light');
+      return 'light';
+    }
+
     return saved || 'light';
   });
 
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    localStorage.setItem('broadpost-theme', theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
     
     let resolvedTheme: 'light' | 'dark';
     if (theme === 'system') {

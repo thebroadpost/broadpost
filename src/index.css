@@ -23,3 +23,24 @@
     @apply text-accent-blue;
   }
 }
+
+@media (max-width: 767px) {
+  .breaking-ticker-text {
+    display: inline-block;
+    white-space: nowrap;
+    min-width: 100%;
+    padding-right: 2rem;
+    animation: breaking-ticker 12s linear infinite;
+    will-change: transform;
+  }
+}
+
+@keyframes breaking-ticker {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% - 2rem));
+  }
+}

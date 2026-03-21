@@ -76,19 +76,21 @@ export default function Navbar() {
       <header className={`fixed top-0 w-full z-50 transition-all duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
         {/* Top bar */}
         <div className="bg-primary text-white h-9 flex items-center justify-between px-4 lg:px-6 text-[11px] font-sans tracking-wide">
-          <div className="flex items-center space-x-3 w-1/2 overflow-hidden whitespace-nowrap">
+          <div className="flex items-center space-x-3 w-full md:w-1/2 overflow-hidden whitespace-nowrap">
             <span className="bg-accent-red text-white font-bold px-2 py-0.5 rounded-sm uppercase flex-shrink-0">Breaking</span>
-            {activeBreakingPost ? (
-              <Link
-                to={getPostPath(activeBreakingPost.slug)}
-                className="truncate hover:text-gray-200 transition-colors"
-                title={activeBreakingPost.title}
-              >
-                {activeBreakingPost.title}
-              </Link>
-            ) : (
-              <span className="truncate">Global markets react to new economic policies announced today.</span>
-            )}
+            <div className="relative min-w-0 flex-1 overflow-hidden">
+              {activeBreakingPost ? (
+                <Link
+                  to={getPostPath(activeBreakingPost.slug)}
+                  className="breaking-ticker-text block md:truncate hover:text-gray-200 transition-colors"
+                  title={activeBreakingPost.title}
+                >
+                  {activeBreakingPost.title}
+                </Link>
+              ) : (
+                <span className="breaking-ticker-text block md:truncate">Global markets react to new economic policies announced today.</span>
+              )}
+            </div>
           </div>
           <div className="hidden items-center space-x-6 md:flex">
             <span>{today}</span>

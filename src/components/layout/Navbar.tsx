@@ -112,12 +112,9 @@ export default function Navbar() {
 
           <div className="flex-1 flex justify-center lg:justify-start lg:flex-none">
             <Link to="/" className="inline-flex items-center" aria-label="BROADPOST Home">
-              <img
-                src="/thebroadpostlogo.svg"
-                alt="BROADPOST"
-                className="h-9 w-auto lg:h-11"
-                loading="eager"
-              />
+              <span className="font-serif font-bold text-3xl leading-none text-primary dark:text-white tracking-tight">
+                BROADPOST
+              </span>
             </Link>
           </div>
 

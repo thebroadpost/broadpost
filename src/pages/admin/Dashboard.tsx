@@ -39,8 +39,8 @@ export default function Dashboard() {
     return (
       <div className="space-y-6 animate-pulse">
         <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
-          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28 bg-white dark:bg-gray-900" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-28 bg-white dark:bg-gray-900" />)}
         </div>
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
           <Skeleton className="xl:col-span-8 h-80 bg-white dark:bg-gray-900" />
@@ -72,7 +72,8 @@ export default function Dashboard() {
     { title: 'Published', value: stats?.publishedPosts || 0, icon: CheckCircle, iconBg: 'bg-emerald-50 text-emerald-600' },
     { title: 'Drafts', value: stats?.draftPosts || 0, icon: Activity, iconBg: 'bg-amber-50 text-amber-600' },
     { title: 'Comments', value: stats?.totalComments || 0, icon: MessageSquare, iconBg: 'bg-violet-50 text-violet-600' },
-    { title: 'Views', value: stats?.totalViews || 0, icon: Eye, iconBg: 'bg-cyan-50 text-cyan-600' },
+    { title: 'Total Views', value: stats?.totalViews || 0, icon: Eye, iconBg: 'bg-cyan-50 text-cyan-600' },
+    { title: "Today's Views", value: stats?.todayViews || 0, icon: TrendingUp, iconBg: 'bg-sky-50 text-sky-600' },
   ];
 
   const totalPosts = stats?.totalPosts || 0;
@@ -92,7 +93,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6 mb-8">
         {statCards.map((stat, i) => {
           const Icon = stat.icon;
           return (

@@ -69,6 +69,7 @@ export interface AdminStats {
   draftPosts: number;
   totalComments: number;
   totalViews: number;
+  todayViews: number;
   viewsData: { date: string; views: number }[];
   topCountries: {
     country: string;

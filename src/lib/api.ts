@@ -552,6 +552,8 @@ export async function getAdminStats() {
   });
 
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
+  const todayKey = now.toISOString().slice(0, 10);
+  const todayViews = viewsDataMap.get(todayKey) || 0;
 
   const topCategoryMap = new Map<string, number>();
   for (const row of publishedCategoriesRes.data || []) {
@@ -620,6 +622,7 @@ export async function getAdminStats() {
     draftPosts: draftPostsRes.count || 0,
     totalComments: totalCommentsRes.count || 0,
     totalViews,
+    todayViews,
     viewsData,
     topCountries,
     topSources,

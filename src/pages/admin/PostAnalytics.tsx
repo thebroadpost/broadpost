@@ -24,10 +24,6 @@ export default function PostAnalytics() {
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
 
-  React.useEffect(() => {
-    console.log('PostAnalytics postId from URL:', postId);
-  }, [postId]);
-
   const { data: analytics, isLoading, isError, error } = useQuery({
     queryKey: ['postAnalytics', postId],
     queryFn: () => (postId ? getPostAnalytics(postId) : Promise.reject('No post ID')),

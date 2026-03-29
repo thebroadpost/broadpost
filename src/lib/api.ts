@@ -488,13 +488,16 @@ export async function togglePublish(postId: string, isPublished: boolean) {
 }
 
 export async function getAdminStats() {
-  // Use UTC dates to match database timestamps
   const nowUtc = new Date();
-  // Query 8 days instead of 7 to account for timezone offsets
   const startDateUtc = new Date(Date.UTC(
     nowUtc.getUTCFullYear(),
     nowUtc.getUTCMonth(),
-    nowUtc.getUTCDate() - 7
+    nowUtc.getUTCDate() - 6
+  ));
+  const endOfTodayUtc = new Date(Date.UTC(
+    nowUtc.getUTCFullYear(),
+    nowUtc.getUTCMonth(),
+    nowUtc.getUTCDate() + 1
   ));
 
   const [
@@ -504,6 +507,7 @@ export async function getAdminStats() {
     totalCommentsRes,
     postsForViewsRes,
     viewEventsRes,
+    todayViewsRes,
     geoViewEventsRes,
     recentPostsRes,
     publishedCategoriesRes,
@@ -520,6 +524,11 @@ export async function getAdminStats() {
       .order('viewed_at', { ascending: true }),
     supabase
       .from('post_views')
+      .select('id', { count: 'exact', head: true })
+      .gte('viewed_at', new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate())).toISOString())
+      .lt('viewed_at', endOfTodayUtc.toISOString()),
+    supabase
+      .from('post_views')
       .select('country_name, source_domain, post_id, post:post_id (title, slug)')
       .order('viewed_at', { ascending: false })
       .limit(3000),
@@ -532,7 +541,7 @@ export async function getAdminStats() {
   ]);
 
   const viewsDataMap = new Map<string, number>();
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 7; i++) {
     const d = new Date(Date.UTC(
       startDateUtc.getUTCFullYear(),
       startDateUtc.getUTCMonth(),
@@ -550,20 +559,38 @@ export async function getAdminStats() {
     }
   }
 
-  // Display only last 7 days (skip first day from 8-day query)
-  const viewsData = Array.from(viewsDataMap.entries())
-    .slice(1) // Skip the first (oldest) day
-    .map(([isoDay, views]) => {
+  const viewsData = Array.from(viewsDataMap.entries()).map(([isoDay, views]) => {
       const d = new Date(`${isoDay}T00:00:00`);
       return {
-        date: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        date: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
         views,
       };
     });
 
+  let rpcViewsData: { date: string; views: number }[] | null = null;
+  let rpcTodayViews: number | null = null;
+
+  const rpcMetricsRes = await supabase.rpc('get_dashboard_view_metrics_utc');
+  if (!rpcMetricsRes.error && Array.isArray(rpcMetricsRes.data) && rpcMetricsRes.data[0]) {
+    const row = rpcMetricsRes.data[0] as { today_views?: number; days?: Array<{ day: string; views: number }> };
+    rpcTodayViews = Number(row.today_views || 0);
+
+    if (Array.isArray(row.days)) {
+      rpcViewsData = row.days.map((item) => {
+        const d = new Date(`${item.day}T00:00:00Z`);
+        return {
+          date: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+          views: Number(item.views || 0),
+        };
+      });
+    }
+  }
+
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
   const todayKeyUtc = nowUtc.toISOString().slice(0, 10);
-  const todayViews = viewsDataMap.get(todayKeyUtc) || 0;
+  const todayViewsFromMap = viewsDataMap.get(todayKeyUtc) || 0;
+  const todayViews = rpcTodayViews ?? ((todayViewsRes.count ?? todayViewsFromMap) || 0);
+  const resolvedViewsData = rpcViewsData ?? viewsData;
 
   const topCategoryMap = new Map<string, number>();
   for (const row of publishedCategoriesRes.data || []) {
@@ -588,8 +615,9 @@ export async function getAdminStats() {
     sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
 
     const postId = row.post_id as string;
-    const postTitle = row.post?.title || 'Untitled post';
-    const postSlug = row.post?.slug || '';
+    const postRel = Array.isArray(row.post) ? row.post[0] : row.post;
+    const postTitle = postRel?.title || 'Untitled post';
+    const postSlug = postRel?.slug || '';
 
     if (!countryPostMap.has(country)) {
       countryPostMap.set(country, new Map());
@@ -633,7 +661,7 @@ export async function getAdminStats() {
     totalComments: totalCommentsRes.count || 0,
     totalViews,
     todayViews,
-    viewsData,
+    viewsData: resolvedViewsData,
     topCountries,
     topSources,
     topPostsByCountry,

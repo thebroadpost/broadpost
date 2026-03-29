@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../../types';
 import { Badge } from '../ui/Badge';
-import { formatDate, calculateReadTime, truncateText, getPostPath } from '../../lib/utils';
+import { formatDate, calculateReadTime, truncateText, getPostPath, getPlainTextPreview } from '../../lib/utils';
 import { Clock } from 'lucide-react';
 
 interface PostCardProps {
@@ -13,6 +13,7 @@ interface PostCardProps {
 export const PostCard = memo(function PostCard({ post, variant = 'standard' }: PostCardProps) {
   const readTime = calculateReadTime(post.content);
   const isHeroImage = variant === 'featured';
+  const previewText = getPlainTextPreview(post.excerpt || post.content);
   const imageLoading: 'eager' | 'lazy' = isHeroImage ? 'eager' : 'lazy';
   const imageFetchPriority: 'high' | 'auto' = isHeroImage ? 'high' : 'auto';
   
@@ -100,7 +101,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
             {post.title}
           </h2>
           <p className="font-sans text-gray-700 dark:text-gray-400 text-sm md:text-base leading-relaxed mb-4 hidden md:block">
-            {truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 150)}
+            {truncateText(previewText, 150)}
           </p>
           <div className="flex items-center text-xs text-gray-500 font-sans mt-auto font-medium">
             <span className="text-primary dark:text-gray-300 font-bold mr-2">{post.author?.name || 'Staff'}</span>
@@ -155,7 +156,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
           {post.title}
         </h3>
         <p className="font-sans text-gray-700 dark:text-gray-400 text-sm leading-relaxed mb-4 italic">
-          "{truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 100)}"
+          "{truncateText(previewText, 100)}"
         </p>
       </Link>
     );
@@ -182,7 +183,7 @@ export const PostCard = memo(function PostCard({ post, variant = 'standard' }: P
         {post.title}
       </h3>
       <p className="font-sans text-gray-700 dark:text-gray-400 text-sm leading-relaxed mb-4 flex-grow hidden sm:block">
-        {truncateText(post.excerpt || post.content.replace(/<[^>]*>?/gm, ''), 90)}
+        {truncateText(previewText, 90)}
       </p>
       <div className="flex items-center text-xs text-gray-500 font-sans mt-auto pt-2">
         <span className="text-primary dark:text-gray-300 font-semibold mr-2">{post.author?.name || 'Staff'}</span>

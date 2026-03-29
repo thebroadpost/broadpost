@@ -33,6 +33,30 @@ export function truncateText(text: string, length: number): string {
   return text.substring(0, length).trim() + '...';
 }
 
+export function getPlainTextPreview(text: string): string {
+  if (!text) return '';
+
+  return text
+    // Strip HTML that may already be present in older content.
+    .replace(/<[^>]*>?/gm, ' ')
+    // Markdown links/images -> keep visible text only.
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    // Emphasis, strikethrough, and inline code markers.
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    .replace(/~~(.*?)~~/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove heading/quote/list markers.
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/^\s{0,3}>\s?/gm, '')
+    .replace(/^\s{0,3}[-*+]\s+/gm, '')
+    .replace(/^\s{0,3}\d+\.\s+/gm, '')
+    // Normalize whitespace.
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function getInitials(name: string): string {
   if (!name) return 'U';
   const parts = name.trim().split(' ');

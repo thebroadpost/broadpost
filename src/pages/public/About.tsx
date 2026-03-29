@@ -160,8 +160,7 @@ export default function About() {
               challenging us, and helping shape the next chapter of independent digital journalism.
             </p>
           </div>
-        </div>
-      </section>
+        </section>
     </>
   );
 }

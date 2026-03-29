@@ -544,7 +544,6 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
     draftPostsRes,
     totalCommentsRes,
     postsForViewsRes,
-    viewEventsRes,
     todayViewsRes,
     geoViewEventsRes,
     recentPostsRes,
@@ -555,12 +554,6 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
     supabase.from('posts').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
     supabase.from('comments').select('*', { count: 'exact', head: true }),
     supabase.from('posts').select('views'),
-    supabase
-      .from('post_views')
-      .select('viewed_at')
-      .gte('viewed_at', startDateUtc.toISOString())
-      .lt('viewed_at', endDateUtcExclusive.toISOString())
-      .order('viewed_at', { ascending: true }),
     supabase
       .from('post_views')
       .select('id', { count: 'exact', head: true })
@@ -578,6 +571,38 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
       .limit(6),
     supabase.from('posts').select('category').eq('status', 'published'),
   ]);
+
+  // Supabase returns a maximum number of rows per request, so fetch in pages
+  // to avoid dropping recent events in busy windows (7D/1M/3M).
+  const viewEventsData: { viewed_at: string }[] = [];
+  let viewEventsError: any = null;
+  const pageSize = 1000;
+  const maxRows = 100000;
+
+  for (let offset = 0; offset < maxRows; offset += pageSize) {
+    const { data, error } = await supabase
+      .from('post_views')
+      .select('viewed_at')
+      .gte('viewed_at', startDateUtc.toISOString())
+      .lt('viewed_at', endDateUtcExclusive.toISOString())
+      .order('viewed_at', { ascending: true })
+      .range(offset, offset + pageSize - 1);
+
+    if (error) {
+      viewEventsError = error;
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    viewEventsData.push(...data);
+
+    if (data.length < pageSize) {
+      break;
+    }
+  }
 
   const viewsDataMap = new Map<string, number>();
 
@@ -605,8 +630,8 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
     }
   }
 
-  if (!viewEventsRes.error && viewEventsRes.data) {
-    for (const row of viewEventsRes.data) {
+  if (!viewEventsError && viewEventsData.length > 0) {
+    for (const row of viewEventsData) {
       const viewedAt = new Date(row.viewed_at);
       const key = bucketMode === 'hour'
         ? toHourKey(viewedAt)

@@ -24,6 +24,10 @@ export default function PostAnalytics() {
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
 
+  React.useEffect(() => {
+    console.log('PostAnalytics postId from URL:', postId);
+  }, [postId]);
+
   const { data: analytics, isLoading, isError, error } = useQuery({
     queryKey: ['postAnalytics', postId],
     queryFn: () => (postId ? getPostAnalytics(postId) : Promise.reject('No post ID')),
@@ -56,8 +60,16 @@ export default function PostAnalytics() {
     return (
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-border dark:border-gray-800 p-8">
         <h2 className="text-xl font-serif font-bold text-primary dark:text-white mb-2">Analytics unavailable</h2>
-        <p className="text-sm font-sans text-gray-600 dark:text-gray-300 mb-4">
+        <p className="text-sm font-sans text-gray-600 dark:text-gray-300 mb-2">
           Could not load analytics for this post.
+        </p>
+        {error && (
+          <p className="text-xs font-mono text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 p-3 rounded mb-4 break-words">
+            Error: {(error as Error)?.message || 'Unknown error'}
+          </p>
+        )}
+        <p className="text-xs font-mono text-gray-500 dark:text-gray-400 mb-4">
+          Post ID from URL: {postId || 'Not found'}
         </p>
         <Button onClick={() => navigate('/admin/posts')} className="font-bold">
           Back to Posts
@@ -139,7 +151,7 @@ export default function PostAnalytics() {
       {/* Views Trend */}
       <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-border/70 dark:border-gray-800">
         <h2 className="text-xl font-serif font-bold text-primary dark:text-white mb-4">Views Over Time</h2>
-        <div className="h-64">
+        <div className="w-full h-64">
           <Suspense fallback={<Skeleton className="w-full h-full" />}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.viewsData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
@@ -178,7 +190,7 @@ export default function PostAnalytics() {
           {analytics.countriesData.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">No data yet</p>
           ) : (
-            <div className="h-80">
+            <div className="w-full h-80">
               <Suspense fallback={<Skeleton className="w-full h-full" />}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={analytics.countriesData} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
@@ -209,7 +221,7 @@ export default function PostAnalytics() {
           {analytics.sourcesData.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">No data yet</p>
           ) : (
-            <div className="h-80">
+            <div className="w-full h-80">
               <Suspense fallback={<Skeleton className="w-full h-full" />}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={analytics.sourcesData} layout="vertical" margin={{ top: 5, right: 30, left: 120, bottom: 5 }}>

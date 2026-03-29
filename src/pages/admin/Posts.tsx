@@ -48,6 +48,13 @@ export default function Posts() {
     return haystack.includes(searchTerm.toLowerCase());
   }) || [];
 
+  React.useEffect(() => {
+    if (filteredPosts.length > 0) {
+      console.log('Sample post object:', filteredPosts[0]);
+      console.log('Post ID:', filteredPosts[0].id);
+    }
+  }, [filteredPosts]);
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">

@@ -490,10 +490,11 @@ export async function togglePublish(postId: string, isPublished: boolean) {
 export async function getAdminStats() {
   // Use UTC dates to match database timestamps
   const nowUtc = new Date();
+  // Query 8 days instead of 7 to account for timezone offsets
   const startDateUtc = new Date(Date.UTC(
     nowUtc.getUTCFullYear(),
     nowUtc.getUTCMonth(),
-    nowUtc.getUTCDate() - 6
+    nowUtc.getUTCDate() - 7
   ));
 
   const [
@@ -531,7 +532,7 @@ export async function getAdminStats() {
   ]);
 
   const viewsDataMap = new Map<string, number>();
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 8; i++) {
     const d = new Date(Date.UTC(
       startDateUtc.getUTCFullYear(),
       startDateUtc.getUTCMonth(),
@@ -549,13 +550,16 @@ export async function getAdminStats() {
     }
   }
 
-  const viewsData = Array.from(viewsDataMap.entries()).map(([isoDay, views]) => {
-    const d = new Date(`${isoDay}T00:00:00`);
-    return {
-      date: d.toLocaleDateString('en-US', { weekday: 'short' }),
-      views,
-    };
-  });
+  // Display only last 7 days (skip first day from 8-day query)
+  const viewsData = Array.from(viewsDataMap.entries())
+    .slice(1) // Skip the first (oldest) day
+    .map(([isoDay, views]) => {
+      const d = new Date(`${isoDay}T00:00:00`);
+      return {
+        date: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        views,
+      };
+    });
 
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
   const todayKeyUtc = nowUtc.toISOString().slice(0, 10);
@@ -647,13 +651,23 @@ export async function getAdminStats() {
 }
 
 export async function getPostAnalytics(postId: string) {
+  if (!postId || postId.trim() === '') {
+    throw new Error('Invalid post ID');
+  }
+
   const { data: post, error: postError } = await supabase
     .from('posts')
     .select('id, title, slug, views, published_at')
     .eq('id', postId)
     .single();
 
-  if (postError || !post) {
+  if (postError) {
+    console.error('Post query error:', postError);
+    throw new Error(`Failed to fetch post: ${postError.message}`);
+  }
+
+  if (!post) {
+    console.error('Post not found for ID:', postId);
     throw new Error('Post not found');
   }
 

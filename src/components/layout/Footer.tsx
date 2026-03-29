@@ -68,10 +68,10 @@ export default function Footer() {
             <div>
               <h4 className="font-bold uppercase tracking-wider text-sm mb-6">Legal</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Accessibility</a></li>
+                <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link to="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link></li>
+                <li><Link to="/accessibility" className="hover:text-white transition-colors">Accessibility</Link></li>
               </ul>
             </div>
           </div>
@@ -80,8 +80,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} BROADPOST Media LLC. All Rights Reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms</Link>
             <a href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</a>
             <Link to="/admin/login" className="hover:text-white transition-colors">Staff Login</Link>
           </div>

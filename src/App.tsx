@@ -12,6 +12,10 @@ const Home = lazy(() => import('./pages/public/Home'));
 const Category = lazy(() => import('./pages/public/Category'));
 const Post = lazy(() => import('./pages/public/Post'));
 const About = lazy(() => import('./pages/public/About'));
+const PrivacyPolicy = lazy(() => import('./pages/public/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/public/TermsOfService'));
+const CookiePolicy = lazy(() => import('./pages/public/CookiePolicy'));
+const Accessibility = lazy(() => import('./pages/public/Accessibility'));
 
 // Account Pages
 const AccountLayout = lazy(() => import('./pages/public/account/AccountLayout'));
@@ -57,6 +61,10 @@ function App() {
             <Route path="category/:slug" element={<Category />} />
             <Route path="blog/*" element={<Post />} />
             <Route path="about" element={<About />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="terms-of-service" element={<TermsOfService />} />
+            <Route path="cookie-policy" element={<CookiePolicy />} />
+            <Route path="accessibility" element={<Accessibility />} />
             
             {/* Account Routes */}
             <Route path="account" element={<AccountLayout />}>

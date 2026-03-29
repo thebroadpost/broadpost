@@ -666,8 +666,8 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
   const todayKeyUtc = nowUtc.toISOString().slice(0, 10);
   const todayViewsFromMap = viewsDataMap.get(todayKeyUtc) || 0;
-  const todayViews = rpcTodayViewsFromDays ?? rpcTodayViews ?? ((todayViewsRes.count ?? todayViewsFromMap) || 0);
-  const resolvedViewsData = window === '7d' ? (rpcViewsData ?? viewsData) : viewsData;
+  const todayViews = todayViewsRes.count ?? rpcTodayViewsFromDays ?? rpcTodayViews ?? todayViewsFromMap;
+  const resolvedViewsData = viewsData;
 
   const topCategoryMap = new Map<string, number>();
   for (const row of publishedCategoriesRes.data || []) {

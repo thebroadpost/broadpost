@@ -113,7 +113,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 2 — Category Tabs Bar */}
-      <section className="sticky top-[104px] z-40 bg-white dark:bg-gray-900 border-y border-border dark:border-gray-800 px-4 lg:px-6 shadow-sm transition-colors duration-200">
+      <section className="bg-white dark:bg-gray-900 border-y border-border dark:border-gray-800 px-4 lg:px-6 shadow-sm transition-colors duration-200">
         <div className="max-w-[1480px] mx-auto flex overflow-x-auto no-scrollbar py-2.5 space-x-2">
           {categoryTabs.map(tab => (
             <button

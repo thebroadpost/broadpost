@@ -85,6 +85,8 @@ export interface PostAnalytics {
   }[];
 }
 
+export type AnalyticsWindow = '24h' | '7d' | '1m' | '3m';
+
 export interface AdminStats {
   totalPosts: number;
   publishedPosts: number;

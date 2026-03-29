@@ -1,13 +1,14 @@
 import React, { Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminStats } from '../../lib/api';
+import { AnalyticsWindow } from '../../types';
 import { Skeleton } from '../../components/ui/Skeleton';
 import toast from 'react-hot-toast';
 
 // Lazy-load recharts so the heavy charting library only loads on the admin
 // dashboard, and only when needed — not in the main bundle.
-const BarChart = lazy(() => import('recharts').then(m => ({ default: m.BarChart })));
-const Bar = lazy(() => import('recharts').then(m => ({ default: m.Bar })));
+const AreaChart = lazy(() => import('recharts').then(m => ({ default: m.AreaChart })));
+const Area = lazy(() => import('recharts').then(m => ({ default: m.Area })));
 const XAxis = lazy(() => import('recharts').then(m => ({ default: m.XAxis })));
 const YAxis = lazy(() => import('recharts').then(m => ({ default: m.YAxis })));
 const Tooltip = lazy(() => import('recharts').then(m => ({ default: m.Tooltip })));
@@ -23,10 +24,18 @@ import { useTheme } from '../../contexts/ThemeContext';
 export default function Dashboard() {
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
+  const [analyticsWindow, setAnalyticsWindow] = React.useState<AnalyticsWindow>('7d');
+
+  const windowOptions: Array<{ value: AnalyticsWindow; label: string }> = [
+    { value: '24h', label: '24H' },
+    { value: '7d', label: '7D' },
+    { value: '1m', label: '1M' },
+    { value: '3m', label: '3M' },
+  ];
 
   const { data: stats, isLoading, isError: statsError, error: statsErrorObj } = useQuery({
-    queryKey: ['adminStats'],
-    queryFn: getAdminStats,
+    queryKey: ['adminStats', analyticsWindow],
+    queryFn: () => getAdminStats(analyticsWindow),
   });
 
   React.useEffect(() => {
@@ -114,18 +123,36 @@ export default function Dashboard() {
         <div className="xl:col-span-8 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-sm border border-border/70 dark:border-gray-800">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-serif font-bold text-primary dark:text-white">Site Visitors</h2>
-            <div className="inline-flex items-center gap-1 text-xs font-sans font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-500/15 px-2 py-1 rounded-md">
-              <TrendingUp size={12} />
-              Last 7 Days
+            <div className="inline-flex items-center rounded-lg border border-border dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+              {windowOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setAnalyticsWindow(option.value)}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors ${
+                    analyticsWindow === option.value
+                      ? 'bg-cyan-600 text-white'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="w-full" style={{ height: '260px' }}>
+          <div className="w-full" style={{ height: '220px' }}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats?.viewsData || []} barGap={12}>
+                <AreaChart data={stats?.viewsData || []} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="viewsAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={isDark ? '#60a5fa' : '#3b82f6'} stopOpacity={0.45} />
+                      <stop offset="95%" stopColor={isDark ? '#60a5fa' : '#3b82f6'} stopOpacity={0.03} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1f2937' : '#f1f5f9'} />
-                  <XAxis dataKey="date" stroke={isDark ? '#9ca3af' : '#94a3b8'} fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke={isDark ? '#9ca3af' : '#94a3b8'} fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <XAxis dataKey="date" stroke={isDark ? '#9ca3af' : '#94a3b8'} fontSize={10} tickLine={false} axisLine={false} minTickGap={16} />
+                  <YAxis stroke={isDark ? '#9ca3af' : '#94a3b8'} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} width={32} />
                   <Tooltip
                     cursor={{ fill: isDark ? '#111827' : '#f8fafc' }}
                     contentStyle={{
@@ -136,8 +163,17 @@ export default function Dashboard() {
                       color: isDark ? '#e5e7eb' : '#111827',
                     }}
                   />
-                  <Bar dataKey="views" fill={isDark ? '#60a5fa' : '#2563eb'} radius={[6, 6, 0, 0]} maxBarSize={34} />
-                </BarChart>
+                  <Area
+                    type="monotone"
+                    dataKey="views"
+                    stroke={isDark ? '#60a5fa' : '#2563eb'}
+                    fill="url(#viewsAreaGradient)"
+                    strokeWidth={2.2}
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </Suspense>
           </div>

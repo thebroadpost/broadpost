@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { PaginationParams } from '../types';
+import { AnalyticsWindow, PaginationParams } from '../types';
 import { generateSlug } from './utils';
 import { getCategoryMatchVariants, toCanonicalCategorySlug } from './categories';
 
@@ -487,18 +487,56 @@ export async function togglePublish(postId: string, isPublished: boolean) {
   throw new Error('Failed to toggle publish state');
 }
 
-export async function getAdminStats() {
+export async function getAdminStats(window: AnalyticsWindow = '7d') {
   const nowUtc = new Date();
-  const startDateUtc = new Date(Date.UTC(
+
+  const utcDayStart = new Date(Date.UTC(
     nowUtc.getUTCFullYear(),
     nowUtc.getUTCMonth(),
-    nowUtc.getUTCDate() - 6
+    nowUtc.getUTCDate()
   ));
+
+  const utcHourStart = new Date(Date.UTC(
+    nowUtc.getUTCFullYear(),
+    nowUtc.getUTCMonth(),
+    nowUtc.getUTCDate(),
+    nowUtc.getUTCHours()
+  ));
+
+  let startDateUtc = utcDayStart;
+  let endDateUtcExclusive = new Date(utcDayStart.getTime() + (24 * 60 * 60 * 1000));
+  let bucketMode: 'hour' | 'day' | 'week' = 'day';
+
+  if (window === '24h') {
+    startDateUtc = new Date(utcHourStart.getTime() - (23 * 60 * 60 * 1000));
+    endDateUtcExclusive = new Date(utcHourStart.getTime() + (60 * 60 * 1000));
+    bucketMode = 'hour';
+  } else if (window === '1m') {
+    startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 29));
+    bucketMode = 'day';
+  } else if (window === '3m') {
+    startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 89));
+    bucketMode = 'week';
+  } else {
+    startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 6));
+    bucketMode = 'day';
+  }
+
   const endOfTodayUtc = new Date(Date.UTC(
     nowUtc.getUTCFullYear(),
     nowUtc.getUTCMonth(),
     nowUtc.getUTCDate() + 1
   ));
+
+  const toDayKey = (d: Date): string => d.toISOString().slice(0, 10);
+  const toHourKey = (d: Date): string => d.toISOString().slice(0, 13);
+  const startOfUtcWeek = (d: Date): Date => {
+    const copy = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const mondayOffset = (copy.getUTCDay() + 6) % 7;
+    copy.setUTCDate(copy.getUTCDate() - mondayOffset);
+    return copy;
+  };
+  const toWeekKey = (d: Date): string => toDayKey(startOfUtcWeek(d));
 
   const [
     totalPostsRes,
@@ -521,6 +559,7 @@ export async function getAdminStats() {
       .from('post_views')
       .select('viewed_at')
       .gte('viewed_at', startDateUtc.toISOString())
+      .lt('viewed_at', endDateUtcExclusive.toISOString())
       .order('viewed_at', { ascending: true }),
     supabase
       .from('post_views')
@@ -541,34 +580,67 @@ export async function getAdminStats() {
   ]);
 
   const viewsDataMap = new Map<string, number>();
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(Date.UTC(
-      startDateUtc.getUTCFullYear(),
-      startDateUtc.getUTCMonth(),
-      startDateUtc.getUTCDate() + i
-    ));
-    viewsDataMap.set(d.toISOString().slice(0, 10), 0);
+
+  if (bucketMode === 'hour') {
+    for (let i = 0; i < 24; i++) {
+      const d = new Date(startDateUtc.getTime() + (i * 60 * 60 * 1000));
+      viewsDataMap.set(toHourKey(d), 0);
+    }
+  } else if (bucketMode === 'day') {
+    const totalDays = window === '1m' ? 30 : 7;
+    for (let i = 0; i < totalDays; i++) {
+      const d = new Date(Date.UTC(
+        startDateUtc.getUTCFullYear(),
+        startDateUtc.getUTCMonth(),
+        startDateUtc.getUTCDate() + i
+      ));
+      viewsDataMap.set(toDayKey(d), 0);
+    }
+  } else {
+    const cursor = new Date(Date.UTC(startDateUtc.getUTCFullYear(), startDateUtc.getUTCMonth(), startDateUtc.getUTCDate()));
+    const endCursor = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate()));
+    while (cursor <= endCursor) {
+      viewsDataMap.set(toWeekKey(cursor), 0);
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
   }
 
   if (!viewEventsRes.error && viewEventsRes.data) {
     for (const row of viewEventsRes.data) {
-      const key = new Date(row.viewed_at).toISOString().slice(0, 10);
+      const viewedAt = new Date(row.viewed_at);
+      const key = bucketMode === 'hour'
+        ? toHourKey(viewedAt)
+        : bucketMode === 'week'
+          ? toWeekKey(viewedAt)
+          : toDayKey(viewedAt);
       if (viewsDataMap.has(key)) {
         viewsDataMap.set(key, (viewsDataMap.get(key) || 0) + 1);
       }
     }
   }
 
-  const viewsData = Array.from(viewsDataMap.entries()).map(([isoDay, views]) => {
-      const d = new Date(`${isoDay}T00:00:00`);
+  const viewsData = Array.from(viewsDataMap.entries()).map(([bucketKey, views]) => {
+      const normalizedIso = bucketMode === 'hour' ? `${bucketKey}:00:00Z` : `${bucketKey}T00:00:00Z`;
+      const d = new Date(normalizedIso);
+
+      let label = d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+      if (bucketMode === 'hour') {
+        label = d.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true, timeZone: 'UTC' });
+      } else if (window === '1m') {
+        label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+      } else if (bucketMode === 'week') {
+        label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+      }
+
       return {
-        date: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+        date: label,
         views,
       };
     });
 
   let rpcViewsData: { date: string; views: number }[] | null = null;
   let rpcTodayViews: number | null = null;
+  let rpcTodayViewsFromDays: number | null = null;
 
   const rpcMetricsRes = await supabase.rpc('get_dashboard_view_metrics_utc');
   if (!rpcMetricsRes.error && Array.isArray(rpcMetricsRes.data) && rpcMetricsRes.data[0]) {
@@ -576,6 +648,11 @@ export async function getAdminStats() {
     rpcTodayViews = Number(row.today_views || 0);
 
     if (Array.isArray(row.days)) {
+      const todayDay = row.days.find((item) => item.day === nowUtc.toISOString().slice(0, 10));
+      if (todayDay) {
+        rpcTodayViewsFromDays = Number(todayDay.views || 0);
+      }
+
       rpcViewsData = row.days.map((item) => {
         const d = new Date(`${item.day}T00:00:00Z`);
         return {
@@ -589,8 +666,8 @@ export async function getAdminStats() {
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
   const todayKeyUtc = nowUtc.toISOString().slice(0, 10);
   const todayViewsFromMap = viewsDataMap.get(todayKeyUtc) || 0;
-  const todayViews = rpcTodayViews ?? ((todayViewsRes.count ?? todayViewsFromMap) || 0);
-  const resolvedViewsData = rpcViewsData ?? viewsData;
+  const todayViews = rpcTodayViewsFromDays ?? rpcTodayViews ?? ((todayViewsRes.count ?? todayViewsFromMap) || 0);
+  const resolvedViewsData = window === '7d' ? (rpcViewsData ?? viewsData) : viewsData;
 
   const topCategoryMap = new Map<string, number>();
   for (const row of publishedCategoriesRes.data || []) {

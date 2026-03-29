@@ -1,6 +1,8 @@
 import { X, User as UserIcon, Bell, Settings, LogOut, Bookmark, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
+import { getNotifications } from '../../lib/api';
 import { Button } from '../ui/Button';
 
 interface UserSidebarProps {
@@ -10,6 +12,14 @@ interface UserSidebarProps {
 
 export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
   const { user, signInWithGoogle, signOut, loading } = useAuth();
+
+  const { data: notifications } = useQuery({
+    queryKey: ['notifications', user?.id],
+    queryFn: () => getNotifications(user!.id),
+    enabled: !!user?.id && isOpen,
+  });
+
+  const unreadCount = notifications?.filter((notification: any) => !notification.read).length || 0;
 
   if (!isOpen) return null;
 
@@ -78,8 +88,9 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
                 <Link to="/account/notifications" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <Bell size={18} className="text-gray-400 group-hover:text-white" />
                   <span className="font-sans font-medium text-gray-200 group-hover:text-white">Notifications</span>
-                  {/* Fake badge for UI polish */}
-                  <span className="bg-accent-red text-white text-[10px] px-2 py-0.5 rounded-full ml-auto">3</span>
+                  {unreadCount > 0 && (
+                    <span className="bg-accent-red text-white text-[10px] px-2 py-0.5 rounded-full ml-auto">{unreadCount}</span>
+                  )}
                 </Link>
                 <Link to="/account/newsletters" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
                   <FileText size={18} className="text-gray-400 group-hover:text-white" />

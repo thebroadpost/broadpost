@@ -119,7 +119,7 @@ export default function Dashboard() {
               Last 7 Days
             </div>
           </div>
-          <div className="h-[260px]">
+          <div className="w-full" style={{ height: '260px' }}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats?.viewsData || []} barGap={12}>
@@ -243,7 +243,7 @@ export default function Dashboard() {
         <div className="xl:col-span-4 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-sm border border-border/70 dark:border-gray-800">
           <h2 className="text-xl font-serif font-bold text-primary dark:text-white mb-4">Publishing Health</h2>
           <div className="flex items-center justify-center">
-            <div className="relative h-[220px] w-[220px]">
+            <div className="relative" style={{ width: '220px', height: '220px' }}>
               <Suspense fallback={<Skeleton className="w-full h-full rounded-full" />}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RadialBarChart

@@ -507,26 +507,29 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
   let endDateUtcExclusive = new Date(utcDayStart.getTime() + (24 * 60 * 60 * 1000));
   let bucketMode: 'hour' | 'day' | 'week' = 'day';
 
+  const endOfTodayUtc = new Date(Date.UTC(
+    nowUtc.getUTCFullYear(),
+    nowUtc.getUTCMonth(),
+    nowUtc.getUTCDate() + 1
+  ));
+
   if (window === '24h') {
     startDateUtc = new Date(utcHourStart.getTime() - (23 * 60 * 60 * 1000));
     endDateUtcExclusive = new Date(utcHourStart.getTime() + (60 * 60 * 1000));
     bucketMode = 'hour';
   } else if (window === '1m') {
     startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 29));
+    endDateUtcExclusive = endOfTodayUtc;
     bucketMode = 'day';
   } else if (window === '3m') {
     startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 89));
+    endDateUtcExclusive = endOfTodayUtc;
     bucketMode = 'week';
   } else {
     startDateUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() - 6));
+    endDateUtcExclusive = endOfTodayUtc;
     bucketMode = 'day';
   }
-
-  const endOfTodayUtc = new Date(Date.UTC(
-    nowUtc.getUTCFullYear(),
-    nowUtc.getUTCMonth(),
-    nowUtc.getUTCDate() + 1
-  ));
 
   const toDayKey = (d: Date): string => d.toISOString().slice(0, 10);
   const toHourKey = (d: Date): string => d.toISOString().slice(0, 13);

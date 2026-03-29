@@ -34,7 +34,7 @@ AS $$
     SELECT COUNT(*)::bigint AS value
     FROM public.post_views pv
     CROSS JOIN bounds b
-    WHERE pv.viewed_at >= b.end_day
+    WHERE pv.viewed_at >= b.start_day
       AND pv.viewed_at < b.tomorrow
   )
   SELECT

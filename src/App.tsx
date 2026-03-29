@@ -31,6 +31,7 @@ const AdminPosts = lazy(() => import('./pages/admin/Posts'));
 const AdminPostForm = lazy(() => import('./pages/admin/PostForm'));
 const AdminPostAnalytics = lazy(() => import('./pages/admin/PostAnalytics'));
 const AdminComments = lazy(() => import('./pages/admin/Comments'));
+const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
@@ -92,6 +93,7 @@ function App() {
             <Route path="posts/:id/edit" element={<AdminPostForm />} />
             <Route path="posts/:postId/analytics" element={<AdminPostAnalytics />} />
             <Route path="comments" element={<AdminComments />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           
           <Route path="/admin/login" element={

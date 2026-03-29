@@ -25,6 +25,7 @@ const AdminLogin = lazy(() => import('./pages/admin/Login'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminPosts = lazy(() => import('./pages/admin/Posts'));
 const AdminPostForm = lazy(() => import('./pages/admin/PostForm'));
+const AdminPostAnalytics = lazy(() => import('./pages/admin/PostAnalytics'));
 const AdminComments = lazy(() => import('./pages/admin/Comments'));
 
 const LoadingFallback = () => (
@@ -81,6 +82,7 @@ function App() {
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostForm />} />
             <Route path="posts/:id/edit" element={<AdminPostForm />} />
+            <Route path="posts/:postId/analytics" element={<AdminPostAnalytics />} />
             <Route path="comments" element={<AdminComments />} />
           </Route>
           

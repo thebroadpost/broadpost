@@ -63,6 +63,28 @@ export interface Category {
   description: string | null;
 }
 
+export interface PostAnalytics {
+  postId: string;
+  postTitle: string;
+  postSlug: string;
+  totalViews: number;
+  publishedAt: string | null;
+  viewsData: { date: string; views: number }[];
+  countriesData: {
+    country: string;
+    views: number;
+  }[];
+  sourcesData: {
+    source: string;
+    views: number;
+  }[];
+  recentVisits: {
+    timestamp: string;
+    country: string;
+    source: string;
+  }[];
+}
+
 export interface AdminStats {
   totalPosts: number;
   publishedPosts: number;

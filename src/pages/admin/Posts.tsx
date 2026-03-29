@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Eye, BarChart3 } from 'lucide-react';
 import { getPosts, deletePost } from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -139,6 +139,9 @@ export default function Posts() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-3">
+                        <Link to={`/admin/posts/${post.id}/analytics`} className="text-accent-green hover:text-green-900 transition-colors" title="View Analytics">
+                          <BarChart3 size={16} />
+                        </Link>
                         <Link to={`/admin/posts/${post.id}/edit`} className="text-accent-blue hover:text-blue-900 transition-colors">
                           <Edit2 size={16} />
                         </Link>

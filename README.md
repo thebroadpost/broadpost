@@ -60,6 +60,18 @@ Ensure you have the following installed to run this project:
    ```
    The application will be available at `http://localhost:5173`.
 
+## 📊 Analytics Notes
+
+- Broadpost already includes client-side Vercel Analytics via `@vercel/analytics`.
+- Do **not** place your Vercel access token in any `VITE_*` variable, because those are exposed to the browser bundle.
+- If you need Vercel REST API access (for advanced reporting), store the token as a server-only variable such as:
+
+```env
+VERCEL_ACCESS_TOKEN=your_vercel_token
+```
+
+- Use that token only in server-side code (for example, API routes or background jobs), never in React client components.
+
 ## 🏗️ Build for Production
 
 To create a production-ready build, run:

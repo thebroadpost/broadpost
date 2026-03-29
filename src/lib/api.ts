@@ -488,10 +488,13 @@ export async function togglePublish(postId: string, isPublished: boolean) {
 }
 
 export async function getAdminStats() {
-  const now = new Date();
-  const startDate = new Date(now);
-  startDate.setDate(startDate.getDate() - 6);
-  startDate.setHours(0, 0, 0, 0);
+  // Use UTC dates to match database timestamps
+  const nowUtc = new Date();
+  const startDateUtc = new Date(Date.UTC(
+    nowUtc.getUTCFullYear(),
+    nowUtc.getUTCMonth(),
+    nowUtc.getUTCDate() - 6
+  ));
 
   const [
     totalPostsRes,
@@ -512,7 +515,7 @@ export async function getAdminStats() {
     supabase
       .from('post_views')
       .select('viewed_at')
-      .gte('viewed_at', startDate.toISOString())
+      .gte('viewed_at', startDateUtc.toISOString())
       .order('viewed_at', { ascending: true }),
     supabase
       .from('post_views')
@@ -529,8 +532,11 @@ export async function getAdminStats() {
 
   const viewsDataMap = new Map<string, number>();
   for (let i = 0; i < 7; i++) {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
+    const d = new Date(Date.UTC(
+      startDateUtc.getUTCFullYear(),
+      startDateUtc.getUTCMonth(),
+      startDateUtc.getUTCDate() + i
+    ));
     viewsDataMap.set(d.toISOString().slice(0, 10), 0);
   }
 
@@ -552,8 +558,8 @@ export async function getAdminStats() {
   });
 
   const totalViews = (postsForViewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0);
-  const todayKey = now.toISOString().slice(0, 10);
-  const todayViews = viewsDataMap.get(todayKey) || 0;
+  const todayKeyUtc = nowUtc.toISOString().slice(0, 10);
+  const todayViews = viewsDataMap.get(todayKeyUtc) || 0;
 
   const topCategoryMap = new Map<string, number>();
   for (const row of publishedCategoriesRes.data || []) {
@@ -637,6 +643,100 @@ export async function getAdminStats() {
       created_at: p.created_at,
     })),
     topCategories,
+  };
+}
+
+export async function getPostAnalytics(postId: string) {
+  const { data: post, error: postError } = await supabase
+    .from('posts')
+    .select('id, title, slug, views, published_at')
+    .eq('id', postId)
+    .single();
+
+  if (postError || !post) {
+    throw new Error('Post not found');
+  }
+
+  const now = new Date();
+  const startDate = new Date(now);
+  startDate.setDate(startDate.getDate() - 29);
+  startDate.setHours(0, 0, 0, 0);
+
+  const [viewEventsRes, geoViewEventsRes] = await Promise.all([
+    supabase
+      .from('post_views')
+      .select('viewed_at')
+      .eq('post_id', postId)
+      .gte('viewed_at', startDate.toISOString())
+      .order('viewed_at', { ascending: true }),
+    supabase
+      .from('post_views')
+      .select('viewed_at, country_name, source_domain')
+      .eq('post_id', postId)
+      .order('viewed_at', { ascending: false })
+      .limit(500),
+  ]);
+
+  const viewsDataMap = new Map<string, number>();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    viewsDataMap.set(d.toISOString().slice(0, 10), 0);
+  }
+
+  if (!viewEventsRes.error && viewEventsRes.data) {
+    for (const row of viewEventsRes.data) {
+      const key = new Date(row.viewed_at).toISOString().slice(0, 10);
+      if (viewsDataMap.has(key)) {
+        viewsDataMap.set(key, (viewsDataMap.get(key) || 0) + 1);
+      }
+    }
+  }
+
+  const viewsData = Array.from(viewsDataMap.entries()).map(([isoDay]) => {
+    const d = new Date(`${isoDay}T00:00:00`);
+    return {
+      date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      views: viewsDataMap.get(isoDay) || 0,
+    };
+  });
+
+  const countryMap = new Map<string, number>();
+  const sourceMap = new Map<string, number>();
+  const recentVisits: { timestamp: string; country: string; source: string }[] = [];
+
+  for (const row of geoViewEventsRes.data || []) {
+    const country = (row.country_name || 'Unknown').toString().trim() || 'Unknown';
+    countryMap.set(country, (countryMap.get(country) || 0) + 1);
+
+    const source = (row.source_domain || 'Direct / Unknown').toString().trim() || 'Direct / Unknown';
+    sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
+
+    recentVisits.push({
+      timestamp: new Date(row.viewed_at).toLocaleString(),
+      country,
+      source,
+    });
+  }
+
+  const countriesData = Array.from(countryMap.entries())
+    .map(([country, views]) => ({ country, views }))
+    .sort((a, b) => b.views - a.views);
+
+  const sourcesData = Array.from(sourceMap.entries())
+    .map(([source, views]) => ({ source, views }))
+    .sort((a, b) => b.views - a.views);
+
+  return {
+    postId: post.id,
+    postTitle: post.title,
+    postSlug: post.slug,
+    totalViews: post.views || 0,
+    publishedAt: post.published_at,
+    viewsData,
+    countriesData,
+    sourcesData,
+    recentVisits: recentVisits.slice(0, 50),
   };
 }
 

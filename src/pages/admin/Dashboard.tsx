@@ -223,8 +223,12 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {(stats?.recentPosts || []).map((post) => (
-                  <tr key={post.id} className="border-b border-border dark:border-gray-800 last:border-0 text-gray-700 dark:text-gray-300">
-                    <td className="py-2 pr-4 max-w-[280px] truncate">{post.title}</td>
+                  <tr key={post.id} className="border-b border-border dark:border-gray-800 last:border-0 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td className="py-2 pr-4 max-w-[280px] truncate">
+                      <Link to={`/admin/posts/${post.id}/analytics`} className="text-accent-blue hover:underline">
+                        {post.title}
+                      </Link>
+                    </td>
                     <td className="py-2 pr-4">{post.category}</td>
                     <td className="py-2 pr-4">{post.views}</td>
                     <td className="py-2 pr-4 uppercase text-xs font-bold tracking-wider">{post.status}</td>

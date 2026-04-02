@@ -21,16 +21,21 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
 
   const unreadCount = notifications?.filter((notification: any) => !notification.read).length || 0;
 
-  if (!isOpen) return null;
-
   return (
     <>
-      <div 
-        className="fixed inset-0 bg-black/60 z-[60] transition-opacity"
+      <div
+        className={`fixed inset-0 z-[60] bg-black/60 transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
         onClick={onClose}
       />
       
-      <div className={`fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[#1d1d1d] text-white z-[70] shadow-2xl flex flex-col transition-transform transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        aria-hidden={!isOpen}
+        className={`fixed right-0 top-0 bottom-0 z-[70] flex w-full transform flex-col bg-[#1d1d1d] text-white shadow-2xl transition-transform duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none sm:w-[400px] ${
+          isOpen ? 'translate-x-0' : 'pointer-events-none translate-x-full'
+        }`}
+      >
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <div className="font-serif text-2xl font-bold">B</div>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-white">

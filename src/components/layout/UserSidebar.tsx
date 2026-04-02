@@ -53,7 +53,9 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
               </div>
               
               <Button 
-                onClick={signInWithGoogle}
+                onClick={() => {
+                  void signInWithGoogle();
+                }}
                 className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white py-4 text-sm font-bold uppercase tracking-wider transition-colors"
                 variant="primary"
               >

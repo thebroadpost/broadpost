@@ -52,6 +52,13 @@ WHERE email = 'anubhav.ickk@gmail.com'
 ON CONFLICT (user_id)
 DO UPDATE SET role = EXCLUDED.role, updated_at = timezone('utc', now());
 
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'admin'
+FROM auth.users
+WHERE email = 'broadpost755@gmail.com'
+ON CONFLICT (user_id)
+DO UPDATE SET role = EXCLUDED.role, updated_at = timezone('utc', now());
+
 -- 5) Harden admin policies to use role checks (instead of TO public)
 DO $$
 BEGIN

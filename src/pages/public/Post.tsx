@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle } from 'lucide-react';
+import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MarkdownIt from 'markdown-it';
 import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
@@ -16,6 +16,7 @@ import { BookmarkButton } from '../../components/blog/BookmarkButton';
 
 export default function Post() {
   const params = useParams<{ slug?: string; '*': string }>();
+  const navigate = useNavigate();
   const slug = params.slug ?? params['*'];
   const decodedSlug = useMemo(() => {
     if (!slug) return undefined;
@@ -83,6 +84,14 @@ export default function Post() {
        name: commentName,
        content: commentText
      });
+  };
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate('/');
   };
 
   if (isLoading) {
@@ -174,6 +183,18 @@ export default function Post() {
 
       {/* Header Area */}
       <header className="max-w-[780px] mx-auto px-4 pt-16 pb-8">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleGoBack}
+          className="mb-6 -ml-2 rounded-full font-semibold"
+          aria-label="Go back"
+        >
+          <ArrowLeft size={16} className="mr-2" />
+          Back
+        </Button>
+
         <Link to={`/category/${post.category?.slug}`} className="block mb-6">
           <Badge variant="red" className="text-sm px-3 py-1">{post.category?.name || 'News'}</Badge>
         </Link>

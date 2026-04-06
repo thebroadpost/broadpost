@@ -17,6 +17,7 @@
     "@tanstack/react-virtual": "^3.13.22",
     "@uiw/react-md-editor": "^4.0.11",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "lucide-react": "^0.577.0",
     "markdown-it": "^14.1.1",
     "react": "^19.2.0",

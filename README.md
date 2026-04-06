@@ -1,4 +1,4 @@
-# Broadpost
+# THE Broadpost
 
 Broadpost is a modern, full-stack blogging platform built for seamless content creation and consumption. It leverages a modern frontend stack paired with a robust Supabase backend to deliver a highly responsive and feature-rich experience for both administrators and readers.
 

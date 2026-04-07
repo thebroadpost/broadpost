@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { getCategories } from '../../lib/api';
-import { CATEGORY_META_BY_SLUG } from '../../lib/categories';
+import { CATEGORY_META_BY_SLUG, toCanonicalCategorySlug } from '../../lib/categories';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { LazyRender } from '../../components/ui/LazyRender';
 
@@ -16,14 +16,15 @@ const Sidebar = lazy(() =>
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
+  const canonicalSlug = slug ? toCanonicalCategorySlug(slug) : '';
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories
   });
 
-  const category = categories?.find(c => c.slug === slug);
-  const fallbackCategory = slug ? CATEGORY_META_BY_SLUG[slug] : undefined;
+  const category = categories?.find(c => toCanonicalCategorySlug(c.slug || c.name || '') === canonicalSlug);
+  const fallbackCategory = canonicalSlug ? CATEGORY_META_BY_SLUG[canonicalSlug] : undefined;
 
   const categoryName = category?.name || fallbackCategory?.name || '';
   const categoryDescription =
@@ -84,7 +85,7 @@ export default function Category() {
           <div className="flex flex-col lg:flex-row gap-12">
             <div className="lg:w-[70%]">
               <Suspense fallback={<Skeleton className="w-full h-[600px]" />}>
-                <PostGrid categorySlug={slug || category?.slug || ''} />
+                <PostGrid categorySlug={canonicalSlug || category?.slug || ''} />
               </Suspense>
             </div>
 

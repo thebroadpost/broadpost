@@ -2,17 +2,26 @@ import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Twitter, Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Linkedin, Link as LinkIcon, Facebook, Clock, MessageCircle, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MarkdownIt from 'markdown-it';
 import { getPostBySlug, getPostsByCategory, getComments, addComment, incrementViews } from '../../lib/api';
-import { formatDate, calculateReadTime, getInitials, getPostPath } from '../../lib/utils';
+import { formatDate, calculateReadTime, getInitials, getPostPath, getAuthorPath } from '../../lib/utils';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Badge } from '../../components/ui/Badge';
 import { PostCard } from '../../components/blog/PostCard';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { BookmarkButton } from '../../components/blog/BookmarkButton';
+import { AdUnit } from '../../components/ui/AdUnit';
+
+function XLogoIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.6 5h4.5l-5.6 6.4L19.1 20h-5.2l-4.1-5.2L5.2 20H.7l6-6.9L.4 5h5.3l3.7 4.7L13.6 5Zm-.8 13.7h1.6L5 6.3H3.3z" />
+    </svg>
+  );
+}
 
 export default function Post() {
   const params = useParams<{ slug?: string; '*': string }>();
@@ -31,11 +40,46 @@ export default function Post() {
   const [commentText, setCommentText] = useState('');
   
   // Create markdown instance
-  const md = useMemo(() => new MarkdownIt({
-    html: true,
-    linkify: true,
-    typographer: true
-  }), []);
+  const md = useMemo(() => {
+    const markdown = new MarkdownIt({
+      html: true,
+      linkify: true,
+      typographer: true
+    });
+
+    const defaultImageRenderer = markdown.renderer.rules.image;
+    markdown.renderer.rules.image = (tokens, idx, options, env, self) => {
+      const altText = tokens[idx].content?.trim();
+      const imageHtml = defaultImageRenderer
+        ? defaultImageRenderer(tokens, idx, options, env, self)
+        : self.renderToken(tokens, idx, options);
+
+      const caption = markdown.utils.escapeHtml(altText || 'Image via Broadpost Media');
+      return `<figure class="broadpost-inline-image">${imageHtml}<figcaption>${caption}</figcaption></figure>`;
+    };
+
+    // Custom link renderer to ensure external links work properly
+    const defaultLinkOpenRenderer = markdown.renderer.rules.link_open;
+    markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+      const token = tokens[idx];
+      const href = token.attrGet('href') || '';
+      
+      // Check if link is external
+      const isExternal = href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//');
+      
+      if (isExternal) {
+        // Add target="_blank" and rel="noopener noreferrer" for external links
+        token.attrSet('target', '_blank');
+        token.attrSet('rel', 'noopener noreferrer');
+      }
+      
+      return defaultLinkOpenRenderer
+        ? defaultLinkOpenRenderer(tokens, idx, options, env, self)
+        : self.renderToken(tokens, idx, options);
+    };
+
+    return markdown;
+  }, []);
 
   // Fetch Post
   const { data: post, isLoading } = useQuery({
@@ -236,12 +280,12 @@ export default function Post() {
            <div className="flex items-center space-x-3 text-gray-400 dark:text-gray-500">
              <BookmarkButton postId={post.id} className="p-2 border border-border dark:border-gray-700 rounded-full hover:border-primary transition-colors" size={16} />
              <a
-               href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
+               href={`https://x.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
                target="_blank"
                rel="noreferrer"
                aria-label="Share on X"
                className="p-2 border border-border dark:border-gray-700 rounded-full hover:text-primary hover:border-primary transition-colors"
-             ><Twitter size={16} /></a>
+             ><XLogoIcon size={16} /></a>
              <a
                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
                target="_blank"
@@ -277,13 +321,22 @@ export default function Post() {
       {post.cover_image && (
         <div className="max-w-[1000px] mx-auto px-4 mb-12">
           <figure>
-            <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover max-h-[600px] bg-gray-100 dark:bg-gray-800" />
+            <img
+              src={post.cover_image}
+              alt={post.cover_image_alt || post.title}
+              className="w-full h-auto object-cover max-h-[600px] bg-gray-100 dark:bg-gray-800"
+            />
             <figcaption className="text-right text-xs text-gray-400 dark:text-gray-500 mt-2 font-sans italic">
-              Image via Broadpost Media
+              {post.cover_image_alt || 'Image via Broadpost Media'}
             </figcaption>
           </figure>
         </div>
       )}
+
+      {/* Ad Unit - After Cover Image */}
+      <div className="max-w-[780px] mx-auto px-4 mb-8">
+        <AdUnit slot="3395938263" format="auto" />
+      </div>
 
       {/* Body Content */}
       <div className="max-w-[780px] mx-auto px-4 pb-16">
@@ -302,6 +355,7 @@ export default function Post() {
            prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:text-accent-red prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
            prose-pre:bg-gray-900 dark:prose-pre:bg-black prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded prose-pre:overflow-x-auto prose-pre:mb-6
            prose-img:rounded prose-img:my-8 prose-img:shadow-sm
+           prose-figure:my-8 prose-figcaption:mt-2 prose-figcaption:text-right prose-figcaption:text-xs prose-figcaption:font-sans prose-figcaption:italic prose-figcaption:text-gray-500 dark:prose-figcaption:text-gray-400
            prose-hr:border-border dark:prose-hr:border-gray-800 prose-hr:my-8
            prose-table:w-full prose-table:border-collapse prose-table:my-6
            prose-th:bg-gray-50 dark:prose-th:bg-gray-900 prose-th:border prose-th:border-border dark:prose-th:border-gray-700 prose-th:p-3 prose-th:text-left
@@ -316,6 +370,11 @@ export default function Post() {
               </span>
             ))}
          </div>
+      </div>
+
+      {/* Ad Unit - Mid Article */}
+      <div className="max-w-[780px] mx-auto px-4 mb-8">
+        <AdUnit slot="2185760966" format="fluid" layout="in-article" center />
       </div>
 
         <hr className="max-w-[780px] mx-auto border-t border-border dark:border-gray-800 mb-16" />
@@ -334,7 +393,9 @@ export default function Post() {
          <div>
             <h3 className="font-serif font-bold text-2xl text-primary mb-2">{post.author?.name || 'Staff Contributor'}</h3>
             <p className="font-sans text-gray-600 dark:text-gray-300 mb-4">{post.author?.bio || 'Journalist covering major stories for Broadpost.'}</p>
-            <a href="#" className="font-sans text-accent-blue font-bold text-sm uppercase tracking-wider hover:underline">More by {post.author?.name || 'this author'}</a>
+            <Link to={getAuthorPath(post.author?.name || '')} className="font-sans text-accent-blue font-bold text-sm uppercase tracking-wider hover:underline">
+              More by {post.author?.name || 'this author'}
+            </Link>
          </div>
       </div>
 

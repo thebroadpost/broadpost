@@ -14,6 +14,9 @@ const CATEGORY_ALIAS_TO_CANONICAL: Record<string, string> = {
   'tech-innovation': 'tech-and-innovation',
   'business-economy': 'business-and-economy',
   'politics-policy': 'politics-and-policy',
+
+  // Map generic finance routes to the canonical category.
+  finance: 'personal-finance',
 };
 
 export const CATEGORY_META: CategoryMeta[] = [

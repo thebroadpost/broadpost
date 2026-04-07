@@ -32,13 +32,13 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
       
       <div
         aria-hidden={!isOpen}
-        className={`fixed right-0 top-0 bottom-0 z-[70] flex w-full transform flex-col bg-[#1d1d1d] text-white shadow-2xl transition-transform duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none sm:w-[400px] ${
+        className={`fixed right-0 top-0 bottom-0 z-[70] flex w-full transform flex-col bg-black text-white shadow-2xl transition-transform duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none sm:w-[400px] ${
           isOpen ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <div className="font-serif text-2xl font-bold">B</div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-white">
+          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-white/80 hover:text-white">
             <X size={20} />
           </button>
         </div>
@@ -52,7 +52,7 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
             <div className="p-8 flex flex-col h-full">
               <div className="mb-8">
                 <h2 className="text-3xl font-serif font-bold mb-4">Unlock Your Notifications</h2>
-                <p className="text-gray-400 font-sans tracking-wide leading-relaxed">
+                <p className="text-white/80 font-sans tracking-wide leading-relaxed">
                   Access more premium news alerts, newsletters, and other member perks.
                 </p>
               </div>
@@ -66,7 +66,7 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
               >
                 Sign In or Create a Free Account
               </Button>
-              <p className="mt-4 text-xs text-gray-500 text-center font-sans">
+              <p className="mt-4 text-xs text-white/60 text-center font-sans">
                 By signing in, securely through Google, you agree to our terms of service and privacy policy.
               </p>
             </div>
@@ -82,34 +82,34 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
                 )}
                 <div>
                   <p className="font-bold font-sans text-lg">{user.user_metadata?.full_name || 'Member'}</p>
-                  <p className="text-sm text-gray-400">{user.email}</p>
+                  <p className="text-sm text-white/70">{user.email}</p>
                 </div>
               </div>
 
               <div className="p-4 space-y-1">
-                <div className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Account</div>
+                <div className="px-4 py-3 text-xs font-bold text-white/60 uppercase tracking-wider">Account</div>
                 <Link to="/account/profile" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
-                  <UserIcon size={18} className="text-gray-400 group-hover:text-white" />
-                  <span className="font-sans font-medium text-gray-200 group-hover:text-white">My Profile</span>
+                  <UserIcon size={18} className="text-white/80 group-hover:text-white" />
+                  <span className="font-sans font-medium text-white/90 group-hover:text-white">My Profile</span>
                 </Link>
                 <Link to="/account/notifications" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
-                  <Bell size={18} className="text-gray-400 group-hover:text-white" />
-                  <span className="font-sans font-medium text-gray-200 group-hover:text-white">Notifications</span>
+                  <Bell size={18} className="text-white/80 group-hover:text-white" />
+                  <span className="font-sans font-medium text-white/90 group-hover:text-white">Notifications</span>
                   {unreadCount > 0 && (
                     <span className="bg-accent-red text-white text-[10px] px-2 py-0.5 rounded-full ml-auto">{unreadCount}</span>
                   )}
                 </Link>
                 <Link to="/account/newsletters" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
-                  <FileText size={18} className="text-gray-400 group-hover:text-white" />
-                  <span className="font-sans font-medium text-gray-200 group-hover:text-white">Newsletters</span>
+                  <FileText size={18} className="text-white/80 group-hover:text-white" />
+                  <span className="font-sans font-medium text-white/90 group-hover:text-white">Newsletters</span>
                 </Link>
                 <Link to="/account/reading-list" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
-                  <Bookmark size={18} className="text-gray-400 group-hover:text-white" />
-                  <span className="font-sans font-medium text-gray-200 group-hover:text-white">Reading List</span>
+                  <Bookmark size={18} className="text-white/80 group-hover:text-white" />
+                  <span className="font-sans font-medium text-white/90 group-hover:text-white">Reading List</span>
                 </Link>
                 <Link to="/account/settings" onClick={onClose} className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors group">
-                  <Settings size={18} className="text-gray-400 group-hover:text-white" />
-                  <span className="font-sans font-medium text-gray-200 group-hover:text-white">Settings</span>
+                  <Settings size={18} className="text-white/80 group-hover:text-white" />
+                  <span className="font-sans font-medium text-white/90 group-hover:text-white">Settings</span>
                 </Link>
               </div>
 
@@ -119,7 +119,7 @@ export default function UserSidebar({ isOpen, onClose }: UserSidebarProps) {
                     signOut();
                     onClose();
                   }}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors text-accent-red"
+                  className="w-full text-left px-4 py-3 hover:bg-gray-800 flex items-center space-x-3 transition-colors text-white"
                 >
                   <LogOut size={18} />
                   <span className="font-sans font-medium">Sign Out</span>

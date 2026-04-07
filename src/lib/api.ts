@@ -131,7 +131,7 @@ async function getViewMeta(): Promise<ViewMeta> {
 
 const POST_SELECT = '*';
 
-export async function getPosts(filters?: { status?: string, category_slug?: string }, pagination?: PaginationParams) {
+export async function getPosts(filters?: { status?: string, category_slug?: string, author_name?: string }, pagination?: PaginationParams) {
   let query = supabase.from('posts').select(POST_SELECT, { count: 'exact' });
 
   if (filters?.status) {
@@ -139,6 +139,9 @@ export async function getPosts(filters?: { status?: string, category_slug?: stri
   }
   if (filters?.category_slug) {
     query = query.in('category', categoryVariants(filters.category_slug));
+  }
+  if (filters?.author_name) {
+    query = query.ilike('author_name', filters.author_name);
   }
 
   query = query.order('created_at', { ascending: false });
@@ -666,7 +669,6 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
       };
     });
 
-  let rpcViewsData: { date: string; views: number }[] | null = null;
   let rpcTodayViews: number | null = null;
   let rpcTodayViewsFromDays: number | null = null;
 
@@ -680,14 +682,6 @@ export async function getAdminStats(window: AnalyticsWindow = '7d') {
       if (todayDay) {
         rpcTodayViewsFromDays = Number(todayDay.views || 0);
       }
-
-      rpcViewsData = row.days.map((item) => {
-        const d = new Date(`${item.day}T00:00:00Z`);
-        return {
-          date: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
-          views: Number(item.views || 0),
-        };
-      });
     }
   }
 
@@ -1064,4 +1058,27 @@ export async function unsubscribeFromNewsletter(email: string) {
   }
   
   return true;
+}
+
+export interface NewsletterSubscription {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
+/**
+ * Returns newsletter subscribers for admin usage.
+ */
+export async function getNewsletterSubscriptions() {
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('id, email, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching newsletter subscriptions:', error);
+    throw error;
+  }
+
+  return (data ?? []) as NewsletterSubscription[];
 }

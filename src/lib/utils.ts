@@ -17,6 +17,11 @@ export function getPostPath(slug: string): string {
   return `/blog/${encodeURIComponent(slug)}`;
 }
 
+export function getAuthorPath(authorName: string): string {
+  if (!authorName) return '/';
+  return `/author/${encodeURIComponent(authorName)}`;
+}
+
 export function formatDate(dateString: string): string {
   if (!dateString) return '';
   const date = new Date(dateString);

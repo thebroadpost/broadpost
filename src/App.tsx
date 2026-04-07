@@ -10,6 +10,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/public/Home'));
 const Category = lazy(() => import('./pages/public/Category'));
+const Author = lazy(() => import('./pages/public/Author'));
 const Post = lazy(() => import('./pages/public/Post'));
 const About = lazy(() => import('./pages/public/About'));
 const PrivacyPolicy = lazy(() => import('./pages/public/PrivacyPolicy'));
@@ -31,6 +32,7 @@ const AdminPosts = lazy(() => import('./pages/admin/Posts'));
 const AdminPostForm = lazy(() => import('./pages/admin/PostForm'));
 const AdminPostAnalytics = lazy(() => import('./pages/admin/PostAnalytics'));
 const AdminComments = lazy(() => import('./pages/admin/Comments'));
+const AdminNewsletters = lazy(() => import('./pages/admin/Newsletters'));
 const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 
 const LoadingFallback = () => (
@@ -60,6 +62,7 @@ function App() {
           }>
             <Route index element={<Home />} />
             <Route path="category/:slug" element={<Category />} />
+            <Route path="author/:authorName" element={<Author />} />
             <Route path="blog/*" element={<Post />} />
             <Route path="about" element={<About />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
@@ -93,6 +96,7 @@ function App() {
             <Route path="posts/:id/edit" element={<AdminPostForm />} />
             <Route path="posts/:postId/analytics" element={<AdminPostAnalytics />} />
             <Route path="comments" element={<AdminComments />} />
+            <Route path="newsletters" element={<AdminNewsletters />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
           

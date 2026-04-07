@@ -6,6 +6,7 @@ export interface Post {
   content: string;
   excerpt: string;
   cover_image: string | null;
+  cover_image_alt?: string | null;
   seo_title?: string | null;
   meta_description?: string | null;
   focus_keyword?: string | null;

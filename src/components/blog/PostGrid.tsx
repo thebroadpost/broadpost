@@ -4,12 +4,14 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { getPosts } from '../../lib/api';
 import { PostCard } from './PostCard';
 import { Skeleton } from '../ui/Skeleton';
+import { AdUnit } from '../ui/AdUnit';
 
 interface PostGridProps {
   categorySlug?: string;
+  authorName?: string;
 }
 
-export function PostGrid({ categorySlug }: PostGridProps) {
+export function PostGrid({ categorySlug, authorName }: PostGridProps) {
   const limit = 7;
 
   const {
@@ -20,10 +22,10 @@ export function PostGrid({ categorySlug }: PostGridProps) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['posts-infinite', { status: 'published', category_slug: categorySlug, limit }],
+    queryKey: ['posts-infinite', { status: 'published', category_slug: categorySlug, author_name: authorName, limit }],
     queryFn: ({ pageParam = 1 }) =>
       getPosts(
-        { status: 'published', category_slug: categorySlug },
+        { status: 'published', category_slug: categorySlug, author_name: authorName },
         { page: pageParam as number, limit }
       ),
     initialPageParam: 1,
@@ -108,7 +110,7 @@ export function PostGrid({ categorySlug }: PostGridProps) {
   if (allPosts.length === 0) {
     return (
       <div className="text-gray-500 py-8 text-center font-sans tracking-wide">
-        No posts found in this category.
+        No posts found.
       </div>
     );
   }
@@ -137,7 +139,12 @@ export function PostGrid({ categorySlug }: PostGridProps) {
             }}
           >
             {virtualRow.index === 0 ? (
-              allPosts[0] && <PostCard post={allPosts[0]} variant="horizontal" />
+              <div className="space-y-8">
+                {allPosts[0] && <PostCard post={allPosts[0]} variant="horizontal" />}
+                <div className="px-4 sm:px-0">
+                  <AdUnit slot="8559597627" format="fluid" layoutKey="-gw-3+1f-3d+2z" />
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12 pt-12">
                 {standardRows[virtualRow.index - 1]?.map(post => (

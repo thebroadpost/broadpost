@@ -11,10 +11,55 @@ import { Modal } from '../../components/ui/Modal';
 import { useTheme } from '../../contexts/ThemeContext';
 import toast from 'react-hot-toast';
 import { AlertTriangle, Calendar, CheckCircle2, Clock, Eye, Trash2 } from 'lucide-react';
+import type { ICommand, TextAreaTextApi, TextState } from '@uiw/react-md-editor';
+import { commands } from '@uiw/react-md-editor';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
 const PRESET_CATEGORIES = CATEGORY_META.map(({ name, slug }) => ({ name, slug }));
+
+const clampDimension = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const buildMarkdownTable = (rows: number, cols: number) => {
+  const safeRows = clampDimension(rows, 1, 20);
+  const safeCols = clampDimension(cols, 1, 12);
+  const headerCells = Array.from({ length: safeCols }, (_, index) => ` Header ${index + 1} `);
+  const headerRow = `|${headerCells.join('|')}|`;
+  const dividerRow = `|${Array.from({ length: safeCols }, () => '---').join('|')}|`;
+  const bodyRows = Array.from({ length: safeRows }, (_, rowIndex) => {
+    const cells = Array.from({ length: safeCols }, (_, colIndex) => ` Cell ${rowIndex + 1}-${colIndex + 1} `);
+    return `|${cells.join('|')}|`;
+  });
+
+  return `\n${headerRow}\n${dividerRow}\n${bodyRows.join('\n')}\n\n`;
+};
+
+const customTableCommand: ICommand = {
+  ...commands.table,
+  buttonProps: { 'aria-label': 'Add table', title: 'Add table (custom rows/columns)' },
+  execute: (state: TextState, api: TextAreaTextApi) => {
+    const rowsInput = window.prompt('Number of rows?', '4');
+    if (rowsInput === null) return;
+    const colsInput = window.prompt('Number of columns?', '4');
+    if (colsInput === null) return;
+
+    const parsedRows = Number.parseInt(rowsInput, 10);
+    const parsedCols = Number.parseInt(colsInput, 10);
+
+    if (!Number.isFinite(parsedRows) || !Number.isFinite(parsedCols) || parsedRows < 1 || parsedCols < 1) {
+      toast.error('Please enter valid row and column counts.');
+      return;
+    }
+
+    const tableText = buildMarkdownTable(parsedRows, parsedCols);
+    api.setSelectionRange({ start: state.selection.start, end: state.selection.start });
+    api.replaceSelection(tableText);
+  },
+};
+
+const editorCommands: ICommand[] = commands
+  .getCommands()
+  .map((command) => (command.name === 'table' ? customTableCommand : command));
 
 export default function PostForm() {
   const { id } = useParams<{ id: string }>();
@@ -611,6 +656,7 @@ export default function PostForm() {
                 onChange={(val) => setContent(val || '')}
                 height={500}
                 preview={editorPreviewMode}
+                commands={editorCommands}
                 className="font-sans border-border shadow-none"
               />
             </Suspense>

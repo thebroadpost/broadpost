@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, PlusSquare, MessageSquare, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, PlusSquare, MessageSquare, LogOut, Settings, Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAdmin } from '../../hooks/useAdmin';
 
@@ -24,6 +24,7 @@ export default function AdminLayout() {
     { name: 'Posts', path: '/admin/posts', icon: FileText },
     { name: 'New Post', path: '/admin/posts/new', icon: PlusSquare },
     { name: 'Comments', path: '/admin/comments', icon: MessageSquare },
+    { name: 'Newsletters', path: '/admin/newsletters', icon: Mail },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 

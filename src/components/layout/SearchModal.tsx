@@ -6,6 +6,15 @@ import { Post } from '../../types';
 import { formatDate, getPostPath } from '../../lib/utils';
 import { Badge } from '../ui/Badge';
 
+const TRENDING_TOPICS = [
+  'Artificial Intelligence',
+  'Global Markets',
+  'Federal Reserve',
+  'Startups',
+  'Tech Earnings',
+  'Real Estate',
+];
+
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -137,24 +146,28 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {!query && (
-            <div className="mt-8">
-              <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-gray-500 mb-6 border-b border-gray-200 pb-2">
+          <div className="mt-8">
+            <div className="flex items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-2">
+              <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-gray-500">
                 Trending Topics
               </h3>
-              <div className="flex flex-wrap gap-3">
-                {['Artificial Intelligence', 'Global Markets', 'Federal Reserve', 'Startups', 'Tech Earnings', 'Real Estate'].map(topic => (
-                  <button 
-                    key={topic}
-                    onClick={() => setQuery(topic)}
-                    className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-sans font-medium text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors hover:border-gray-300"
-                  >
-                    {topic}
-                  </button>
-                ))}
-              </div>
+              <span className="text-[11px] font-sans text-gray-400 uppercase tracking-wide">
+                Tap one to search
+              </span>
             </div>
-          )}
+            <div className="flex flex-wrap gap-3">
+              {TRENDING_TOPICS.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => setQuery(topic)}
+                  className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-sans font-medium text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors hover:border-gray-300"
+                >
+                  {topic}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

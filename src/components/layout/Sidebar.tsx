@@ -10,7 +10,9 @@ import { TrendingUp } from 'lucide-react';
 import { BookmarkButton } from '../blog/BookmarkButton';
 import { subscribeToNewsletter } from '../../lib/api';
 import { getPostPath } from '../../lib/utils';
+import { toCanonicalCategorySlug } from '../../lib/categories';
 import toast from 'react-hot-toast';
+import { AdUnit } from '../ui/AdUnit';
 
 export function Sidebar() {
   const { data: trending, isLoading: trendingLoading } = useQuery({
@@ -54,7 +56,7 @@ export function Sidebar() {
   }, [email]);
 
   return (
-    <aside className="space-y-12 sticky top-24">
+    <aside className="space-y-12">
       
       {/* Trending / Editors' Picks Tabs */}
       <div>
@@ -161,6 +163,11 @@ export function Sidebar() {
         </p>
       </div>
 
+      {/* Ad Unit - Sidebar */}
+      <div>
+        <AdUnit slot="YOUR_SLOT_ID_3" format="auto" />
+      </div>
+
       {/* Popular Categories */}
       {categories && categories.length > 0 && (
         <div className="hidden lg:block">
@@ -171,7 +178,7 @@ export function Sidebar() {
             {categories.map((cat: any) => (
               <Link 
                 key={cat.id} 
-                to={`/category/${cat.slug}`}
+                to={`/category/${toCanonicalCategorySlug(cat.slug || cat.name || '')}`}
                 className="px-4 py-2 border border-border dark:border-gray-700 rounded-full font-sans text-xs font-bold uppercase tracking-wider hover:bg-primary dark:hover:bg-gray-700 hover:text-white transition-colors"
               >
                 {cat.name}

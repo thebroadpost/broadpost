@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Menu, X, Twitter, Linkedin, Facebook, User } from 'lucide-react';
+import { Search, Menu, X, Linkedin, Facebook, User } from 'lucide-react';
 import { formatDate, getPostPath } from '../../lib/utils';
 import { getPosts } from '../../lib/api';
 import { CATEGORY_META } from '../../lib/categories';
@@ -18,6 +18,14 @@ const NAV_LINKS = [
     path: `/category/${category.slug}`,
   })),
 ];
+
+function XLogoIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.6 5h4.5l-5.6 6.4L19.1 20h-5.2l-4.1-5.2L5.2 20H.7l6-6.9L.4 5h5.3l3.7 4.7L13.6 5Zm-.8 13.7h1.6L5 6.3H3.3z" />
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -95,7 +103,7 @@ export default function Navbar() {
           <div className="hidden items-center space-x-6 md:flex">
             <span>{today}</span>
             <div className="flex items-center space-x-3">
-              <a href="#" className="hover:text-gray-300"><Twitter size={14} /></a>
+              <a href="#" className="hover:text-gray-300" aria-label="X"><XLogoIcon size={14} /></a>
               <a href="#" className="hover:text-gray-300"><Linkedin size={14} /></a>
               <a href="#" className="hover:text-gray-300"><Facebook size={14} /></a>
             </div>
@@ -214,7 +222,7 @@ export default function Navbar() {
           </nav>
           
           <div className="mt-auto pt-12 flex space-x-6">
-             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Twitter size={24} /></a>
+             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary" aria-label="X"><XLogoIcon size={24} /></a>
              <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Linkedin size={24} /></a>
              <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Facebook size={24} /></a>
           </div>

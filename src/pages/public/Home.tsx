@@ -1,7 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import { getCategories, getHomepageHeroPosts, getPosts } from '../../lib/api';
 import { PostCard } from '../../components/blog/PostCard';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -42,15 +41,6 @@ export default function Home() {
   const { data: editorsStrip, isLoading: editorsLoading } = useQuery({
     queryKey: ['editorsStripPosts'],
     queryFn: () => getPosts({ status: 'published' }, { limit: 4, page: 2 }) // Mocking by fetching page 2
-  });
-
-  // Opinion Section Posts
-  const { data: opinionPosts, isLoading: opinionLoading } = useQuery({
-    queryKey: ['opinionPosts', 'home'],
-    queryFn: async () => {
-      const res = await getPosts({ status: 'published', category_slug: 'opinion' }, { limit: 3, page: 1 });
-      return res;
-    }
   });
 
   const rotatedTopStories = useMemo(() => {
@@ -101,9 +91,9 @@ export default function Home() {
             </div>
 
             {/* Right - 3 Stacked */}
-            <div className="lg:w-[40%] flex flex-col justify-between divide-y divide-gray-200">
+            <div className="lg:w-[40%] flex flex-col divide-y divide-gray-200">
                {rotatedTopStories.slice(1, 4).map(post => (
-                 <div key={post.id} className="flex-1 flex flex-col justify-center py-4 first:pt-0 last:pb-0">
+                 <div key={post.id} className="py-2 first:pt-0 last:pb-0">
                    <PostCard post={post} variant="small" />
                  </div>
                ))}
@@ -199,38 +189,6 @@ export default function Home() {
                 ))
               )}
             </div>
-          </div>
-        </section>
-      </LazyRender>
-
-      {/* SECTION 5 — OPINION SECTION */}
-      <LazyRender
-        fallback={
-          <section className="px-4 lg:px-6 py-14 max-w-[1480px] mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-64" />
-              ))}
-            </div>
-          </section>
-        }
-      >
-        <section className="px-4 lg:px-6 py-14 max-w-[1480px] mx-auto">
-          <div className="flex items-center justify-between mb-8 border-b-2 border-primary dark:border-gray-700 pb-2">
-            <h2 className="font-serif font-bold text-3xl md:text-4xl text-primary dark:text-white">Opinion & Analysis</h2>
-            <Link to="/category/opinion" className="font-sans font-bold text-sm uppercase tracking-widest text-accent-blue hover:underline">
-              View All
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {opinionLoading ? (
-              [1,2,3].map(i => <Skeleton key={i} className="h-64" />)
-            ) : opinionPosts?.data && (
-              opinionPosts.data.map(post => (
-                <PostCard key={post.id} post={post} variant="opinion" />
-              ))
-            )}
           </div>
         </section>
       </LazyRender>

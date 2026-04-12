@@ -14,56 +14,108 @@ export default function PrivacyPolicy() {
       <section className="max-w-4xl mx-auto px-4 py-16 md:py-20">
         <header className="mb-10 border-b border-border pb-6">
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-4">Privacy Policy</h1>
-          <p className="text-sm text-gray-500">Last updated: March 29, 2026</p>
+          <p className="text-sm text-gray-500">Effective Date: April 7, 2025</p>
         </header>
 
         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
           <p>
-            BROADPOST Media LLC ("BROADPOST", "we", "us", or "our") values your privacy. This policy
-            explains what data we collect, how we use it, and the choices you have.
+            This Privacy Policy ("Policy") governs the collection, processing, storage, and use of personal
+            data by The Broad Post ("we," "us," or "our"), accessible at thebroadpost.com. By accessing or
+            using the Website, you acknowledge that you have read, understood, and consent to the practices
+            described in this Policy.
           </p>
 
-          <h2>Information We Collect</h2>
+          <h2>1. Introduction</h2>
           <p>
-            We may collect information you provide directly, including your name, email address, profile
-            information, newsletter preferences, and messages you send through our services.
-          </p>
-          <p>
-            We also collect limited technical data such as IP address, browser type, device details, pages
-            visited, and interaction events for analytics, security, and performance monitoring.
+            This Policy applies to personal data collected through your use of the Website and related
+            communications with The Broad Post.
           </p>
 
-          <h2>How We Use Information</h2>
-          <p>We use your information to:</p>
+          <h2>2. Information We Collect</h2>
+          <h3>2.1 Information You Provide Voluntarily</h3>
+          <p>
+            This includes your name, email address, and any other personal information you submit when
+            contacting us, subscribing to our newsletter, or otherwise communicating with us.
+          </p>
+
+          <h3>2.2 Automatically Collected Data</h3>
+          <p>
+            When you visit our Website, certain data may be collected automatically, including but not
+            limited to your IP address, browser type and version, operating system, referring URLs, pages
+            viewed, and time spent on the Website. This data is collected through standard server logs and
+            third-party analytics services.
+          </p>
+
+          <h3>2.3 Cookies and Tracking Technologies</h3>
+          <p>
+            We use cookies and similar technologies to enhance functionality and gather usage data. Please
+            refer to our Cookie Policy for further details.
+          </p>
+
+          <h2>3. Purpose of Data Processing</h2>
+          <p>Personal data collected by The Broad Post is processed for the following purposes:</p>
           <ul>
-            <li>Operate, maintain, and improve our website and services.</li>
-            <li>Personalize your reading experience and account settings.</li>
-            <li>Send newsletters, updates, and service-related communications.</li>
-            <li>Detect fraud, abuse, and security incidents.</li>
-            <li>Comply with legal obligations and enforce our terms.</li>
+            <li>(a) To operate, maintain, and improve the Website and its content;</li>
+            <li>(b) To respond to inquiries and communications;</li>
+            <li>(c) To deliver newsletters or updates to users who have expressly opted in;</li>
+            <li>(d) To monitor and analyse Website traffic and usage patterns;</li>
+            <li>(e) To comply with applicable legal obligations.</li>
           </ul>
 
-          <h2>Information Sharing</h2>
+          <h2>4. Disclosure of Personal Data</h2>
           <p>
-            We do not sell your personal information. We may share information with trusted vendors that help
-            us deliver hosting, analytics, email, and related services under contractual safeguards.
+            The Broad Post does not sell, rent, or trade personal data to third parties. We may disclose
+            personal data to trusted third-party service providers who assist in the operation of the
+            Website, subject to confidentiality obligations. We may also disclose personal data where
+            required by law, court order, or governmental authority.
           </p>
 
-          <h2>Data Retention</h2>
+          <h2>5. Data Retention</h2>
           <p>
-            We keep personal information only as long as needed for the purposes described in this policy,
-            unless a longer period is required by law.
+            Personal data is retained only for as long as necessary to fulfil the purposes for which it was
+            collected, or as required by applicable law. Upon expiry of the applicable retention period,
+            data will be securely deleted or anonymised.
           </p>
 
-          <h2>Your Rights and Choices</h2>
+          <h2>6. Your Rights</h2>
           <p>
-            Depending on your location, you may have rights to access, correct, delete, or limit the use of
-            your personal information. You can also unsubscribe from marketing emails at any time.
+            Subject to applicable law, you may have the right to: (a) access the personal data we hold about
+            you; (b) request correction of inaccurate or incomplete data; (c) request deletion of your
+            personal data; (d) withdraw consent to data processing at any time; and (e) lodge a complaint
+            with a relevant data protection authority.
+          </p>
+          <p>
+            To exercise any of the above rights, please submit a written request to
+            <a href="mailto:thebroadpost01@gmail.com"> thebroadpost01@gmail.com</a>.
           </p>
 
-          <h2>Contact</h2>
+          <h2>7. Data Security</h2>
           <p>
-            For privacy questions, requests, or complaints, contact us at privacy@thebroadpost.com.
+            We implement reasonable technical and organisational measures to protect personal data against
+            unauthorised access, disclosure, alteration, or destruction. However, no method of transmission
+            over the internet or electronic storage is entirely secure, and we cannot guarantee absolute
+            security.
+          </p>
+
+          <h2>8. Third-Party Links</h2>
+          <p>
+            The Website may contain links to third-party websites. This Policy does not apply to such
+            third-party sites. The Broad Post bears no responsibility for the privacy practices or content of
+            external websites, and we encourage users to review the privacy policies of any third-party sites
+            they visit.
+          </p>
+
+          <h2>9. Amendments</h2>
+          <p>
+            We reserve the right to amend this Policy at any time. Any changes will be reflected by updating
+            the Effective Date above. Continued use of the Website following the publication of amendments
+            constitutes acceptance of the revised Policy.
+          </p>
+
+          <h2>10. Contact</h2>
+          <p>
+            For any questions or concerns regarding this Privacy Policy, please contact us at
+            <a href="mailto:thebroadpost01@gmail.com"> thebroadpost01@gmail.com</a>.
           </p>
         </div>
       </section>

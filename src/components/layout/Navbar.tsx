@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Menu, X, Linkedin, Facebook, User } from 'lucide-react';
+import { Search, Menu, X, Facebook, User } from 'lucide-react';
 import { formatDate, getPostPath } from '../../lib/utils';
 import { getPosts } from '../../lib/api';
 import { CATEGORY_META } from '../../lib/categories';
@@ -104,7 +104,6 @@ export default function Navbar() {
             <span>{today}</span>
             <div className="flex items-center space-x-3">
               <a href="#" className="hover:text-gray-300" aria-label="X"><XLogoIcon size={14} /></a>
-              <a href="#" className="hover:text-gray-300"><Linkedin size={14} /></a>
               <a href="#" className="hover:text-gray-300"><Facebook size={14} /></a>
             </div>
           </div>
@@ -223,7 +222,6 @@ export default function Navbar() {
           
           <div className="mt-auto pt-12 flex space-x-6">
              <a href="#" className="p-3 bg-gray-100 rounded-full text-primary" aria-label="X"><XLogoIcon size={24} /></a>
-             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Linkedin size={24} /></a>
              <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Facebook size={24} /></a>
           </div>
         </div>

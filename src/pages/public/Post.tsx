@@ -166,6 +166,7 @@ export default function Post() {
   const openGraphTitle = post.open_graph_title || seoTitle;
   const openGraphDescription = post.open_graph_description || metaDescription;
   const socialShareImage = post.social_share_image || post.cover_image;
+  const ctaText = post.cta_block?.trim();
   const shareUrl = encodeURIComponent(canonicalUrl || (typeof window !== 'undefined' ? window.location.href : ''));
   const shareTitle = encodeURIComponent(openGraphTitle);
 
@@ -362,6 +363,13 @@ export default function Post() {
            prose-td:border prose-td:border-border dark:prose-td:border-gray-700 prose-td:p-3"
            dangerouslySetInnerHTML={{ __html: md.render(post.content) }} 
          />
+
+         {ctaText && (
+           <section className="mt-12 rounded-sm border-l-4 border-accent-red bg-gray-50 dark:bg-gray-900 px-5 py-4">
+             <h2 className="font-serif text-xl font-bold text-primary dark:text-gray-100 mb-2">Next Step</h2>
+             <p className="font-sans text-base leading-7 text-gray-800 dark:text-gray-200 whitespace-pre-line">{ctaText}</p>
+           </section>
+         )}
          
          <div className="mt-16 flex flex-wrap gap-2">
             {post.tags && post.tags.map((tag: string) => (

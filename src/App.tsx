@@ -13,6 +13,7 @@ const Category = lazy(() => import('./pages/public/Category'));
 const Author = lazy(() => import('./pages/public/Author'));
 const Post = lazy(() => import('./pages/public/Post'));
 const About = lazy(() => import('./pages/public/About'));
+const Advertise = lazy(() => import('./pages/public/Advertise'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const PrivacyPolicy = lazy(() => import('./pages/public/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/public/TermsOfService'));
@@ -66,6 +67,7 @@ function App() {
             <Route path="author/:authorName" element={<Author />} />
             <Route path="blog/*" element={<Post />} />
             <Route path="about" element={<About />} />
+            <Route path="advertise" element={<Advertise />} />
             <Route path="contact" element={<Contact />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />

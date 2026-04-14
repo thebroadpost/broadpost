@@ -39,6 +39,7 @@ async function generateSitemap() {
     const staticPages = [
       { loc: '/', changefreq: 'hourly', priority: '1.0', lastmod: new Date().toISOString().split('T')[0] },
       { loc: '/about', changefreq: 'monthly', priority: '0.5', lastmod: new Date().toISOString().split('T')[0] },
+      { loc: '/advertise', changefreq: 'monthly', priority: '0.5', lastmod: new Date().toISOString().split('T')[0] },
       { loc: '/category/business', changefreq: 'daily', priority: '0.8', lastmod: new Date().toISOString().split('T')[0] },
       { loc: '/category/technology', changefreq: 'daily', priority: '0.8', lastmod: new Date().toISOString().split('T')[0] },
       { loc: '/category/markets', changefreq: 'daily', priority: '0.8', lastmod: new Date().toISOString().split('T')[0] },

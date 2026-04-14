@@ -13,6 +13,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://thebroadpost.com/advertise</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://thebroadpost.com/category/business</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>daily</changefreq>

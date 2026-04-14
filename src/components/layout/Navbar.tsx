@@ -11,6 +11,9 @@ import { useAuth } from '../../contexts/AuthContext';
 const UserSidebar = lazy(() => import('./UserSidebar'));
 const SearchModal = lazy(() => import('./SearchModal'));
 
+const X_PROFILE_URL = 'https://x.com/BroadpostM42078?s=20';
+const FACEBOOK_PROFILE_URL = 'https://www.facebook.com/share/17XkfHPpP2/';
+
 const NAV_LINKS = [
   { name: 'Home', path: '/' },
   ...CATEGORY_META.map((category) => ({
@@ -103,8 +106,8 @@ export default function Navbar() {
           <div className="hidden items-center space-x-6 md:flex">
             <span>{today}</span>
             <div className="flex items-center space-x-3">
-              <a href="#" className="hover:text-gray-300" aria-label="X"><XLogoIcon size={14} /></a>
-              <a href="#" className="hover:text-gray-300"><Facebook size={14} /></a>
+              <a href={X_PROFILE_URL} target="_blank" rel="noreferrer" className="hover:text-gray-300" aria-label="X profile"><XLogoIcon size={14} /></a>
+              <a href={FACEBOOK_PROFILE_URL} target="_blank" rel="noreferrer" className="hover:text-gray-300" aria-label="Facebook profile"><Facebook size={14} /></a>
             </div>
           </div>
         </div>
@@ -221,8 +224,8 @@ export default function Navbar() {
           </nav>
           
           <div className="mt-auto pt-12 flex space-x-6">
-             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary" aria-label="X"><XLogoIcon size={24} /></a>
-             <a href="#" className="p-3 bg-gray-100 rounded-full text-primary"><Facebook size={24} /></a>
+             <a href={X_PROFILE_URL} target="_blank" rel="noreferrer" className="p-3 bg-gray-100 rounded-full text-primary" aria-label="X profile"><XLogoIcon size={24} /></a>
+             <a href={FACEBOOK_PROFILE_URL} target="_blank" rel="noreferrer" className="p-3 bg-gray-100 rounded-full text-primary" aria-label="Facebook profile"><Facebook size={24} /></a>
           </div>
         </div>
       )}

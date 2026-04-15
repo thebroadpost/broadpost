@@ -33,6 +33,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/favicon-32x32.png"
+    },
+    {
       "src": "/.*",
       "dest": "/index.html"
     }

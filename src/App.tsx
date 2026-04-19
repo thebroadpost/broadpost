@@ -1,11 +1,12 @@
-import { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Suspense, lazy, useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AdminLayout from './components/admin/AdminLayout';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { trackPageView } from './lib/analytics';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/public/Home'));
@@ -43,11 +44,27 @@ const LoadingFallback = () => (
   </div>
 );
 
+function AnalyticsPageTracker() {
+  const location = useLocation();
+  const lastTrackedPathRef = useRef('');
+
+  useEffect(() => {
+    const path = `${location.pathname}${location.search}${location.hash}`;
+    if (lastTrackedPathRef.current === path) return;
+
+    trackPageView(path);
+    lastTrackedPathRef.current = path;
+  }, [location.pathname, location.search, location.hash]);
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <div className="min-h-screen flex flex-col bg-background selection:bg-black selection:text-white dark:bg-gray-900 transition-colors duration-200">
+        <AnalyticsPageTracker />
         <Toaster position="top-center" />
         <Routes>
           {/* Public Routes */}

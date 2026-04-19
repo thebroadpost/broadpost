@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
@@ -35,6 +35,11 @@ export default function Post() {
       return slug;
     }
   }, [slug]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [decodedSlug]);
+
   const queryClient = useQueryClient();
   const [commentName, setCommentName] = useState('');
   const [commentText, setCommentText] = useState('');

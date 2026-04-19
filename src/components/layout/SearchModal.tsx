@@ -5,15 +5,9 @@ import { searchPosts } from '../../lib/api';
 import { Post } from '../../types';
 import { formatDate, getPostPath } from '../../lib/utils';
 import { Badge } from '../ui/Badge';
+import { CATEGORY_META } from '../../lib/categories';
 
-const TRENDING_TOPICS = [
-  'Artificial Intelligence',
-  'Global Markets',
-  'Federal Reserve',
-  'Startups',
-  'Tech Earnings',
-  'Real Estate',
-];
+const TRENDING_TOPICS = CATEGORY_META.map((category) => category.name);
 
 interface SearchModalProps {
   isOpen: boolean;

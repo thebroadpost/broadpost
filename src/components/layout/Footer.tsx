@@ -11,7 +11,12 @@ export default function Footer() {
   });
 
   const footerCategories = (categories && categories.length > 0)
-    ? categories.slice(0, 4)
+    ? categories
+        .filter((category) => {
+          const canonicalSlug = toCanonicalCategorySlug(category.slug || category.name || '');
+          return canonicalSlug !== 'finance' && canonicalSlug !== 'personal-finance';
+        })
+        .slice(0, 4)
     : [
         { slug: 'business', name: 'Business' },
         { slug: 'technology', name: 'Technology' },

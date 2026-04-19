@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { getPosts } from '../../lib/api';
 import { PostCard } from './PostCard';
 import { Skeleton } from '../ui/Skeleton';
 import { AdUnit } from '../ui/AdUnit';
+import { Button } from '../ui/Button';
 
 interface PostGridProps {
   categorySlug?: string;
@@ -12,7 +12,7 @@ interface PostGridProps {
 }
 
 export function PostGrid({ categorySlug, authorName }: PostGridProps) {
-  const limit = 7;
+  const limit = 10;
 
   const {
     data,
@@ -44,42 +44,7 @@ export function PostGrid({ categorySlug, authorName }: PostGridProps) {
     [data]
   );
 
-  // Group posts after the hero into pairs for the 2-column grid
-  const standardRows = useMemo(() => {
-    const rest = allPosts.slice(1);
-    const rows: (typeof rest)[] = [];
-    for (let i = 0; i < rest.length; i += 2) {
-      rows.push(rest.slice(i, i + 2));
-    }
-    return rows;
-  }, [allPosts]);
-
-  const totalVirtualItems = allPosts.length > 0 ? 1 + standardRows.length : 0;
-
-  // Virtualizer scrolls with the window (not a fixed-height container)
-  const rowVirtualizer = useVirtualizer({
-    count: totalVirtualItems,
-    getScrollElement: () => document.documentElement,
-    estimateSize: (index) => (index === 0 ? 300 : 420),
-    overscan: 3,
-  });
-
-  // Sentinel-based infinite scroll
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { rootMargin: '400px' }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const standardPosts = useMemo(() => allPosts.slice(1), [allPosts]);
 
   if (isLoading) {
     return (
@@ -117,51 +82,37 @@ export function PostGrid({ categorySlug, authorName }: PostGridProps) {
 
   return (
     <div>
-      {/* Virtualized rows */}
-      <div
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {rowVirtualizer.getVirtualItems().map(virtualRow => (
-          <div
-            key={virtualRow.key}
-            data-index={virtualRow.index}
-            ref={rowVirtualizer.measureElement}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              transform: `translateY(${virtualRow.start}px)`,
-            }}
-          >
-            {virtualRow.index === 0 ? (
-              <div className="space-y-8">
-                {allPosts[0] && <PostCard post={allPosts[0]} variant="horizontal" />}
-                <div className="px-4 sm:px-0">
-                  <AdUnit slot="8559597627" format="fluid" layoutKey="-gw-3+1f-3d+2z" />
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12 pt-12">
-                {standardRows[virtualRow.index - 1]?.map(post => (
-                  <PostCard key={post.id} post={post} variant="standard" />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+      <div className="space-y-8">
+        {allPosts[0] && <PostCard post={allPosts[0]} variant="horizontal" />}
+        <div className="px-4 sm:px-0">
+          <AdUnit slot="8559597627" format="fluid" layoutKey="-gw-3+1f-3d+2z" />
+        </div>
       </div>
 
-      {/* Infinite scroll trigger */}
-      <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+      {standardPosts.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12 pt-12">
+          {standardPosts.map((post) => (
+            <PostCard key={post.id} post={post} variant="standard" />
+          ))}
+        </div>
+      )}
+
       {isFetchingNextPage && (
         <div className="mt-8 space-y-4">
           <Skeleton className="w-full h-40" />
           <Skeleton className="w-full h-40" />
+        </div>
+      )}
+      {hasNextPage && (
+        <div className="mt-10 flex justify-center">
+          <Button
+            type="button"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="font-bold tracking-wide uppercase"
+          >
+            {isFetchingNextPage ? 'Loading...' : 'Load More Blogs'}
+          </Button>
         </div>
       )}
       {!hasNextPage && allPosts.length > limit && (

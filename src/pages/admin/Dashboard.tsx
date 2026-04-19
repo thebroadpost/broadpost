@@ -20,7 +20,7 @@ import { FileText, Eye, MessageSquare, CheckCircle, Activity, TrendingUp, Globe,
 import { Link } from 'react-router-dom';
 import { formatDate, getPostPath } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
-
+ 
 export default function Dashboard() {
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';

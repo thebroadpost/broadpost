@@ -13,7 +13,7 @@ import { PostCard } from '../../components/blog/PostCard';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { BookmarkButton } from '../../components/blog/BookmarkButton';
-import { AdUnit } from '../../components/ui/AdUnit';
+import { AdsterraAd } from '../../components/ui/AdsterraAd';
 
 function XLogoIcon({ size = 16 }: { size?: number }) {
   return (
@@ -341,7 +341,7 @@ export default function Post() {
 
       {/* Ad Unit - After Cover Image */}
       <div className="max-w-[780px] mx-auto px-4 mb-8">
-        <AdUnit slot="3395938263" format="auto" />
+        <AdsterraAd placement="leaderboard" mobilePlacement="mobileBanner" />
       </div>
 
       {/* Body Content */}
@@ -387,7 +387,7 @@ export default function Post() {
 
       {/* Ad Unit - Mid Article */}
       <div className="max-w-[780px] mx-auto px-4 mb-8">
-        <AdUnit slot="2185760966" format="fluid" layout="in-article" center />
+        <AdsterraAd placement="nativeWidget" mobilePlacement="mobileBanner" />
       </div>
 
         <hr className="max-w-[780px] mx-auto border-t border-border dark:border-gray-800 mb-16" />

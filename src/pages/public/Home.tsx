@@ -5,6 +5,7 @@ import { getCategories, getHomepageHeroPosts, getPosts } from '../../lib/api';
 import { PostCard } from '../../components/blog/PostCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { LazyRender } from '../../components/ui/LazyRender';
+import { AdsterraAd } from '../../components/ui/AdsterraAd';
 
 const PostGrid = lazy(() =>
   import('../../components/blog/PostGrid').then((module) => ({ default: module.PostGrid }))
@@ -102,6 +103,12 @@ export default function Home() {
         )}
       </section>
 
+      <section className="px-4 lg:px-6 pb-4 max-w-[1480px] mx-auto">
+        <div className="bg-white/70 dark:bg-gray-900/70 border border-border dark:border-gray-800 rounded-sm py-3 px-3 lg:px-4">
+          <AdsterraAd placement="leaderboard" mobilePlacement="mobileBanner" />
+        </div>
+      </section>
+
       {/* SECTION 2 — Category Tabs Bar */}
       <section className="bg-white dark:bg-gray-900 border-y border-border dark:border-gray-800 px-4 lg:px-6 shadow-sm transition-colors duration-200">
         <div className="max-w-[1480px] mx-auto flex overflow-x-auto no-scrollbar py-2.5 space-x-2">
@@ -155,12 +162,18 @@ export default function Home() {
             {/* Sidebar */}
             <div className="lg:w-[30%]">
               <Suspense fallback={<Skeleton className="w-full h-[450px]" />}>
-                <Sidebar />
+                <Sidebar adPlacement="skyscraper" />
               </Suspense>
             </div>
           </div>
         </section>
       </LazyRender>
+
+      <section className="px-4 lg:px-6 py-10 max-w-[1480px] mx-auto">
+        <div className="flex justify-center">
+          <AdsterraAd placement="compactBanner" mobilePlacement="mobileBanner" />
+        </div>
+      </section>
 
       {/* SECTION 4 — SECOND FEATURED STRIP */}
       <LazyRender

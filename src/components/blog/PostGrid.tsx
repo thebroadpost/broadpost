@@ -3,7 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { getPosts } from '../../lib/api';
 import { PostCard } from './PostCard';
 import { Skeleton } from '../ui/Skeleton';
-import { AdUnit } from '../ui/AdUnit';
+import { AdsterraAd } from '../ui/AdsterraAd';
 import { Button } from '../ui/Button';
 
 interface PostGridProps {
@@ -85,7 +85,7 @@ export function PostGrid({ categorySlug, authorName }: PostGridProps) {
       <div className="space-y-8">
         {allPosts[0] && <PostCard post={allPosts[0]} variant="horizontal" />}
         <div className="px-4 sm:px-0">
-          <AdUnit slot="8559597627" format="fluid" layoutKey="-gw-3+1f-3d+2z" />
+            <AdsterraAd placement="rectangle" mobilePlacement="mobileBanner" />
         </div>
       </div>
 

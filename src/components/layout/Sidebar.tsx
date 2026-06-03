@@ -12,9 +12,15 @@ import { subscribeToNewsletter } from '../../lib/api';
 import { getPostPath } from '../../lib/utils';
 import { toCanonicalCategorySlug } from '../../lib/categories';
 import toast from 'react-hot-toast';
-import { AdUnit } from '../ui/AdUnit';
+import { AdsterraAd } from '../ui/AdsterraAd';
 
-export function Sidebar() {
+type SidebarAdPlacement = 'skyscraper' | 'mediumRectangle' | 'rectangle';
+
+interface SidebarProps {
+  adPlacement?: SidebarAdPlacement;
+}
+
+export function Sidebar({ adPlacement = 'skyscraper' }: SidebarProps) {
   const { data: trending, isLoading: trendingLoading } = useQuery({
     queryKey: ['trending'],
     queryFn: getTrendingPosts
@@ -165,7 +171,7 @@ export function Sidebar() {
 
       {/* Ad Unit - Sidebar */}
       <div>
-        <AdUnit slot="YOUR_SLOT_ID_3" format="auto" />
+        <AdsterraAd placement={adPlacement} mobilePlacement="mobileBanner" />
       </div>
 
       {/* Popular Categories */}

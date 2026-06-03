@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { getPosts } from '../../lib/api';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { LazyRender } from '../../components/ui/LazyRender';
+import { AdsterraAd } from '../../components/ui/AdsterraAd';
 
 const PostGrid = lazy(() =>
   import('../../components/blog/PostGrid').then((module) => ({ default: module.PostGrid }))
@@ -68,6 +69,12 @@ export default function Author() {
         </div>
       </section>
 
+      <section className="px-4 lg:px-8 pt-6 max-w-[1600px] mx-auto">
+        <div className="flex justify-center lg:justify-start">
+          <AdsterraAd placement="compactBanner" mobilePlacement="mobileBanner" />
+        </div>
+      </section>
+
       <LazyRender
         fallback={
           <section className="px-4 lg:px-8 py-16 max-w-[1600px] mx-auto">
@@ -88,7 +95,7 @@ export default function Author() {
 
             <div className="lg:w-[30%]">
               <Suspense fallback={<Skeleton className="w-full h-[450px]" />}>
-                <Sidebar />
+                <Sidebar adPlacement="rectangle" />
               </Suspense>
             </div>
           </div>

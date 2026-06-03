@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../lib/api';
 import { toCanonicalCategorySlug } from '../../lib/categories';
-import { AdUnit } from '../ui/AdUnit';
+import { AdsterraAd } from '../ui/AdsterraAd';
+import { ADSTERRA_PROMO_URL } from '../../lib/adPlacements';
 
 export default function Footer() {
   const { data: categories } = useQuery({
@@ -29,7 +30,23 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
         {/* Ad Unit - Footer */}
         <div className="mb-12 bg-white dark:bg-gray-800 p-4 rounded">
-          <AdUnit slot="5933434284" format="auto" />
+          <AdsterraAd placement="compactBanner" mobilePlacement="mobileBanner" />
+          <div className="mt-3 text-center text-xs text-gray-300">
+            <a
+              href={ADSTERRA_PROMO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-gray-600 px-3 py-1 hover:border-white hover:text-white transition-colors"
+            >
+              Sponsored offer
+            </a>
+          </div>
+          <div className="mt-3">
+            <AdsterraAd placement="directScript" />
+          </div>
+          <div className="mt-3">
+            <AdsterraAd placement="directScriptAlt" />
+          </div>
         </div>
         <div className="flex flex-col md:flex-row justify-between items-start mb-16 border-b border-gray-700 pb-16">
           <div className="mb-10 md:mb-0 max-w-sm">

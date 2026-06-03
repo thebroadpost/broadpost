@@ -6,6 +6,7 @@ import { getCategories } from '../../lib/api';
 import { CATEGORY_META_BY_SLUG, toCanonicalCategorySlug } from '../../lib/categories';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { LazyRender } from '../../components/ui/LazyRender';
+import { AdsterraAd } from '../../components/ui/AdsterraAd';
 
 const PostGrid = lazy(() =>
   import('../../components/blog/PostGrid').then((module) => ({ default: module.PostGrid }))
@@ -70,6 +71,12 @@ export default function Category() {
         </div>
       </section>
 
+      <section className="px-4 lg:px-8 pt-6 max-w-[1600px] mx-auto">
+        <div className="flex justify-center lg:justify-start">
+          <AdsterraAd placement="compactBanner" mobilePlacement="mobileBanner" />
+        </div>
+      </section>
+
       {/* Main Content + Sidebar */}
       <LazyRender
         fallback={
@@ -91,7 +98,7 @@ export default function Category() {
 
             <div className="lg:w-[30%]">
               <Suspense fallback={<Skeleton className="w-full h-[450px]" />}>
-                <Sidebar />
+                <Sidebar adPlacement="mediumRectangle" />
               </Suspense>
             </div>
           </div>
